@@ -1,0 +1,77 @@
+@import "tailwindcss";
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* Semantic surface tokens: light default, .dark override (see §9). */
+:root {
+  --base: #f7f8fa;
+  --surface: #ffffff;
+  --ink: #0b1b2b;
+  --ink-soft: #3c4f63;
+  --ink-mute: #64748b;
+  --line: #e2e8f0;
+}
+
+.dark {
+  --base: #0e1216;
+  --surface: #161c22;
+  --ink: #eaf2f2;
+  --ink-soft: #c3d0da;
+  --ink-mute: #94a3b8;
+  --line: #26313b;
+}
+
+@theme inline {
+  --color-base: var(--base);
+  --color-surface: var(--surface);
+  --color-ink: var(--ink);
+  --color-ink-soft: var(--ink-soft);
+  --color-ink-mute: var(--ink-mute);
+  --color-line: var(--line);
+
+  --color-brand-50: #effaf9;
+  --color-brand-100: #d7f2f0;
+  --color-brand-200: #aee5e2;
+  --color-brand-500: #0ea5a0;
+  --color-brand-600: #0b8580;
+  --color-brand-700: #0a6b68;
+
+  --color-gold-500: #f59e0b;
+  --color-gold-600: #d97706;
+
+  --color-ok: #16a34a;
+  --color-bad: #dc2626;
+
+  --font-ar: var(--font-plex-ar), "IBM Plex Sans Arabic", Cairo, Tajawal,
+    system-ui, sans-serif;
+  --font-num: "IBM Plex Mono", ui-monospace, monospace;
+}
+
+body {
+  background: var(--base);
+  color: var(--ink);
+  font-family: var(--font-ar);
+  line-height: 1.6;
+}
+
+/* Visible keyboard focus everywhere (a11y, §2.8). */
+:where(a, button, input, select, textarea, [tabindex]):focus-visible {
+  outline: 2px solid var(--color-brand-500);
+  outline-offset: 2px;
+  border-radius: 6px;
+}
+
+/* Tabular numerals for scores/timers. */
+.tnum {
+  font-variant-numeric: tabular-nums;
+  font-family: var(--font-num);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
