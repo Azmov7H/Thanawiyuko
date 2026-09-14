@@ -1,4 +1,0 @@
-allowBuilds:
-  unrs-resolver: false
-minimumReleaseAgeExclude:
-  - mongoose@9.10.1
