@@ -1,8 +1,8 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState, use } from "react";
 import { useRouter } from "next/navigation";
-import { use } from "react";
+import { now as perfNow } from "@/lib/perf";
 
 type Q = {
   qId: string;
@@ -196,10 +196,10 @@ export default function ExamTakePage({ params }: { params: Promise<{ attemptId: 
 
   function choose(key: string) {
     if (!q) return;
-    const elapsed = performance.now() - viewStart.current;
+    const elapsed = perfNow() - viewStart.current;
     stateRef.current.times[q.qId] = (stateRef.current.times[q.qId] ?? 0) + elapsed;
     stateRef.current.dirty = true;
-    viewStart.current = performance.now();
+    viewStart.current = perfNow();
     setPicked((p) => {
       const next = { ...p, [q.qId]: [key] };
       stateRef.current.picked = next;
@@ -210,10 +210,10 @@ export default function ExamTakePage({ params }: { params: Promise<{ attemptId: 
 
   function go(i: number) {
     if (q) {
-      const elapsed = performance.now() - viewStart.current;
+      const elapsed = perfNow() - viewStart.current;
       stateRef.current.times[q.qId] = (stateRef.current.times[q.qId] ?? 0) + elapsed;
     }
-    viewStart.current = performance.now();
+    viewStart.current = perfNow();
     setIdx(i);
   }
 

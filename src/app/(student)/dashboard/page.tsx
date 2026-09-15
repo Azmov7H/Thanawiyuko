@@ -1,56 +1,120 @@
-import { redirect } from "next/navigation";
-import { requireProfile } from "@/app/(student)/layout";
+"use client";
 
-export const dynamic = "force-dynamic";
+import { useQuery } from "@tanstack/react-query";
+import Link from "next/link";
+import { useEffect, useState } from "react";
 
-const GRADE_AR: Record<string, string> = {
-  sec1: "الأول الثانوي",
-  sec2: "الثاني الثانوي",
-  sec3: "الثالث الثانوي",
-};
-const TRACK_AR: Record<string, string> = {
-  general: "عام",
-  science: "علمي علوم",
-  math: "علمي رياضة",
-  literary: "أدبي",
-};
+/** M5 dashboard: plan-today + weak-top-3 + mastery bars + streak/XP + due reviews */
+export default function DashboardPage() {
+  const [stale, setStale] = useState(false);
 
-/** M1 dashboard: academic summary + resume state. Practice/plan blocks land in M3–M5. */
-export default async function DashboardPage() {
-  const profile = await requireProfile();
-  if (!profile.onboardingState?.done) redirect("/onboarding");
+  const progress = useQuery({
+    queryKey: ["progress"],
+    queryFn: async () => {
+      const r = await fetch("/api/progress");
+      const d = await r.json();
+      if (!r.ok) throw new Error(d.messageAr ?? "تعذر التحميل.");
+      return d as {
+        xp: { total: number; today: number; level: number };
+        streak: { current: number; longest: number };
+        subjects: Array<{ subjectId: string; nameAr: string; mastery: number; topics: number }>;
+        weakTopics: Array<{ topicId: string; masteryScore: number; n: number }>;
+        mistakesDue: number;
+        plan: Array<{ topicId: string; subjectId: string; action: string; minutes: number; reason: string; qCount?: number }>;
+      };
+    },
+  });
+
+  useEffect(() => {
+    const t = setInterval(() => setStale((s) => !s), 30_000);
+    return () => clearInterval(t);
+  }, []);
+
+  if (progress.isPending) return <p className="py-10 text-center text-sm text-ink-mute">جارٍ تحميل لوحتك…</p>;
+  if (progress.isError) return <p className="rounded-lg bg-red-50 px-3 py-2 text-sm text-bad">تعذر تحميل اللوحة.</p>;
+  const d = progress.data!;
 
   return (
     <div className="flex flex-col gap-4">
-      <section className="rounded-2xl border border-line bg-surface p-5">
-        <h1 className="text-xl font-bold text-ink">لوحتك اليوم</h1>
-        <p className="mt-1 text-sm text-ink-mute">
-          {profile.grade ? GRADE_AR[String(profile.grade)] : "—"}
-          {profile.track ? ` • ${TRACK_AR[String(profile.track)]}` : ""} • هدفك
-          اليومي <span className="tnum">{profile.dailyMinutes}</span> دقيقة
-        </p>
-        <div className="mt-4 rounded-xl bg-base p-4 text-sm leading-relaxed text-ink-soft">
-          التشخيص المبدئي وبنك الأسئلة والخطة اليومية بيوصلوا في المراحل
-          الجاية (M3–M5). دلوقتي ملفك محفوظ وجاهز — أول ما المحتوى ينزل هتلاقي
-          أول جلسة مستنياك هنا.
+      <section className="rounded-2xl border border-line bg-surface p-4">
+        <div className="flex items-center justify-between">
+          <h1 className="text-xl font-bold text-ink">لوحتك اليوم</h1>
+          {stale && <span className="text-xs text-ink-mute">محدث قبل ثوانٍ</span>}
+        </div>
+        <div className="mt-3 grid grid-cols-3 gap-2">
+          {[
+            { label: "XP الكلي", value: d.xp.total, sub: `مستوى ${d.xp.level}` },
+            { label: "اليوم", value: d.xp.today, sub: "نقاط" },
+            { label: "سلسلة", value: d.streak.current, sub: `أطول ${d.streak.longest}` },
+          ].map((s) => (
+            <div key={s.label} className="rounded-xl border border-line bg-base p-3 text-center">
+              <div className="tnum text-lg font-bold text-ink">{s.value}</div>
+              <div className="text-xs text-ink-mute">{s.label} • {s.sub}</div>
+            </div>
+          ))}
         </div>
       </section>
 
-      <section className="grid grid-cols-3 gap-3">
-        {[
-          { label: "نقاط XP", value: "0" },
-          { label: "أيام متتالية", value: "0" },
-          { label: "إنجازات", value: "0 / 10" },
-        ].map((s) => (
-          <div
-            key={s.label}
-            className="rounded-2xl border border-line bg-surface p-4 text-center"
-          >
-            <div className="tnum text-lg font-bold text-ink">{s.value}</div>
-            <div className="mt-1 text-xs text-ink-mute">{s.label}</div>
-          </div>
-        ))}
-      </section>
+      {d.plan.length > 0 && (
+        <section className="rounded-2xl border border-brand-200 bg-brand-50 p-4">
+          <h2 className="font-bold text-brand-700">خطتك اليوم</h2>
+          <ul className="mt-2 flex flex-col gap-2">
+            {d.plan.slice(0, 4).map((p, i) => (
+              <Link key={`${i}-${p.topicId}`} href={`/subjects/${p.subjectId}`} className="flex items-center justify-between rounded-lg border border-brand-200 bg-surface p-3 text-sm">
+                <div>
+                  <span className="font-medium text-ink">{p.action === "review" ? "مراجعة" : p.action === "lesson" ? "درس" : "تدريب"} — {p.minutes} د</span>
+                  <p className="mt-0.5 text-xs text-ink-mute">{p.reason}</p>
+                </div>
+                <span className="tnum text-xs text-brand-700">{p.qCount ?? "?"} سؤال</span>
+              </Link>
+            ))}
+          </ul>
+        </section>
+      )}
+
+      {d.subjects.length > 0 && (
+        <section className="rounded-2xl border border-line bg-surface p-4">
+          <h2 className="font-bold text-ink">المواد</h2>
+          <ul className="mt-2 flex flex-col gap-2">
+            {d.subjects.map((s) => (
+              <li key={s.subjectId} className="flex items-center justify-between rounded-lg border border-line bg-base p-3">
+                <div>
+                  <p className="font-medium text-ink">{s.nameAr}</p>
+                  <p className="tnum text-xs text-ink-mute">{s.topics} موضوع</p>
+                </div>
+                <div className="text-end">
+                  <div className={`tnum text-lg font-bold ${s.mastery < 50 ? "text-bad" : s.mastery < 70 ? "text-gold-600" : "text-ok"}`}>{s.mastery}%</div>
+                  <div className="text-xs text-ink-mute">إتقان</div>
+                </div>
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
+
+      {d.weakTopics.length > 0 && (
+        <section className="rounded-2xl border border-line bg-surface p-4">
+          <h2 className="font-bold text-ink">نقاط تحتاج تركيز</h2>
+          <ul className="mt-2 flex flex-col gap-1.5">
+            {d.weakTopics.slice(0, 3).map((w, i) => (
+              <li key={w.topicId} className="flex items-center justify-between rounded-lg border border-bad/20 bg-red-50 p-2 text-sm">
+                <span className="tnum font-bold text-bad">{w.masteryScore}%</span>
+                <span className="text-ink-mute">موضوع</span>
+              </li>
+            ))}
+          </ul>
+          <p className="mt-2 text-xs text-ink-mute">+{d.weakTopics.length - 3} أخرى — راجع التبويب «التقدم» للتفاصيل.</p>
+        </section>
+      )}
+
+      {d.mistakesDue > 0 && (
+        <section className="rounded-2xl border border-gold-200 bg-yellow-50 p-3">
+          <p className="font-bold text-gold-600">لديك {d.mistakesDue} مراجعة مستحقة — لا تدعها تتراكم.</p>
+          <Link href="/mistakes" className="mt-1 inline-block rounded-lg bg-gold-600 px-3 py-1.5 text-sm font-bold text-white">
+            ابدأ المراجعة
+          </Link>
+        </section>
+      )}
     </div>
   );
 }
