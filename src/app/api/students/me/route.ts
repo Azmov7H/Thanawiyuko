@@ -3,6 +3,7 @@ import { auth } from "@/server/auth/config";
 import { dbConnect } from "@/server/db/client";
 import { StudentProfileModel } from "@/server/modules/academic/student-profile.model";
 import { onboardingPatchSchema } from "@/lib/validators";
+import { normalizeTrack } from "@/lib/academic";
 
 async function me() {
   const session = await auth();
@@ -74,6 +75,14 @@ export async function PATCH(req: Request) {
   }
   const { step, done, targetExamDate, ...rest } = parsed.data;
   const update: Record<string, unknown> = { ...rest };
+  // Track-grade rule (M2): sec1/sec2 have no streams — force "general".
+  // Confirmation UX for mid-year changes ships with the plan-freeze flow (M5).
+  if (typeof update.grade === "string") {
+    update.track = normalizeTrack(
+      update.grade as "sec1" | "sec2" | "sec3",
+      typeof update.track === "string" ? update.track : null,
+    );
+  }
   if (targetExamDate !== undefined)
     update.targetExamDate = targetExamDate ? new Date(targetExamDate) : null;
   if (step !== undefined) update["onboardingState.step"] = step;
