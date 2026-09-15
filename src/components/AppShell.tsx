@@ -12,7 +12,7 @@ export type NavItem = {
 /** M1 shell nav: only shipped routes are enabled; the rest show قريبًا (no dead ends). */
 export const NAV_ITEMS: NavItem[] = [
   { href: "/dashboard", label: "الرئيسية" },
-  { href: "/subjects", label: "المواد", soon: true },
+  { href: "/practice", label: "تدرب" },
   { href: "/study-plan", label: "خطتي", soon: true },
   { href: "/progress", label: "التقدم", soon: true },
   { href: "/settings", label: "المزيد", soon: true },

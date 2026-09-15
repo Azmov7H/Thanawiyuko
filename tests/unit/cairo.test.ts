@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { cairoDayKey, isSameCairoDay } from "@/lib/cairo";
+import { cairoDayKey, cairoDayStartUTC, isSameCairoDay } from "@/lib/cairo";
 
 describe("cairoDayKey", () => {
   it("maps a winter UTC instant to the +2 Cairo day", () => {
@@ -26,5 +26,19 @@ describe("isSameCairoDay", () => {
     const a = new Date("2025-12-31T22:00:00Z"); // 00:00+ Cairo Jan 1
     const b = new Date("2026-01-01T00:00:00Z"); // 02:00 Cairo Jan 1
     expect(isSameCairoDay(a, b)).toBe(true);
+  });
+});
+
+describe("cairoDayStartUTC", () => {
+  it("returns 22:00Z previous day in winter (+2)", () => {
+    expect(cairoDayStartUTC(new Date("2026-01-15T12:00:00Z")).toISOString()).toBe(
+      "2026-01-14T22:00:00.000Z",
+    );
+  });
+
+  it("returns 21:00Z previous day in summer DST (+3)", () => {
+    expect(cairoDayStartUTC(new Date("2026-07-15T12:00:00Z")).toISOString()).toBe(
+      "2026-07-14T21:00:00.000Z",
+    );
   });
 });
