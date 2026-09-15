@@ -90,3 +90,105 @@ export function assertNoLeak(payload: unknown): void {
 export function sampleOrder<T>(items: readonly T[], seed: number): T[] {
   return shuffled(items, seed);
 }
+
+/* ---------------- M4: deadlines, blueprints, analysis ---------------- */
+
+/** Grace window for late auto-submit (server clock authoritative). */
+export const SUBMIT_GRACE_MS = 60_000;
+
+export function isPastDeadline(deadlineMs: number, nowMs: number): boolean {
+  return nowMs > deadlineMs + SUBMIT_GRACE_MS;
+}
+
+export type BlueprintNeed = { topicId: string; count: number };
+
+/**
+ * Publish gate: every blueprint row must have enough published questions.
+ * Returns human-readable deficits (empty = ready to publish).
+ */
+export function validateBlueprint(
+  rows: BlueprintNeed[],
+  available: Map<string, number> | Record<string, number>,
+): string[] {
+  const get = (k: string) =>
+    available instanceof Map ? (available.get(k) ?? 0) : (available[k] ?? 0);
+  return rows
+    .filter((r) => get(r.topicId) < r.count)
+    .map((r) => `topic ${r.topicId}: needs ${r.count}, has ${get(r.topicId)}`);
+}
+
+export type TopicStat = {
+  topicId: string;
+  total: number;
+  correct: number;
+  accuracy: number;
+  avgTimeMs: number;
+};
+
+export type ExamAnalysis = {
+  score: number;
+  total: number;
+  accuracy: number;
+  totalTimeMs: number;
+  perTopic: TopicStat[];
+  /** conceptTags most frequent among wrong answers (top 3). */
+  misconceptions: Array<{ tag: string; misses: number }>;
+  /** Deterministic next actions: worst topics first (max 3). */
+  nextTopics: string[];
+};
+
+/**
+ * Post-submit exam analysis from snapshots + final answers (deterministic, §22).
+ * Numbers come from code; any AI narrative (V1.1) only rewords this output.
+ */
+export function analyzeAttempt(
+  snapshots: Array<{
+    qId: unknown;
+    topicId: unknown;
+    conceptTags?: string[];
+  }>,
+  graded: GradedAnswer[],
+): ExamAnalysis {
+  const byId = new Map(graded.map((g) => [g.qId, g]));
+  const topicAgg = new Map<string, { total: number; correct: number; time: number }>();
+  const missTags = new Map<string, number>();
+  let totalTimeMs = 0;
+
+  for (const s of snapshots) {
+    const g = byId.get(String(s.qId));
+    if (!g) continue;
+    const t = String(s.topicId);
+    const agg = topicAgg.get(t) ?? { total: 0, correct: 0, time: 0 };
+    agg.total += 1;
+    if (g.correct) agg.correct += 1;
+    else for (const tag of s.conceptTags ?? []) missTags.set(tag, (missTags.get(tag) ?? 0) + 1);
+    agg.time += g.timeMs;
+    totalTimeMs += g.timeMs;
+    topicAgg.set(t, agg);
+  }
+
+  const perTopic: TopicStat[] = [...topicAgg.entries()].map(([topicId, a]) => ({
+    topicId,
+    total: a.total,
+    correct: a.correct,
+    accuracy: a.total === 0 ? 0 : Math.round((a.correct / a.total) * 100),
+    avgTimeMs: a.total === 0 ? 0 : Math.round(a.time / a.total),
+  }));
+  perTopic.sort((x, y) => x.accuracy - y.accuracy || y.total - x.total);
+
+  const misconceptions = [...missTags.entries()]
+    .map(([tag, misses]) => ({ tag, misses }))
+    .sort((a, b) => b.misses - a.misses)
+    .slice(0, 3);
+
+  const { score, accuracy } = scoreOf(graded);
+  return {
+    score,
+    total: graded.length,
+    accuracy,
+    totalTimeMs,
+    perTopic,
+    misconceptions,
+    nextTopics: perTopic.filter((t) => t.accuracy < 100).slice(0, 3).map((t) => t.topicId),
+  };
+}

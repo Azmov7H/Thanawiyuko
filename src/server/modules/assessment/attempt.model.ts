@@ -22,6 +22,8 @@ export interface QuestionSnapshot {
   correctKeys: string[];
   explanationMD: string;
   difficulty: "easy" | "medium" | "hard";
+  /** Copied at start for post-submit analysis (M4). */
+  conceptTags: string[];
 }
 
 export interface AttemptAnswer {
@@ -48,6 +50,14 @@ export interface AttemptDoc extends mongoose.Document {
   accuracy: number;
   startedAt: Date;
   submittedAt: Date | null;
+  /* Exam-mode extensions (M4, all optional — practice attempts ignore them). */
+  examId: Types.ObjectId | null;
+  /** Server-authoritative deadline (startedAt + duration). Client timer is display-only. */
+  deadlineAt: Date | null;
+  lateSubmit: boolean;
+  flaggedQIds: string[];
+  /** Tab-switch count: logged as integrity signal, never punished (MVP, §22). */
+  tabSwitches: number;
 }
 
 const optionSchema = new Schema<SnapshotOption>(
@@ -69,6 +79,7 @@ const snapshotSchema = new Schema<QuestionSnapshot>(
     correctKeys: [{ type: String, required: true }],
     explanationMD: { type: String, required: true },
     difficulty: { type: String, enum: ["easy", "medium", "hard"], required: true },
+    conceptTags: [{ type: String, default: [] }],
   },
   { _id: false },
 );
@@ -108,12 +119,18 @@ const attemptSchema = new Schema<AttemptDoc>(
     accuracy: { type: Number, default: 0 },
     startedAt: { type: Date, default: Date.now },
     submittedAt: { type: Date, default: null },
+    examId: { type: Schema.Types.ObjectId, ref: "Exam", default: null },
+    deadlineAt: { type: Date, default: null },
+    lateSubmit: { type: Boolean, default: false },
+    flaggedQIds: [{ type: String, default: [] }],
+    tabSwitches: { type: Number, default: 0, min: 0 },
   },
   { timestamps: false },
 );
 attemptSchema.index({ userId: 1, clientAttemptId: 1 }, { unique: true });
 attemptSchema.index({ userId: 1, startedAt: -1 });
 attemptSchema.index({ userId: 1, status: 1 });
+attemptSchema.index({ examId: 1, userId: 1, status: 1 });
 
 export const AttemptModel =
   mongoose.models.Attempt ??

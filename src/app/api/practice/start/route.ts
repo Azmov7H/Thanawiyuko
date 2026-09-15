@@ -133,6 +133,7 @@ export async function POST(req: Request) {
     correctKeys: q.correctKeys,
     explanationMD: q.explanationMD,
     difficulty: q.difficulty,
+    conceptTags: q.conceptTags ?? [],
   }));
 
   const attempt = await AttemptModel.create({

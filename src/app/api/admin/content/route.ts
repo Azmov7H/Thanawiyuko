@@ -22,6 +22,7 @@ const MODELS = {
 const listQuery = z.object({
   type: z.enum(["subject", "unit", "topic", "lesson", "question"]).default("question"),
   status: z.enum(["draft", "review", "published", "archived"]).optional(),
+  subjectId: z.string().optional(),
   page: z.coerce.number().int().min(1).default(1),
 });
 
@@ -52,6 +53,7 @@ export async function GET(req: Request) {
   const parsed = listQuery.safeParse({
     type: url.searchParams.get("type") ?? undefined,
     status: url.searchParams.get("status") ?? undefined,
+    subjectId: url.searchParams.get("subjectId") ?? undefined,
     page: url.searchParams.get("page") ?? undefined,
   });
   if (!parsed.success) return err("VALIDATION", "استعلام غير صالح.", 400);
@@ -64,6 +66,14 @@ export async function GET(req: Request) {
   const Model = MODELS[parsed.data.type];
   const filter: Record<string, unknown> = {};
   if (parsed.data.status) filter.status = parsed.data.status;
+  // subjectId scoping for unit/topic (exam builder + review queues).
+  if (parsed.data.subjectId) {
+    if (parsed.data.type === "unit") filter.subjectId = parsed.data.subjectId;
+    if (parsed.data.type === "topic") {
+      const units = await UnitModel.find({ subjectId: parsed.data.subjectId }).select("_id").lean();
+      filter.unitId = { $in: units.map((u) => u._id) };
+    }
+  }
   const limit = 50;
   const skip = (parsed.data.page - 1) * limit;
   const [items, total] = await Promise.all([

@@ -31,6 +31,9 @@ export default async function AdminLayout({
             <Link href="/admin/content" className="rounded-md px-3 py-1.5 text-ink-soft hover:bg-base">
               المحتوى
             </Link>
+            <Link href="/admin/exams" className="rounded-md px-3 py-1.5 text-ink-soft hover:bg-base">
+              الامتحانات
+            </Link>
           </nav>
         </div>
         <Link href="/dashboard" className="text-sm text-ink-mute hover:text-ink">

@@ -24,6 +24,7 @@ function snap(over: Partial<QuestionSnapshot> = {}): QuestionSnapshot {
     correctKeys: ["b"],
     explanationMD: "شرح طويل بما يكفي لاجتياز أي حد أدنى.",
     difficulty: "easy",
+    conceptTags: [],
     ...over,
   };
 }

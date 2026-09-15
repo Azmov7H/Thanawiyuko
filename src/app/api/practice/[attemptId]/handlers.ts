@@ -100,6 +100,12 @@ export async function checkAction(req: Request, attemptId: string) {
     return NextResponse.json({ code: "NOT_FOUND", messageAr: "الجلسة غير موجودة." }, { status: 404 });
   if (attempt.status !== "in_progress")
     return NextResponse.json({ code: "CONFLICT", messageAr: "الجلسة مُسلّمة بالفعل." }, { status: 409 });
+  if (attempt.kind !== "practice") {
+    return NextResponse.json(
+      { code: "FORBIDDEN", messageAr: "التحقق الفوري غير متاح في الامتحانات الموقوتة." },
+      { status: 403 },
+    );
+  }
 
   const snap = attempt.snapshots.find((x) => String(x.qId) === parsed.data.qId);
   if (!snap)
