@@ -131,7 +131,7 @@ export default function ExamTakePage({ params }: { params: Promise<{ attemptId: 
       } catch (e) {
         done.current = false;
         setSubmitting(false);
-        setError(e instanceof Error ? e.message : "تعذر التسليم — إجاباتك محفوظة، حاول مجددًا.");
+        setError(e instanceof Error ? e.message : "تعذر التسليم &#8212; إجاباتك محفوظة، حاول مجددًا.");
       }
     },
     [attemptId, router],

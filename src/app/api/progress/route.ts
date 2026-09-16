@@ -80,7 +80,7 @@ export async function GET() {
       recentActivity: {},
       subjectWeights: new Map(subjects.map((s) => [String(s._id), s.examWeight ?? 1])),
     });
-    plan = { items: planItems, date: todayKey } as any;
+    plan = { items: planItems, date: todayKey } as { items: typeof planItems; date: string };
   }
 
   return NextResponse.json({

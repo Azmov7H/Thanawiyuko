@@ -43,14 +43,12 @@ export async function GET() {
       recentActivity: {},
       subjectWeights: new Map(subjects.map((s) => [String(s._id), s.examWeight ?? 1])),
     });
-    plan = { items, date: today } as any;
+    plan = { items, date: today } as { items: typeof items; date: string };
   }
   return NextResponse.json({ plan: plan?.items ?? [], date: today });
 }
 
-const regenSchema = require("zod").z.object({
-  maxRegens: require("zod").z.number().int().min(0).max(3).default(3),
-});
+import { z } from "zod";
 
 export async function POST(req: Request) {
   const s = await studentOfSession();
@@ -81,9 +79,9 @@ export async function POST(req: Request) {
     if (topic) topicsMap.set(String(m.topicId), { masteryScore: m.masteryScore, band: m.band, n: m.n, subjectId: String(topic.subjectId), examWeight: 1 });
   });
   const due = mistakes.map((m) => ({ topicId: String(m.topicId), conceptTag: m.conceptTag }));
-  const subjects = await import("@/server/modules/academic/content.models").then((m) =>
-    m.SubjectModel.find().select("nameAr examWeight").lean(),
-  );
+  const subjects = (await import("@/server/modules/academic/content.models")).SubjectModel.find()
+    .select("nameAr examWeight")
+    .lean() as unknown as Array<{ _id: string; nameAr: string; examWeight: number }>;
   const items = generatePlan({
     targetExamDate: profile.targetExamDate ? new Date(profile.targetExamDate) : null,
     dailyMinutes: profile.dailyMinutes ?? 45,
