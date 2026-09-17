@@ -60,7 +60,7 @@ export default function StudyPlanPage() {
           type="button"
           onClick={() => generate.mutate()}
           disabled={generate.isPending}
-          className="rounded-lg bg-brand-600 px-3 py-1.5 text-sm font-bold text-white disabled:opacity-60"
+          className="min-h-11 rounded-lg bg-brand-600 px-3 py-1.5 text-sm font-bold text-white disabled:opacity-60"
         >
           {generate.isPending ? "جارٍ التوليد…" : "إعادة توليد"}
         </button>

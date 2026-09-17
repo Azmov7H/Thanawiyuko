@@ -79,12 +79,14 @@ export default function AdminUsersPage() {
           value={q}
           onChange={(e) => setQ(e.target.value)}
           placeholder="ابحث بالاسم أو البريد"
-          className="rounded-lg border border-line bg-surface px-3 py-1.5 text-sm text-ink"
+          aria-label="ابحث بالاسم أو البريد"
+          className="min-h-11 rounded-lg border border-line bg-surface px-3 py-1.5 text-sm text-ink"
         />
         <select
           value={role}
           onChange={(e) => setRole(e.target.value)}
-          className="rounded-lg border border-line bg-surface px-3 py-1.5 text-sm text-ink"
+          aria-label="تصفية حسب الدور"
+          className="min-h-11 rounded-lg border border-line bg-surface px-3 py-1.5 text-sm text-ink"
         >
           <option value="">كل الأدوار</option>
           <option value="student">طالب</option>
@@ -94,7 +96,8 @@ export default function AdminUsersPage() {
         <select
           value={status}
           onChange={(e) => setStatus(e.target.value)}
-          className="rounded-lg border border-line bg-surface px-3 py-1.5 text-sm text-ink"
+          aria-label="تصفية حسب الحالة"
+          className="min-h-11 rounded-lg border border-line bg-surface px-3 py-1.5 text-sm text-ink"
         >
           <option value="">كل الحالات</option>
           <option value="active">نشط</option>
@@ -128,7 +131,8 @@ export default function AdminUsersPage() {
                     value={u.role}
                     disabled={mutate.isPending}
                     onChange={(e) => mutate.mutate({ userId: u.id, action: "set-role", role: e.target.value })}
-                    className="rounded-md border border-line bg-surface px-2 py-1.5 text-xs text-ink disabled:opacity-50"
+                    aria-label={`دور ${u.name}`}
+                    className="min-h-11 rounded-md border border-line bg-surface px-2 py-1.5 text-xs text-ink disabled:opacity-50"
                   >
                     <option value="student">طالب</option>
                     <option value="admin">مشرف</option>
@@ -140,7 +144,7 @@ export default function AdminUsersPage() {
                     onClick={() =>
                       mutate.mutate({ userId: u.id, action: u.status === "active" ? "suspend" : "activate" })
                     }
-                    className={`rounded-md px-2.5 py-1.5 text-xs font-bold text-white disabled:opacity-50 ${
+                    className={`min-h-11 rounded-md px-2.5 py-1.5 text-xs font-bold text-white disabled:opacity-50 ${
                       u.status === "active" ? "bg-bad" : "bg-brand-600"
                     }`}
                   >

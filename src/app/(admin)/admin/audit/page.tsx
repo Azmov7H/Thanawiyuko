@@ -53,7 +53,8 @@ export default function AdminAuditPage() {
         <select
           value={entity}
           onChange={(e) => setEntity(e.target.value)}
-          className="rounded-lg border border-line bg-surface px-3 py-1.5 text-sm text-ink"
+          aria-label="تصفية حسب الكيان"
+          className="min-h-11 rounded-lg border border-line bg-surface px-3 py-1.5 text-sm text-ink"
         >
           {ENTITIES.map((e) => (
             <option key={e || "all"} value={e}>
@@ -64,7 +65,8 @@ export default function AdminAuditPage() {
         <select
           value={action}
           onChange={(e) => setAction(e.target.value)}
-          className="rounded-lg border border-line bg-surface px-3 py-1.5 text-sm text-ink"
+          aria-label="تصفية حسب الإجراء"
+          className="min-h-11 rounded-lg border border-line bg-surface px-3 py-1.5 text-sm text-ink"
         >
           {ACTIONS.map((a) => (
             <option key={a || "all"} value={a}>

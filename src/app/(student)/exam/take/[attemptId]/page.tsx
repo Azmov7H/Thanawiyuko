@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useRef, useState, use } from "react";
 import { useRouter } from "next/navigation";
 import { now as perfNow } from "@/lib/perf";
+import { useModal } from "@/lib/use-modal";
 
 type Q = {
   qId: string;
@@ -43,6 +44,7 @@ export default function ExamTakePage({ params }: { params: Promise<{ attemptId: 
   const [confirming, setConfirming] = useState(false);
   const [error, setError] = useState("");
   const [submitting, setSubmitting] = useState(false);
+  const confirmRef = useModal<HTMLDivElement>(confirming, () => setConfirming(false));
   const stateRef = useRef({ picked: {} as Record<string, string[]>, flags: [] as string[], times: {} as Record<string, number>, tabs: 0, dirty: false });
   const viewStart = useRef(0);
   const done = useRef(false);
@@ -253,7 +255,7 @@ export default function ExamTakePage({ params }: { params: Promise<{ attemptId: 
           </button>
         </div>
         {showNav && (
-          <div className="mx-auto grid w-full max-w-5xl grid-cols-8 gap-1.5 py-3 sm:grid-cols-10" role="group" aria-label="التنقل بين الأسئلة">
+          <div className="mx-auto grid w-full max-w-5xl grid-cols-6 gap-1.5 py-3 sm:grid-cols-10" role="group" aria-label="التنقل بين الأسئلة">
             {questions.map((x, i) => {
               const ans = (picked[x.qId] ?? []).length > 0;
               const fl = flags.includes(x.qId);
@@ -265,7 +267,7 @@ export default function ExamTakePage({ params }: { params: Promise<{ attemptId: 
                     setShowNav(false);
                   }}
                   aria-label={`سؤال ${i + 1}${ans ? " (مجاب)" : ""}${fl ? " (معلَّم)" : ""}`}
-                  className={`tnum flex aspect-square items-center justify-center rounded-lg border text-sm font-bold ${
+                  className={`tnum flex aspect-square min-h-11 min-w-11 items-center justify-center rounded-lg border text-sm font-bold ${
                     i === idx
                       ? "border-brand-600 bg-brand-600 text-white"
                       : ans
@@ -350,9 +352,16 @@ export default function ExamTakePage({ params }: { params: Promise<{ attemptId: 
       </div>
 
       {confirming && (
-        <div className="fixed inset-0 z-20 flex items-end justify-center bg-black/40 p-4 sm:items-center" role="dialog" aria-modal="true" aria-label="تأكيد التسليم">
+        <div
+          ref={confirmRef}
+          tabIndex={-1}
+          className="fixed inset-0 z-20 flex items-end justify-center bg-black/40 p-4 outline-none sm:items-center"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="exam-submit-title"
+        >
           <div className="w-full max-w-sm rounded-2xl bg-surface p-5">
-            <h2 className="font-bold text-ink">تسليم الامتحان؟</h2>
+            <h2 id="exam-submit-title" className="font-bold text-ink">تسليم الامتحان؟</h2>
             <p className="tnum mt-2 text-sm text-ink-mute">
               أجبت {answered} من {total} • معلَّم {flags.length} للمراجعة • المتبقي {remaining == null ? "—" : fmt(remaining)}
             </p>

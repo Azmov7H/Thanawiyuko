@@ -54,7 +54,7 @@ export default function MistakesPage() {
         <button
           type="button"
           onClick={() => setAll((v) => !v)}
-          className="rounded-lg border border-line px-3 py-1.5 text-sm text-ink-soft"
+          className="min-h-11 rounded-lg border border-line px-3 py-1.5 text-sm text-ink-soft"
         >
           {all ? "المستحقة فقط" : "كل الأخطاء"}
         </button>
@@ -105,6 +105,8 @@ export default function MistakesPage() {
                     {i + 1}
                   </span>
                   <span>{o.text}</span>
+                  {isRight && <span className="ms-auto text-xs font-bold text-green-700">✓ الصحيحة</span>}
+                  {isWrongChosen && <span className="ms-auto text-xs font-bold text-red-700">✗ اختيارك</span>}
                 </div>
               );
             })}

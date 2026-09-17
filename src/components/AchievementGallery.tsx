@@ -38,10 +38,17 @@ export function AchievementGallery() {
         {ALL.map((a) => {
           const got = unlocked.has(a.code);
           return (
-            <div key={a.code} className={`rounded-xl p-3 text-center ${got ? "bg-brand-50 border-brand-200" : "bg-base opacity-50 border-dashed border-line"}`}>
-              <div className="text-3xl">{a.icon}</div>
-              <p className={`mt-1 text-xs font-medium ${got ? "text-brand-700" : "text-ink-mute"}`}>{a.titleAr}</p>
-              <p className={`text-[10px] ${got ? "text-ink-mute" : "text-ink-mute/50"}`}>{a.descriptionAr}</p>
+            <div
+              key={a.code}
+              aria-label={`${a.titleAr}: ${got ? "مفتوح" : "مقفل"} — ${a.descriptionAr}`}
+              className={`rounded-xl p-3 text-center ${got ? "bg-brand-50 border-brand-200" : "bg-base border-dashed border-line"}`}
+            >
+              <div aria-hidden="true" className="text-3xl">{a.icon}</div>
+              <p className={`mt-1 text-xs font-medium ${got ? "text-brand-700" : "text-ink-mute"}`}>
+                <span className="sr-only">{got ? "مفتوح: " : "مقفل: "}</span>
+                {a.titleAr}
+              </p>
+              <p className="text-[10px] text-ink-mute">{a.descriptionAr}</p>
             </div>
           );
         })}

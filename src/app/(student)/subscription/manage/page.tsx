@@ -2,6 +2,7 @@
 
 import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
+import { useModal } from "@/lib/use-modal";
 
 type Invoice = {
   id: string;
@@ -16,6 +17,8 @@ type Invoice = {
 export default function SubscriptionManagePage() {
   const [confirming, setConfirming] = useState(false);
   const [canceling, setCanceling] = useState(false);
+  const [error, setError] = useState("");
+  const confirmRef = useModal<HTMLDivElement>(confirming, () => setConfirming(false));
 
   const { data: sub } = useQuery({
     queryKey: ["subscription"],
@@ -43,6 +46,7 @@ export default function SubscriptionManagePage() {
 
   async function cancel(immediate: boolean) {
     setCanceling(true);
+    setError("");
     try {
       const r = await fetch("/api/subscription", {
         method: "POST",
@@ -52,7 +56,7 @@ export default function SubscriptionManagePage() {
       if (!r.ok) throw new Error("تعذر الإلغاء.");
       window.location.reload();
     } catch (e) {
-      alert(e instanceof Error ? e.message : "تعذر الإلغاء.");
+      setError(e instanceof Error ? e.message : "تعذر الإلغاء.");
     } finally {
       setCanceling(false);
       setConfirming(false);
@@ -64,6 +68,12 @@ export default function SubscriptionManagePage() {
   return (
     <div className="flex flex-col gap-6">
       <h1 className="text-2xl font-bold text-ink">إدارة الاشتراك</h1>
+
+      {error && (
+        <p role="alert" className="rounded-lg bg-red-50 px-3 py-2 text-sm text-bad">
+          {error}
+        </p>
+      )}
 
       <section className="rounded-2xl border border-line bg-surface p-5">
         <div className="flex items-center justify-between">
@@ -120,9 +130,16 @@ export default function SubscriptionManagePage() {
       </section>
 
       {confirming && (
-        <div className="fixed inset-0 z-20 flex items-center justify-center bg-black/40 p-4" role="dialog" aria-modal="true">
+        <div
+          ref={confirmRef}
+          tabIndex={-1}
+          className="fixed inset-0 z-20 flex items-center justify-center bg-black/40 p-4 outline-none"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="cancel-subscription-title"
+        >
           <div className="w-full max-w-sm rounded-2xl bg-surface p-5">
-            <h2 className="font-bold text-ink">تأكيد الإلغاء؟</h2>
+            <h2 id="cancel-subscription-title" className="font-bold text-ink">تأكيد الإلغاء؟</h2>
             <p className="mt-2 text-sm text-ink-mute">هتقدر تكمل تستخدم بلس لحد {sub.subscription?.currentPeriodEnd ? new Date(sub.subscription.currentPeriodEnd).toLocaleDateString("ar-EG") : "نهاية الفترة"}.</p>
             <div className="mt-4 flex gap-2">
               <button onClick={() => setConfirming(false)} className="flex-1 rounded-lg border border-line py-2.5 font-bold text-ink">

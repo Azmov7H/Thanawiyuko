@@ -138,7 +138,7 @@ export default function AdminContentPage() {
                     key={n.to}
                     disabled={transition.isPending}
                     onClick={() => transition.mutate({ id: i._id, to: n.to })}
-                    className="rounded-md bg-brand-600 px-2.5 py-1.5 text-xs font-bold text-white disabled:opacity-50"
+                    className="min-h-11 rounded-md bg-brand-600 px-2.5 py-1.5 text-xs font-bold text-white disabled:opacity-50"
                   >
                     {n.label}
                   </button>

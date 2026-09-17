@@ -37,7 +37,14 @@ export function XpProgress() {
           <p className="tnum text-xs text-ink-mute">المستوى الجاي: {xp.nextLevelXp} XP</p>
         </div>
       </div>
-      <div className="mt-3 h-3 overflow-hidden rounded-full bg-line">
+      <div
+        className="mt-3 h-3 overflow-hidden rounded-full bg-line"
+        role="progressbar"
+        aria-label={`التقدم نحو المستوى ${xp.level + 1}`}
+        aria-valuenow={Math.round(progress)}
+        aria-valuemin={0}
+        aria-valuemax={100}
+      >
         <div className="h-full rounded-full bg-brand-500 transition-all duration-500" style={{ width: `${progress}%` }} />
       </div>
       <p className="tnum mt-1 text-xs text-ink-mute">اليوم: +{xp.today} XP • السقف اليومي 600</p>

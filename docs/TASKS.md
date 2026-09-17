@@ -23,7 +23,8 @@
 | T-H1 | P1 | H | Structured logging + request ids | DONE |
 | T-H3 | P1 | H | Integration/authorization tests | TODO |
 | T-I1 | P2 | I | Landing page upgrade | DONE |
-| T-I3 | P2 | I | RTL accessibility pass | TODO |
+| T-I3 | P2 | I | RTL accessibility pass | DONE |
+| T-I4 | P2 | I | axe-playwright a11y smoke suite + CI | TODO |
 | T-J1 | P2 | J | i18n foundation | TODO |
 | T-K1 | P2 | K | PDF export architecture | TODO |
 | T-L1 | P2 | L | Transactional notifications | TODO |
@@ -227,7 +228,17 @@
   features, 5-step journey (§8.1), qualitative Free/Plus (`#plans`, no hardcoded prices per
   §3.2), FAQ with `FAQPage` JSON-LD, final CTA. Static (SSG), RTL, anchor nav. No fabricated
   social proof — ethical conversion only.
-- T-I3 RTL accessibility pass — TODO
+- T-I3 RTL accessibility pass — DONE: reusable `useModal` (Escape, focus trap, initial
+  focus, focus restore) applied to AI drawer, exam submit and subscription cancel; skip
+  links + `<main id="main">` in student/admin/landing shells; Arabic `aria-label`s on
+  previously unlabelled admin controls and the AI input; `role="progressbar"` with values on
+  XP, mastery and exam-topic bars; non-color correctness cues (`✓ الصحيحة` / `✗ اختيارك`)
+  and locked/unlocked `sr-only` state; decorative SVGs/emoji `aria-hidden`; lesson diagram
+  `alt` text; RTL logical spacing (`ms-*`, `end-*`); ≥44px targets (AI close, exam map,
+  small admin/student buttons); inline `role="alert"` instead of `alert()`; contrast pass
+  (brand-600, ok, bad, gold-600, ink-mute now ≥4.5:1). Remaining: axe-playwright CI suite
+  (see T-I4).
+- T-I4 axe-playwright a11y smoke suite (landing/auth/student/admin) + CI wiring — TODO
 - T-J1 i18n foundation — TODO
 - T-K1 PDF export architecture — TODO
 - T-L1 Transactional notifications — TODO

@@ -155,7 +155,7 @@ export default function QuizSessionPage({ params }: { params: Promise<{ attemptI
           </span>
           <span className="tnum">{done} تم التحقق منها</span>
         </div>
-        <div className="mt-1 h-2 overflow-hidden rounded-full bg-base" role="progressbar" aria-valuenow={idx + 1} aria-valuemin={1} aria-valuemax={total}>
+        <div className="mt-1 h-2 overflow-hidden rounded-full bg-base" role="progressbar" aria-label="تقدم الأسئلة" aria-valuenow={idx + 1} aria-valuemin={1} aria-valuemax={total}>
           <div className="h-full rounded-full bg-brand-500" style={{ width: `${((idx + 1) / total) * 100}%` }} />
         </div>
       </div>

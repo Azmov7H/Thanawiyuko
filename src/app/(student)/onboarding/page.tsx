@@ -111,7 +111,7 @@ export default function OnboardingPage() {
               type="button"
               onClick={() => setDailyMinutes(m)}
               aria-pressed={dailyMinutes === m}
-              className={`tnum rounded-lg border px-4 py-2 text-sm font-bold ${
+              className={`tnum min-h-11 rounded-lg border px-4 py-2 text-sm font-bold ${
                 dailyMinutes === m
                   ? "border-brand-600 bg-brand-50 text-brand-700"
                   : "border-line text-ink-soft"

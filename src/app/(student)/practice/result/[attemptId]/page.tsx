@@ -93,8 +93,8 @@ export default function ResultPage({ params }: { params: Promise<{ attemptId: st
                   }`}
                 >
                   {o.text}
-                  {right && <span className="mr-2 text-xs text-ok">✓ الصحيحة</span>}
-                  {mine && !right && <span className="mr-2 text-xs text-bad">✗ اختيارك</span>}
+                  {right && <span className="ms-2 text-xs font-bold text-green-700">✓ الصحيحة</span>}
+                  {mine && !right && <span className="ms-2 text-xs font-bold text-red-700">✗ اختيارك</span>}
                 </li>
               );
             })}

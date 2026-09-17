@@ -84,9 +84,14 @@ export default function LessonPage({ params }: { params: Promise<{ lessonId: str
 
         {l.diagrams.length > 0 && (
           <div className="mt-4 flex flex-col gap-3">
-            {l.diagrams.map((src) => (
+            {l.diagrams.map((src, i) => (
               // eslint-disable-next-line @next/next/no-img-element
-              <img key={src} src={src} alt="" className="w-full rounded-xl border border-line" />
+              <img
+                key={src}
+                src={src}
+                alt={`شكل توضيحي ${i + 1} لدرس ${l.titleAr}`}
+                className="w-full rounded-xl border border-line"
+              />
             ))}
           </div>
         )}

@@ -8,6 +8,7 @@ import { useState } from "react";
 export default function SubscriptionPage() {
   const router = useRouter();
   const [busy, setBusy] = useState<string | null>(null);
+  const [error, setError] = useState("");
 
   const { data: plans } = useQuery({
     queryKey: ["plans"],
@@ -22,6 +23,7 @@ export default function SubscriptionPage() {
 
   async function checkout(planId: string) {
     setBusy(planId);
+    setError("");
     try {
       const r = await fetch("/api/subscription/checkout", {
         method: "POST",
@@ -33,7 +35,7 @@ export default function SubscriptionPage() {
       window.location.assign(d.redirectUrl);
     } catch (e) {
       setBusy(null);
-      alert(e instanceof Error ? e.message : "تعذر بدء الدفع.");
+      setError(e instanceof Error ? e.message : "تعذر بدء الدفع.");
     }
   }
 
@@ -41,6 +43,12 @@ export default function SubscriptionPage() {
     <div className="flex flex-col gap-6">
       <h1 className="text-2xl font-bold text-ink">خطط ثانويكو بلس</h1>
       <p className="text-sm text-ink-mute">اختر الخطة اللي تناسبك — كل الخطط بتديك الوصول الكامل.</p>
+
+      {error && (
+        <p role="alert" className="rounded-lg bg-red-50 px-3 py-2 text-sm text-bad">
+          {error}
+        </p>
+      )}
 
       {plans?.map((p) => (
         <article key={p.id} className={`rounded-2xl border p-5 ${p.popular ? "border-brand-600 bg-brand-50" : "border-line bg-surface"}`}>
@@ -58,7 +66,7 @@ export default function SubscriptionPage() {
           <ul className="mt-4 flex flex-col gap-1.5">
             {p.features.map((f) => (
               <li key={f} className="flex items-center gap-2 text-sm text-ink">
-                <svg className="w-4 h-4 text-ok shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg>
+                <svg aria-hidden="true" className="w-4 h-4 text-ok shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg>
                 {f}
               </li>
             ))}

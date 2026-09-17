@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { SkipLink } from "@/components/SkipLink";
 
 const pillars = [
   {
@@ -90,6 +91,7 @@ const faqJsonLd = {
 export default function LandingPage() {
   return (
     <div className="flex min-h-full flex-col">
+      <SkipLink />
       <header className="sticky top-0 z-10 border-b border-line bg-surface/90 backdrop-blur">
         <div className="mx-auto flex h-16 w-full max-w-5xl items-center justify-between px-4">
           <Link href="/" className="text-xl font-bold text-ink">
@@ -123,7 +125,7 @@ export default function LandingPage() {
         </div>
       </header>
 
-      <main className="mx-auto flex w-full max-w-5xl flex-1 flex-col px-4">
+      <main className="mx-auto flex w-full max-w-5xl flex-1 flex-col px-4" id="main" tabIndex={-1}>
         <section className="py-16 text-center md:py-24" aria-labelledby="hero-title">
           <p className="mx-auto mb-4 inline-block rounded-full bg-brand-50 px-3 py-1 text-xs font-medium text-brand-700">
             مصمّم لطلاب الثانوية العامة في مصر

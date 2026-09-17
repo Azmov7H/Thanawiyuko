@@ -2,6 +2,7 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import type { Metadata } from "next";
 import { auth } from "@/server/auth/config";
+import { SkipLink } from "@/components/SkipLink";
 
 export const dynamic = "force-dynamic";
 
@@ -26,6 +27,7 @@ export default async function AdminLayout({
 
   return (
     <div className="mx-auto flex min-h-full w-full max-w-6xl flex-col px-4 py-6">
+      <SkipLink />
       <header className="flex items-center justify-between border-b border-line pb-4">
         <div className="flex items-center gap-4">
           <span className="text-lg font-bold text-ink">ثانويكو — الإدارة</span>
@@ -51,7 +53,7 @@ export default async function AdminLayout({
           عودة للوحة الطالب
         </Link>
       </header>
-      <main className="py-6">{children}</main>
+      <main id="main" tabIndex={-1} className="py-6 outline-none">{children}</main>
     </div>
   );
 }

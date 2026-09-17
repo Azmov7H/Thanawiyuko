@@ -61,7 +61,14 @@ export default function ProgressPage() {
                       {s.mastery}% • {s.topics} موضوع
                     </span>
                   </div>
-                  <div className="mt-1 h-2 w-full overflow-hidden rounded-full bg-base">
+                  <div
+                    className="mt-1 h-2 w-full overflow-hidden rounded-full bg-base"
+                    role="progressbar"
+                    aria-label={`إتقان ${s.nameAr}`}
+                    aria-valuenow={s.mastery}
+                    aria-valuemin={0}
+                    aria-valuemax={100}
+                  >
                     <div className={`h-full ${color}`} style={{ width: `${s.mastery}%` }} />
                   </div>
                 </li>

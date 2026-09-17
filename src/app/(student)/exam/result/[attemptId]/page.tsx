@@ -118,7 +118,14 @@ export default function ExamResultPage({ params }: { params: Promise<{ attemptId
                   {t.accuracy}%
                 </span>
               </div>
-              <div className="mt-1.5 h-1.5 overflow-hidden rounded-full bg-line">
+              <div
+                className="mt-1.5 h-1.5 overflow-hidden rounded-full bg-line"
+                role="progressbar"
+                aria-label={`دقة ${a.topicTitles[t.topicId] ?? "موضوع"}`}
+                aria-valuenow={t.accuracy}
+                aria-valuemin={0}
+                aria-valuemax={100}
+              >
                 <div className="h-full rounded-full bg-brand-500" style={{ width: `${t.accuracy}%` }} />
               </div>
               <p className="tnum mt-1 text-[11px] text-ink-mute">
@@ -186,8 +193,8 @@ export default function ExamResultPage({ params }: { params: Promise<{ attemptId
                     }`}
                   >
                     {o.text}
-                    {right && <span className="mr-2 text-xs text-ok">✓ الصحيحة</span>}
-                    {mine && !right && <span className="mr-2 text-xs text-bad">✗ اختيارك</span>}
+                    {right && <span className="ms-2 text-xs font-bold text-green-700">✓ الصحيحة</span>}
+                    {mine && !right && <span className="ms-2 text-xs font-bold text-red-700">✗ اختيارك</span>}
                   </li>
                 );
               })}

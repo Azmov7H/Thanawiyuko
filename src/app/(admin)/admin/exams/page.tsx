@@ -124,6 +124,7 @@ export default function AdminExamsPage() {
             value={title}
             onChange={(e) => setTitle(e.target.value)}
             placeholder="مثال: امتحان فيزياء شامل — الحركة والكهربية"
+            aria-label="عنوان الامتحان"
             className="rounded-lg border border-line bg-base px-3 py-2 text-sm text-ink placeholder:text-ink-mute"
           />
           <div className="flex gap-2">
@@ -166,7 +167,7 @@ export default function AdminExamsPage() {
                   <button
                     key={t._id}
                     onClick={() => addRow(t)}
-                    className="rounded-full border border-line bg-surface px-2.5 py-1 text-xs text-ink-soft"
+                    className="min-h-11 rounded-full border border-line bg-surface px-2.5 py-1 text-xs text-ink-soft"
                   >
                     + {t.titleAr}
                   </button>
@@ -227,7 +228,7 @@ export default function AdminExamsPage() {
                     key={n.to}
                     disabled={move.isPending}
                     onClick={() => move.mutate({ id: e._id, to: n.to })}
-                    className="rounded-md bg-brand-600 px-2.5 py-1.5 text-xs font-bold text-white disabled:opacity-50"
+                    className="min-h-11 rounded-md bg-brand-600 px-2.5 py-1.5 text-xs font-bold text-white disabled:opacity-50"
                   >
                     {n.label}
                   </button>

@@ -8,7 +8,7 @@
   --surface: #ffffff;
   --ink: #0b1b2b;
   --ink-soft: #3c4f63;
-  --ink-mute: #64748b;
+  --ink-mute: #5b6b7f;
   --line: #e2e8f0;
 }
 
@@ -33,14 +33,14 @@
   --color-brand-100: #d7f2f0;
   --color-brand-200: #aee5e2;
   --color-brand-500: #0ea5a0;
-  --color-brand-600: #0b8580;
+  --color-brand-600: #0a7a75;
   --color-brand-700: #0a6b68;
 
   --color-gold-500: #f59e0b;
-  --color-gold-600: #d97706;
+  --color-gold-600: #b45309;
 
-  --color-ok: #16a34a;
-  --color-bad: #dc2626;
+  --color-ok: #15803d;
+  --color-bad: #b91c1c;
 
   --font-ar: var(--font-plex-ar), "IBM Plex Sans Arabic", Cairo, Tajawal,
     system-ui, sans-serif;

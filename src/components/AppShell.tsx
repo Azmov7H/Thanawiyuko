@@ -108,10 +108,12 @@ export function SideNav() {
 }
 
 import { AiPanel } from "@/components/AiPanel";
+import { SkipLink } from "@/components/SkipLink";
 
 export function AppShell({ children }: { children: React.ReactNode }) {
   return (
     <div className="flex min-h-full flex-col">
+      <SkipLink />
       <header className="border-b border-line bg-surface">
         <div className="mx-auto flex h-14 w-full max-w-5xl items-center justify-between px-4">
           <Link href="/dashboard" className="text-lg font-bold text-ink">
@@ -124,7 +126,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
       </header>
       <div className="mx-auto flex w-full max-w-5xl flex-1 gap-6 px-4 py-6 pb-24 md:pb-6">
         <SideNav />
-        <main className="min-w-0 flex-1">{children}</main>
+        <main id="main" tabIndex={-1} className="min-w-0 flex-1 outline-none">{children}</main>
       </div>
       <BottomNav />
       <AiPanel />
