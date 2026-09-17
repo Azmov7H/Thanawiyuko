@@ -22,6 +22,8 @@ export default function DashboardPage() {
         streak: { current: number; longest: number };
         subjects: Array<{ subjectId: string; nameAr: string; mastery: number; topics: number }>;
         weakTopics: Array<{ topicId: string; masteryScore: number; n: number }>;
+        readiness: number;
+        next: Array<{ type: string; reason: string; href: string; qCount?: number }>;
         mistakesDue: number;
         plan: Array<{ topicId: string; subjectId: string; action: string; minutes: number; reason: string; qCount?: number }>;
       };
@@ -50,6 +52,28 @@ export default function DashboardPage() {
           <AchievementGallery />
         </div>
       </section>
+
+      {d.next.length > 0 && (
+        <section className="rounded-2xl border border-line bg-surface p-4">
+          <div className="flex items-center justify-between">
+            <h2 className="font-bold text-ink">التالي المقترح</h2>
+            <span className="tnum text-xs text-ink-mute">الاستعداد {d.readiness}%</span>
+          </div>
+          <ul className="mt-2 flex flex-col gap-2">
+            {d.next.map((r, i) => (
+              <li key={`${r.type}-${i}`}>
+                <Link
+                  href={r.href}
+                  className="flex items-center justify-between gap-3 rounded-lg border border-line bg-base p-3 text-sm"
+                >
+                  <span className="text-ink-soft">{r.reason}</span>
+                  {r.qCount && <span className="tnum shrink-0 text-xs text-brand-700">{r.qCount} سؤال</span>}
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
 
       {d.plan.length > 0 && (
         <section className="rounded-2xl border border-brand-200 bg-brand-50 p-4">

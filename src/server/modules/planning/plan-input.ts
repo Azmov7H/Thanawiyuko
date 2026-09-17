@@ -18,10 +18,12 @@ export type PlanContext = {
   subjects: Array<{ subjectId: string; nameAr: string; examWeight: number }>;
   recentActivity: Record<string, number>;
   mistakesDue: Array<{ topicId: string; conceptTag: string | null }>;
-  conceptRepeats: Map<string, number>;
+  conceptRepeats: Map<string, { count: number; tag: string }>;
 };
 
-export async function conceptRepeatByTopic(studentId: string): Promise<Map<string, number>> {
+export async function conceptRepeatByTopic(
+  studentId: string,
+): Promise<Map<string, { count: number; tag: string }>> {
   const since = new Date(Date.now() - CONCEPT_WINDOW_DAYS * DAY_MS);
   const rows = await MistakeModel.find({
     studentId,
@@ -40,9 +42,17 @@ export async function conceptRepeatByTopic(studentId: string): Promise<Map<strin
     perTopic.set(topicId, counts);
   }
 
-  const repeats = new Map<string, number>();
+  const repeats = new Map<string, { count: number; tag: string }>();
   for (const [topicId, counts] of perTopic) {
-    repeats.set(topicId, Math.max(...counts.values()));
+    let bestTag = "";
+    let best = 0;
+    for (const [tag, n] of counts) {
+      if (n > best) {
+        best = n;
+        bestTag = tag;
+      }
+    }
+    repeats.set(topicId, { count: best, tag: bestTag });
   }
   return repeats;
 }

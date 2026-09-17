@@ -16,7 +16,7 @@
 | T-C2 | P1 | C | Enable `/progress`, `/study-plan` in nav | DONE |
 | T-D1 | P1 | D | Lesson/topic consumption page | DONE |
 | T-D2 | P1 | D | Lesson completion → StudySession | DONE |
-| T-E1 | P1 | E | Deterministic recommendation engine | TODO |
+| T-E1 | P1 | E | Deterministic recommendation engine | DONE |
 | T-F1 | P1 | F | DB-driven plans | TODO |
 | T-F2 | P1 | F | Free/Plus entitlement matrix enforcement | TODO |
 | T-G1 | P1 | G | Admin role/authz + audit viewer | TODO |
@@ -161,7 +161,10 @@
 - **Description**: Ranked "next" list (mistake review → weakest topic → lesson for repeated
   mistakes → mini-mock), max 3, each with reason. No AI ranking in MVP.
 - **Dependencies**: T-B2, T-B4.
-- **Status**: TODO
+- **Status**: DONE — `src/lib/recommendations.ts` ranks review → weakest quiz → repeated-mistake
+  lesson → mini-mock (readiness<60 & exam<45d), max 3 with reasons. `src/lib/readiness.ts` computes
+  the §4.4 weighted score. `/api/progress` now returns `readiness` + `next`; dashboard renders
+  "التالي المقترح". Tests: `recommendations.test.ts` (readiness + ranking).
 
 ---
 

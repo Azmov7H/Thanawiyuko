@@ -7,9 +7,12 @@ import { StreakModel } from "@/server/modules/mastery/streak.model";
 import { XPTransactionModel, levelFromXP } from "@/server/modules/gamification/xp.model";
 import { StudyPlanModel } from "@/server/modules/planning/study-plan.model";
 import { buildPlanContext } from "@/server/modules/planning/plan-input";
+import { LessonModel } from "@/server/modules/academic/content.models";
 import { generatePlan } from "@/lib/planner";
 import { cairoDayKey, cairoDayStartUTC } from "@/lib/cairo";
 import { isWeakTopic, weakTopicScore } from "@/lib/weakness";
+import { computeReadiness } from "@/lib/readiness";
+import { buildRecommendations } from "@/lib/recommendations";
 
 /** GET /api/progress — unified progress snapshot (dashboard feed). */
 export async function GET() {
@@ -60,12 +63,13 @@ export async function GET() {
     };
   });
 
-  const weakTopics = mastery
+  const weakRows = mastery
     .map((m) => {
       const topicId = String(m.topicId);
       const topic = context.topics.get(topicId);
       if (!topic) return null;
-      const conceptRepeatCount = context.conceptRepeats.get(topicId) ?? 0;
+      const repeat = context.conceptRepeats.get(topicId);
+      const conceptRepeatCount = repeat?.count ?? 0;
       if (
         !isWeakTopic({
           masteryScore: m.masteryScore,
@@ -79,15 +83,55 @@ export async function GET() {
       const examWeight = context.subjectWeights.get(topic.subjectId) ?? 10;
       return {
         topicId,
+        subjectId: topic.subjectId,
         masteryScore: m.masteryScore,
         n: m.n,
         score: weakTopicScore({ masteryScore: m.masteryScore, examWeight }),
       };
     })
     .filter((x): x is NonNullable<typeof x> => x !== null)
-    .sort((a, b) => b.score - a.score)
-    .slice(0, 5)
-    .map(({ topicId, masteryScore, n }) => ({ topicId, masteryScore, n }));
+    .sort((a, b) => b.score - a.score);
+
+  const weakTopics = weakRows.slice(0, 5).map(({ topicId, masteryScore, n }) => ({ topicId, masteryScore, n }));
+
+  const readiness = computeReadiness(
+    Array.from(context.topics.values()).map((t) => ({
+      subjectId: t.subjectId,
+      masteryScore: t.masteryScore,
+      weight: t.n,
+    })),
+    context.subjectWeights,
+  );
+
+  const repeated = [...context.conceptRepeats.entries()]
+    .filter(([, v]) => v.count >= 2)
+    .sort((a, b) => b[1].count - a[1].count)[0];
+  const repeatedTopicId = repeated?.[0];
+  const lesson = repeatedTopicId
+    ? await LessonModel.findOne({ topicId: repeatedTopicId, status: "published" })
+        .select("_id")
+        .sort({ order: 1 })
+        .lean()
+    : null;
+
+  const targetExamDate = profile.targetExamDate ? new Date(profile.targetExamDate) : null;
+  const daysToExam = targetExamDate
+    ? Math.ceil((targetExamDate.getTime() - Date.now()) / (24 * 3600 * 1000))
+    : 999;
+
+  const next = buildRecommendations({
+    mistakesDue: mistakes.length,
+    weakestTopic: weakRows[0]
+      ? {
+          topicId: weakRows[0].topicId,
+          subjectId: weakRows[0].subjectId,
+          masteryScore: weakRows[0].masteryScore,
+        }
+      : null,
+    lessonForRepeatedMistake: lesson ? { lessonId: String(lesson._id), conceptTag: repeated?.[1].tag ?? null } : null,
+    readiness,
+    daysToExam,
+  });
 
   const todayKey = cairoDayKey();
   let plan = await StudyPlanModel.findOne({ studentId: userId, date: todayKey }).lean();
@@ -101,6 +145,8 @@ export async function GET() {
     streak: streak ? { current: streak.current, longest: streak.longest } : { current: 0, longest: 0 },
     subjects: subjectProgress,
     weakTopics,
+    readiness,
+    next,
     mistakesDue: mistakes.length,
     plan: plan?.items ?? [],
   });
