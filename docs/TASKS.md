@@ -22,7 +22,7 @@
 | T-G1 | P1 | G | Admin role/authz + audit viewer | DONE |
 | T-H1 | P1 | H | Structured logging + request ids | DONE |
 | T-H3 | P1 | H | Integration/authorization tests | TODO |
-| T-I1 | P2 | I | Landing page upgrade | TODO |
+| T-I1 | P2 | I | Landing page upgrade | DONE |
 | T-I3 | P2 | I | RTL accessibility pass | TODO |
 | T-J1 | P2 | J | i18n foundation | TODO |
 | T-K1 | P2 | K | PDF export architecture | TODO |
@@ -223,7 +223,10 @@
 ---
 
 ## Phase I/J/K/L — Growth, i18n, PDF, Notifications (P2)
-- T-I1 Landing page upgrade — TODO
+- T-I1 Landing page upgrade — DONE (`src/app/page.tsx`): hero value prop + trust strip,
+  features, 5-step journey (§8.1), qualitative Free/Plus (`#plans`, no hardcoded prices per
+  §3.2), FAQ with `FAQPage` JSON-LD, final CTA. Static (SSG), RTL, anchor nav. No fabricated
+  social proof — ethical conversion only.
 - T-I3 RTL accessibility pass — TODO
 - T-J1 i18n foundation — TODO
 - T-K1 PDF export architecture — TODO
