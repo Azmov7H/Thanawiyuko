@@ -12,7 +12,7 @@
 | T-B2 | P0 | B | Learning loop — record outcomes on submit | DONE |
 | T-B3 | P0 | B | Learning loop — wire practice + exam submits | DONE |
 | T-B4 | P0 | B | Learning loop — planner/weak-topic inputs | DONE |
-| T-C1 | P1 | C | Decide/implement `/subjects/[id]` + `/mistakes` | TODO |
+| T-C1 | P1 | C | Decide/implement `/subjects/[id]` + `/mistakes` | DONE |
 | T-C2 | P1 | C | Enable `/progress`, `/study-plan` in nav | DONE |
 | T-D1 | P1 | D | Lesson/topic consumption page | TODO |
 | T-D2 | P1 | D | Lesson completion → StudySession | TODO |
@@ -123,7 +123,9 @@
 - **Files**: `src/app/(student)/dashboard/page.tsx`, new `src/app/(student)/subjects/[subjectId]/page.tsx`,
   new `src/app/(student)/mistakes/page.tsx`.
 - **Acceptance criteria**: no 404 from in-app links.
-- **Status**: TODO
+- **Status**: DONE — added `src/app/(student)/subjects/[subjectId]/page.tsx` (unit/topic tree →
+  start practice) and `.../mistakes/page.tsx` plus `GET /api/mistakes` (hydrated mistake library,
+  due/all filter). All in-app links now resolve.
 
 ### T-C2 — Enable shipped student nav routes
 - **Description**: `/progress` and `/study-plan` have APIs but are marked "soon" in `AppShell`.
