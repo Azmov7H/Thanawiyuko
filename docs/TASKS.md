@@ -24,7 +24,7 @@
 | T-H3 | P1 | H | Integration/authorization tests | TODO |
 | T-I1 | P2 | I | Landing page upgrade | DONE |
 | T-I3 | P2 | I | RTL accessibility pass | DONE |
-| T-I4 | P2 | I | axe-playwright a11y smoke suite + CI | TODO |
+| T-I4 | P2 | I | axe-playwright a11y smoke suite + CI | DONE |
 | T-J1 | P2 | J | i18n foundation | TODO |
 | T-K1 | P2 | K | PDF export architecture | TODO |
 | T-L1 | P2 | L | Transactional notifications | TODO |
@@ -236,9 +236,15 @@
   and locked/unlocked `sr-only` state; decorative SVGs/emoji `aria-hidden`; lesson diagram
   `alt` text; RTL logical spacing (`ms-*`, `end-*`); ≥44px targets (AI close, exam map,
   small admin/student buttons); inline `role="alert"` instead of `alert()`; contrast pass
-  (brand-600, ok, bad, gold-600, ink-mute now ≥4.5:1). Remaining: axe-playwright CI suite
-  (see T-I4).
-- T-I4 axe-playwright a11y smoke suite (landing/auth/student/admin) + CI wiring — TODO
+  (brand-600, ok, bad, gold-600, ink-mute now ≥4.5:1). Automated coverage added in T-I4.
+- T-I4 axe-playwright a11y smoke suite + CI — DONE: `playwright.config.ts` (chromium channel,
+  `ar-SA`, `webServer` on `next start`, `E2E_BASE_URL` override), `tests/a11y/helpers.ts`
+  (`expectNoA11yViolations` via axe tags wcag2a/2aa/21a/21aa/22aa), and
+  `tests/a11y/public-pages.spec.ts` (landing, login, register, unauthenticated redirect →
+  login). Added `(auth)/layout.tsx` (`main#main` + skip link, `noindex`). Script `test:a11y`;
+  new `a11y` GitHub Actions job (installs browser, builds, runs, uploads HTML report).
+  Authenticated student/admin coverage needs a seeded DB + session — deferred to T-H3
+  (integration/authz tests). Local: `pnpm build && pnpm test:a11y`.
 - T-J1 i18n foundation — TODO
 - T-K1 PDF export architecture — TODO
 - T-L1 Transactional notifications — TODO
