@@ -1,11 +1,18 @@
 import { NextResponse } from "next/server";
 import { auth } from "@/server/auth/config";
 import { startCheckout } from "@/server/billing/service";
-import { getPlan, listPlans } from "@/server/payments/config";
+import { findPlan, listActivePlans } from "@/server/billing/plans";
+import type { PlanView } from "@/lib/plans";
+import { isPlanKey } from "@/lib/plans";
 
 /** GET /api/subscription/plans — public plan list. */
 export async function GET() {
-  return NextResponse.json({ plans: listPlans() });
+  try {
+    const plans = await listActivePlans();
+    return NextResponse.json({ plans });
+  } catch {
+    return NextResponse.json({ code: "INTERNAL", messageAr: "الخدمة غير متاحة حاليًا." }, { status: 503 });
+  }
 }
 
 /** POST /api/subscription/checkout — start Paymob checkout. */
@@ -15,17 +22,21 @@ export async function POST(req: Request) {
   if (!userId)
     return NextResponse.json({ code: "UNAUTHENTICATED", messageAr: "سجّل الدخول أولًا." }, { status: 401 });
 
-  let body: { planId: string };
+  let body: { planId?: unknown };
   try {
     body = await req.json();
   } catch {
     return NextResponse.json({ code: "VALIDATION", messageAr: "بيانات غير صالحة." }, { status: 400 });
   }
-  if (!["monthly", "semester", "annual"].includes(body.planId)) {
+  if (!isPlanKey(body.planId))
     return NextResponse.json({ code: "VALIDATION", messageAr: "خطة غير موجودة." }, { status: 400 });
+
+  let plan: PlanView | null;
+  try {
+    plan = await findPlan(body.planId);
+  } catch {
+    return NextResponse.json({ code: "INTERNAL", messageAr: "الخدمة غير متاحة حاليًا." }, { status: 503 });
   }
-  const planId = body.planId as "monthly" | "semester" | "annual";
-  const plan = getPlan(planId);
   if (!plan)
     return NextResponse.json({ code: "VALIDATION", messageAr: "خطة غير موجودة." }, { status: 400 });
 
@@ -34,7 +45,7 @@ export async function POST(req: Request) {
     const redirectUrl = await startCheckout({
       userId,
       email: (session?.user as { email?: string } | undefined)?.email ?? "student@thanawico.local",
-      planId,
+      planId: plan.key,
       successUrl: `${origin}/subscription/success?session_id={session_id}`,
       cancelUrl: `${origin}/subscription?canceled=1`,
     });

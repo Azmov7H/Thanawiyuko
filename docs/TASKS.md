@@ -17,7 +17,7 @@
 | T-D1 | P1 | D | Lesson/topic consumption page | DONE |
 | T-D2 | P1 | D | Lesson completion → StudySession | DONE |
 | T-E1 | P1 | E | Deterministic recommendation engine | DONE |
-| T-F1 | P1 | F | DB-driven plans | TODO |
+| T-F1 | P1 | F | DB-driven plans | DONE |
 | T-F2 | P1 | F | Free/Plus entitlement matrix enforcement | DONE |
 | T-G1 | P1 | G | Admin role/authz + audit viewer | TODO |
 | T-H1 | P1 | H | Structured logging + request ids | TODO |
@@ -173,7 +173,11 @@
 ### T-F1 — DB-driven plans
 - **Description**: Move plans from `server/payments/config.ts` into a `Plan` collection
   (price/duration/features/limits/access/status) with admin editing; keep a typed loader.
-- **Status**: TODO
+- **Status**: DONE — new `Plan` model + `src/server/billing/plans.ts` loader (idempotent seed
+  from defaults via `$setOnInsert`, so admin edits survive deploys). Pricing page, `/api/subscription`,
+  and checkout now read active plans from the DB. `PATCH /api/admin/plans` edits
+  price/duration/features/popular/order/active with an audited `plan.update`. `toPlanView`/`isPlanKey`
+  in `src/lib/plans.ts`; tests in `plans.test.ts`.
 
 ### T-F2 — Entitlement matrix enforcement
 - **Description**: Server-side Free vs Plus limits for practice/exam/AI/mocks; centralized

@@ -4,13 +4,13 @@ import { getPaymentsProvider } from "@/server/payments/provider";
 import { SubscriptionModel } from "@/server/modules/billing/subscription.model";
 import { PaymentModel } from "@/server/modules/billing/payment.model";
 import { evaluateAchievements } from "@/server/modules/gamification/service";
-import { PLANS, GRACE_DAYS } from "@/server/payments/config";
-import type { PlanId } from "@/server/payments/config";
+import { GRACE_DAYS } from "@/server/payments/config";
+import { findPlan } from "@/server/billing/plans";
 
 type PlainSub = {
   _id: mongoose.Types.ObjectId;
   studentId: mongoose.Types.ObjectId;
-  plan: PlanId | null;
+  plan: string | null;
 };
 
 function addDays(date: Date, days: number): Date {
@@ -48,12 +48,12 @@ export async function getSubscription(userId: string) {
 export async function startCheckout(args: {
   userId: string;
   email: string;
-  planId: PlanId;
+  planId: string;
   successUrl: string;
   cancelUrl: string;
 }) {
   await dbConnect();
-  const plan = PLANS[args.planId];
+  const plan = await findPlan(args.planId);
   if (!plan) throw new Error("خطة غير صالحة");
 
   const provider = getPaymentsProvider();
@@ -88,9 +88,10 @@ export async function startCheckout(args: {
   return session.redirectUrl;
 }
 
-async function activateSubscription(sub: PlainSub, data: { providerRef: string; amountEGP: number; periodStart: Date; planId?: PlanId | null }) {
+async function activateSubscription(sub: PlainSub, data: { providerRef: string; amountEGP: number; periodStart: Date; planId?: string | null }) {
   const planId = data.planId ?? sub.plan ?? "monthly";
-  const days = PLANS[planId]?.durationDays ?? 30;
+  const plan = await findPlan(planId);
+  const days = plan?.durationDays ?? 30;
   const periodStart = data.periodStart;
   const periodEnd = addDays(periodStart, days);
 
@@ -129,7 +130,7 @@ export async function handlePaymentSuccess(data: {
   amountEGP: number;
   periodStart: Date;
   userId?: string;
-  planId?: PlanId | null;
+  planId?: string | null;
 }) {
   await dbConnect();
 

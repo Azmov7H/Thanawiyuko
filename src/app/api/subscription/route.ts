@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { auth } from "@/server/auth/config";
 import { getSubscription, hasPlusAccess, cancelSubscription } from "@/server/billing/service";
-import { listPlans } from "@/server/payments/config";
+import { listActivePlans } from "@/server/billing/plans";
 
 /** GET /api/subscription — current subscription status + plans. */
 export async function GET() {
@@ -13,7 +13,7 @@ export async function GET() {
   const [sub, plus, plans] = await Promise.all([
     getSubscription(userId),
     hasPlusAccess(userId),
-    Promise.resolve(listPlans()),
+    listActivePlans(),
   ]);
 
   return NextResponse.json({
