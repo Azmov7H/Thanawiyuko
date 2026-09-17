@@ -3,7 +3,12 @@ import mongoose from "mongoose";
 import { z } from "zod";
 import { dbConnect } from "@/server/db/client";
 import { studentOfSession } from "@/app/api/subjects/route";
-import { AttemptModel, type AttemptDoc } from "@/server/modules/assessment/attempt.model";
+import {
+  AttemptModel,
+  type AttemptDoc,
+  type AttemptAnswer,
+  type QuestionSnapshot,
+} from "@/server/modules/assessment/attempt.model";
 import {
   analyzeAttempt,
   gradeAnswers,
@@ -12,6 +17,7 @@ import {
   toPublic,
 } from "@/server/modules/assessment/scoring";
 import { TopicModel } from "@/server/modules/academic/content.models";
+import { recordAttemptOutcomes } from "@/server/modules/learning/service";
 
 async function ownedExamAttempt(
   userId: string,
@@ -132,7 +138,7 @@ export async function submitExam(
     }),
   );
 
-  attempt.answers = graded.map((g) => ({
+  const answers = graded.map((g) => ({
     qId: new mongoose.Types.ObjectId(g.qId),
     chosenKeys: g.chosenKeys,
     correct: g.correct,
@@ -141,20 +147,57 @@ export async function submitExam(
     timeMs: g.timeMs,
   }));
   const { score, accuracy } = scoreOf(graded);
-  attempt.score = score;
-  attempt.accuracy = accuracy;
-  attempt.status = "submitted";
-  attempt.submittedAt = new Date();
-  attempt.lateSubmit =
+  const lateSubmit =
     attempt.deadlineAt != null && isPastDeadline(attempt.deadlineAt.getTime(), Date.now());
-  await attempt.save();
+
+  const updated = await AttemptModel.findOneAndUpdate(
+    { _id: attempt._id, status: "in_progress" },
+    { $set: { answers, score, accuracy, status: "submitted", submittedAt: new Date(), lateSubmit } },
+    { new: true },
+  ).lean();
+
+  if (!updated) {
+    const stored = await AttemptModel.findById(attempt._id).lean();
+    return NextResponse.json({
+      attemptId: String(attempt._id),
+      score: stored?.score ?? 0,
+      total: stored?.total ?? attempt.total,
+      accuracy: stored?.accuracy ?? 0,
+      resubmitted: true,
+    });
+  }
+
+  try {
+    await recordAttemptOutcomes({
+      userId: String(s.userId),
+      attemptId: String(updated._id),
+      kind: updated.kind,
+      examId: updated.examId ? String(updated.examId) : null,
+      answers: updated.answers.map((a: AttemptAnswer) => ({
+        qId: String(a.qId),
+        correct: a.correct,
+        skipped: a.skipped,
+        timeMs: a.timeMs,
+        chosenKeys: a.chosenKeys,
+      })),
+      snapshots: updated.snapshots.map((snap: QuestionSnapshot) => ({
+        qId: String(snap.qId),
+        topicId: String(snap.topicId),
+        difficulty: snap.difficulty,
+        correctKeys: snap.correctKeys,
+        conceptTags: snap.conceptTags ?? [],
+      })),
+    });
+  } catch (e) {
+    console.error("[Learning] exam outcome recording failed:", e);
+  }
 
   return NextResponse.json({
     attemptId: String(attempt._id),
     score,
     total: attempt.total,
     accuracy,
-    lateSubmit: attempt.lateSubmit,
+    lateSubmit,
   });
 }
 

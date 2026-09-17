@@ -11,6 +11,7 @@ export interface TopicMasteryDoc extends mongoose.Document {
   band: "weak" | "developing" | "proficient" | "mastered";
   n: number;
   last10Accuracy: number;
+  recent: boolean[];
   updatedAt: Date;
 }
 
@@ -26,6 +27,7 @@ const masterySchema = new Schema<TopicMasteryDoc>(
     },
     n: { type: Number, required: true, default: 0, min: 0 },
     last10Accuracy: { type: Number, required: true, default: 0, min: 0, max: 100 },
+    recent: { type: [Boolean], default: [] },
   },
   { timestamps: { createdAt: false, updatedAt: true } },
 );

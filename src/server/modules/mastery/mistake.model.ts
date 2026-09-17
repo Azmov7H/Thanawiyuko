@@ -38,6 +38,7 @@ const mistakeSchema = new Schema<MistakeDoc>(
 );
 mistakeSchema.index({ studentId: 1, dueAt: 1 });
 mistakeSchema.index({ studentId: 1, topicId: 1 });
+mistakeSchema.index({ studentId: 1, questionId: 1 });
 
 export const MistakeModel =
   mongoose.models.Mistake ?? mongoose.model<MistakeDoc>("Mistake", mistakeSchema);

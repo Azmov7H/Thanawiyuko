@@ -8,9 +8,9 @@
 
 | ID | Pri | Phase | Feature | Status |
 |----|-----|-------|---------|--------|
-| T-B1 | P0 | B | Learning loop — identity convention | TODO |
-| T-B2 | P0 | B | Learning loop — record outcomes on submit | TODO |
-| T-B3 | P0 | B | Learning loop — wire practice + exam submits | TODO |
+| T-B1 | P0 | B | Learning loop — identity convention | DONE |
+| T-B2 | P0 | B | Learning loop — record outcomes on submit | DONE |
+| T-B3 | P0 | B | Learning loop — wire practice + exam submits | DONE |
 | T-B4 | P0 | B | Learning loop — planner/weak-topic inputs | TODO |
 | T-C1 | P1 | C | Decide/implement `/subjects/[id]` + `/mistakes` | TODO |
 | T-C2 | P1 | C | Enable `/progress`, `/study-plan` in nav | TODO |
@@ -51,7 +51,9 @@
 - **UX impact**: none.
 - **Acceptance criteria**: written convention in `docs/ARCHITECTURE.md`; every learning read/write
   uses the same id value; no query mixes profile id with user id.
-- **Status**: TODO
+- **Status**: DONE — canonical value is `User._id`; documented in `docs/ARCHITECTURE.md`. New
+  learning-loop writers key on `User._id`. Schema `ref` alignment deferred as cosmetic follow-up
+  (no data change).
 
 ### T-B2 — Record learning outcomes on attempt submit
 - **Priority / Phase / Feature**: P0 / B / progress + gamification
@@ -73,7 +75,9 @@
 - **UX impact**: dashboard/mistakes/XP/streak become real.
 - **Acceptance criteria**: unit tests for XP/streak/mastery pure rules; two concurrent submits record once;
   a practice session updates mastery, mistake, XP, streak; exam submit adds +25 once.
-- **Status**: TODO
+- **Status**: DONE — `src/lib/learning.ts` (pure rules) + `src/server/modules/learning/service.ts`
+  (`recordAttemptOutcomes`); `TopicMastery.recent: boolean[]` added; `Mistake` index on
+  `{studentId, questionId}`. Unit tests in `tests/unit/learning.test.ts` (9 cases).
 
 ### T-B3 — Wire outcome recording into practice + exam submit
 - **Priority / Phase / Feature**: P0 / B / integration
@@ -87,8 +91,9 @@
 - **API impact**: no contract change (same response shape).
 - **Security impact**: removes double-count race.
 - **UX impact**: none.
-- **Acceptance criteria**: submit remains idempotent and leak-free; outcomes recorded once even under retries.
-- **Status**: TODO
+-   **Acceptance criteria**: submit remains idempotent and leak-free; outcomes recorded once even under retries.
+- **Status**: DONE — both submit handlers now finalize via `findOneAndUpdate({_id, status:"in_progress"})`
+  and call `recordAttemptOutcomes` once; concurrent loser returns the stored result (`resubmitted: true`).
 
 ### T-B4 — Complete planner + weak-topic inputs
 - **Priority / Phase / Feature**: P0 / B / personalization

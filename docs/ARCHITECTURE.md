@@ -92,14 +92,17 @@ Infra/ops:
 convention for all per-student learning records (`TopicMastery`, `Mistake`, `Streak`, `XP`,
 `StudyPlan`, `Subscription`, `AIConversation`) is **`studentId` = `User._id`**, despite the
 schema `ref: "StudentProfile"`. `Attempt` stores both `userId` (User.\_id) and `studentId`
-(`StudentProfile._id`); per-user attempt reads always filter on `userId`. See T-B1 for the cleanup.
+(`StudentProfile._id`); per-user attempt reads always filter on `userId`. Ref alignment is a
+cosmetic follow-up (T-B1); the learning loop (`src/server/modules/learning/service.ts`) keys
+writes on `User._id`.
 
 ## 4. Request & data flow
 
 ### Practice
 `POST /api/practice/start` → entitlement/budget → sample published questions (seeded shuffle) →
 snapshot → `Attempt`. `POST .../check` locks an answer + instant feedback. `POST .../submit` grades
-from snapshots (server-authoritative), then **should** trigger the learning loop (T-B2/T-B3).
+from snapshots (server-authoritative), then triggers the learning loop
+(`recordAttemptOutcomes` → mastery/mistakes/XP/streak/achievements) exactly once.
 
 ### Exam
 `POST /api/exams/[id]` start → blueprint sampling → snapshots + `deadlineAt`.
