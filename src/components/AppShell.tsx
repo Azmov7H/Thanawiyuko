@@ -13,8 +13,8 @@ export type NavItem = {
 export const NAV_ITEMS: NavItem[] = [
   { href: "/dashboard", label: "الرئيسية" },
   { href: "/practice", label: "تدرب" },
-  { href: "/study-plan", label: "خطتي", soon: true },
-  { href: "/progress", label: "التقدم", soon: true },
+  { href: "/study-plan", label: "خطتي" },
+  { href: "/progress", label: "التقدم" },
   { href: "/settings", label: "المزيد", soon: true },
 ];
 

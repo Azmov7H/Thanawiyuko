@@ -13,7 +13,7 @@
 | T-B3 | P0 | B | Learning loop — wire practice + exam submits | DONE |
 | T-B4 | P0 | B | Learning loop — planner/weak-topic inputs | DONE |
 | T-C1 | P1 | C | Decide/implement `/subjects/[id]` + `/mistakes` | TODO |
-| T-C2 | P1 | C | Enable `/progress`, `/study-plan` in nav | TODO |
+| T-C2 | P1 | C | Enable `/progress`, `/study-plan` in nav | DONE |
 | T-D1 | P1 | D | Lesson/topic consumption page | TODO |
 | T-D2 | P1 | D | Lesson completion → StudySession | TODO |
 | T-E1 | P1 | E | Deterministic recommendation engine | TODO |
@@ -129,7 +129,8 @@
 - **Description**: `/progress` and `/study-plan` have APIs but are marked "soon" in `AppShell`.
   Implement pages and enable; keep unshipped items non-clickable.
 - **Files**: `src/components/AppShell.tsx`, new pages under `src/app/(student)/progress`, `.../study-plan`.
-- **Status**: TODO
+- **Status**: DONE — added `src/app/(student)/progress/page.tsx` and `.../study-plan/page.tsx`
+  (React Query, existing APIs) and enabled both in `NAV_ITEMS`; `/settings` remains "soon".
 
 ---
 
