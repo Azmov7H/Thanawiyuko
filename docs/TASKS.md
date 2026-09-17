@@ -25,7 +25,7 @@
 | T-I1 | P2 | I | Landing page upgrade | DONE |
 | T-I3 | P2 | I | RTL accessibility pass | DONE |
 | T-I4 | P2 | I | axe-playwright a11y smoke suite + CI | DONE |
-| T-J1 | P2 | J | i18n foundation | TODO |
+| T-J1 | P2 | J | i18n foundation | DONE |
 | T-K1 | P2 | K | PDF export architecture | TODO |
 | T-L1 | P2 | L | Transactional notifications | TODO |
 | T-M1 | P3 | M | Teacher role + profile stub | TODO |
@@ -255,7 +255,16 @@
   new `a11y` GitHub Actions job (installs browser, builds, runs, uploads HTML report).
   Authenticated student/admin coverage needs a seeded DB + session — deferred to T-H3
   (integration/authz tests). Local: `pnpm build && pnpm test:a11y`.
-- T-J1 i18n foundation — TODO
+- T-J1 i18n foundation — DONE: added `src/lib/i18n/` with locale config
+  (`LOCALES`/`DEFAULT_LOCALE`/`ENABLED_LOCALES`/`resolveLocale`/`directionFor`/`htmlAttributes`,
+  cookie name), a pure `translate(dict, key, params)` (dot-path + `{param}` interpolation),
+  locale-aware formatters (`formatDate`/`formatDateTime`/`formatNumber`/`formatCurrency`/
+  `formatPercent`, Cairo TZ, Western digits via `-u-nu-latn`), a centralized Arabic
+  `Dictionary` (`dictionaries/ar.ts`), `getDictionary(locale)`, and a client `LocaleProvider`
+  + `useI18n()` wired in `Providers`. Migrated the landing page (server) and AppShell nav
+  (client) to read from the dictionary. `en` is a known-but-disabled locale (MVP stays
+  Arabic-only, per README §1048); J3 becomes adding `dictionaries/en.ts` without touching UI.
+  Tests: `tests/unit/i18n.test.ts` (8).
 - T-K1 PDF export architecture — TODO
 - T-L1 Transactional notifications — TODO
 

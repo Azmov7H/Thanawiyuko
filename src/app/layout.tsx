@@ -2,8 +2,10 @@ import type { Metadata } from "next";
 import { IBM_Plex_Sans_Arabic, IBM_Plex_Mono } from "next/font/google";
 import "./globals.css";
 import { Providers } from "@/components/Providers";
+import { DEFAULT_LOCALE, htmlAttributes } from "@/lib/i18n";
 
 const appUrl = process.env.APP_URL ?? "http://localhost:3000";
+const { lang, dir } = htmlAttributes(DEFAULT_LOCALE);
 
 const plexAr = IBM_Plex_Sans_Arabic({
   variable: "--font-plex-ar",
@@ -51,7 +53,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="ar" dir="rtl" className={`${plexAr.variable} ${plexMono.variable} h-full`}>
+    <html lang={lang} dir={dir} className={`${plexAr.variable} ${plexMono.variable} h-full`}>
       <body className="min-h-full antialiased">
         <Providers>{children}</Providers>
       </body>
