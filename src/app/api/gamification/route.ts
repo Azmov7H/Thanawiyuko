@@ -35,7 +35,7 @@ export async function GET() {
   const nextXP = xpForNextLevel(totalXP);
 
   return NextResponse.json({
-    xp: { total: totalXP, today: todayXP, level, nextLevelXp: nextXP },
+    xp: { total: totalXP, today: todayXP, level, nextLevelXp: nextXP.next },
     streak: streak ? { current: streak.current, longest: streak.longest } : { current: 0, longest: 0 },
     achievements: achievements.map((a) => ({
       code: a.achievementId.code,
