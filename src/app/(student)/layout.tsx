@@ -1,4 +1,5 @@
 import { redirect } from "next/navigation";
+import type { Metadata } from "next";
 import { auth } from "@/server/auth/config";
 import { dbConnect } from "@/server/db/client";
 import { StudentProfileModel } from "@/server/modules/academic/student-profile.model";
@@ -6,6 +7,10 @@ import { AppShell } from "@/components/AppShell";
 
 /** Student area guard: session required. Fail closed → /login on any auth/DB error. */
 export const dynamic = "force-dynamic";
+
+export const metadata: Metadata = {
+  robots: { index: false, follow: false },
+};
 
 async function currentUserId(): Promise<string | null> {
   try {

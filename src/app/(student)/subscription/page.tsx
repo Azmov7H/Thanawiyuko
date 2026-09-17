@@ -1,7 +1,6 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
-import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
@@ -31,7 +30,7 @@ export default function SubscriptionPage() {
       });
       const d = await r.json();
       if (!r.ok) throw new Error(d.messageAr ?? "تعذر بدء الدفع.");
-      window.location.href = d.redirectUrl;
+      window.location.assign(d.redirectUrl);
     } catch (e) {
       setBusy(null);
       alert(e instanceof Error ? e.message : "تعذر بدء الدفع.");

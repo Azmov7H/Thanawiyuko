@@ -1,5 +1,4 @@
 import { NextResponse } from "next/server";
-import mongoose from "mongoose";
 import { dbConnect } from "@/server/db/client";
 import { studentOfSession } from "@/app/api/subjects/route";
 import { StudyPlanModel } from "@/server/modules/planning/study-plan.model";
@@ -48,9 +47,7 @@ export async function GET() {
   return NextResponse.json({ plan: plan?.items ?? [], date: today });
 }
 
-import { z } from "zod";
-
-export async function POST(req: Request) {
+export async function POST() {
   const s = await studentOfSession();
   if (!s) return NextResponse.json({ code: "UNAUTHENTICATED", messageAr: "سجّل الدخول أولًا." }, { status: 401 });
   try {

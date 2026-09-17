@@ -92,7 +92,7 @@ export default function DashboardPage() {
         <section className="rounded-2xl border border-line bg-surface p-4">
           <h2 className="font-bold text-ink">نقاط تحتاج تركيز</h2>
           <ul className="mt-2 flex flex-col gap-1.5">
-            {d.weakTopics.slice(0, 3).map((w, i) => (
+            {d.weakTopics.slice(0, 3).map((w) => (
               <li key={w.topicId} className="flex items-center justify-between rounded-lg border border-bad/20 bg-red-50 p-2 text-sm">
                 <span className="tnum font-bold text-bad">{w.masteryScore}%</span>
                 <span className="text-ink-mute">موضوع</span>

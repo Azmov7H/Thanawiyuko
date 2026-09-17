@@ -34,6 +34,7 @@ export type PlanItem = {
  */
 export function generatePlan(input: PlanInput): PlanItem[] {
   const { targetExamDate, dailyMinutes, topics, mistakesDue, recentActivity, subjectWeights } = input;
+  void subjectWeights;
   const total = dailyMinutes;
   const reviewBudget = Math.max(10, Math.floor(total * 0.2));
   const learningBudget = total - reviewBudget;

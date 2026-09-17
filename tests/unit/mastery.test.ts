@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { computeMastery, MASTERY_DECAY, VOLUME_DENOM } from "@/lib/mastery";
+import { computeMastery, MASTERY_DECAY } from "@/lib/mastery";
 
 describe("computeMastery (recency-weighted + volume)", () => {
   it("empty → 0 weak", () => {

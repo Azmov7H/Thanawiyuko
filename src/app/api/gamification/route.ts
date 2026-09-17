@@ -1,11 +1,11 @@
+import mongoose from "mongoose";
 import { NextResponse } from "next/server";
 import { auth } from "@/server/auth/config";
 import { dbConnect } from "@/server/db/client";
-import { evaluateAchievements, awardXp, reconcileStreaks } from "@/server/modules/gamification/service";
+import { evaluateAchievements } from "@/server/modules/gamification/service";
 import { StreakModel } from "@/server/modules/mastery/streak.model";
-import { XPTransactionModel } from "@/server/modules/gamification/xp.model";
 import { UserAchievementModel } from "@/server/modules/gamification/achievement.model";
-import { levelFromXP, xpForNextLevel } from "@/server/modules/gamification/xp.model";
+import { levelFromXP, xpForNextLevel, XPTransactionModel } from "@/server/modules/gamification/xp.model";
 
 /** POST /api/gamification/sync — full gamification state for dashboard. */
 export async function GET() {
@@ -63,5 +63,3 @@ export async function POST() {
   const unlocked = await evaluateAchievements(userId);
   return NextResponse.json({ unlocked });
 }
-
-import mongoose from "mongoose";

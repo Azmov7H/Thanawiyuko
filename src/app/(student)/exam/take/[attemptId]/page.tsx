@@ -38,7 +38,6 @@ export default function ExamTakePage({ params }: { params: Promise<{ attemptId: 
   const [now, setNow] = useState(0);
   const [idx, setIdx] = useState(0);
   const [picked, setPicked] = useState<Record<string, string[]>>({});
-  const [times, setTimes] = useState<Record<string, number>>({});
   const [flags, setFlags] = useState<string[]>([]);
   const [showNav, setShowNav] = useState(false);
   const [confirming, setConfirming] = useState(false);

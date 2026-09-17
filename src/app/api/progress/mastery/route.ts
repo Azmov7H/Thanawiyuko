@@ -1,9 +1,7 @@
 import { NextResponse } from "next/server";
-import mongoose from "mongoose";
 import { dbConnect } from "@/server/db/client";
 import { studentOfSession } from "@/app/api/subjects/route";
 import { TopicMasteryModel } from "@/server/modules/mastery/topic-mastery.model";
-import { MistakeModel } from "@/server/modules/mastery/mistake.model";
 
 /** GET /api/progress/mastery — topic mastery for the student (with topic titles). */
 export async function GET() {

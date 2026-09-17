@@ -25,7 +25,7 @@ function checkRateLimit(key: string, max: number, windowMs: number): { allowed: 
   return { allowed: false, retryAfter: Math.ceil((hit.resetAt - now) / 1000) };
 }
 
-export function middleware(req: NextRequest) {
+export function proxy(req: NextRequest) {
   const { pathname } = req.nextUrl;
   const ip = getClientIp(req);
 

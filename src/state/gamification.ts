@@ -38,7 +38,7 @@ function xpForNextLevel(xp: number): number {
 
 export const useGamificationStore = create<GamificationState>()(
   persist(
-    (set, get) => ({
+    (set) => ({
       xp: 0,
       level: 1,
       nextLevelXp: 200,
@@ -72,7 +72,7 @@ export const useGamificationStore = create<GamificationState>()(
         })),
 
       breakStreak: () =>
-        set((state) => ({
+        set(() => ({
           streak: 0,
         })),
 

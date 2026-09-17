@@ -1,4 +1,4 @@
-import { createHmac } from "node:crypto";
+import { createHmac, timingSafeEqual } from "node:crypto";
 
 export interface CheckoutSession {
   sessionId: string;
@@ -13,6 +13,8 @@ export interface PaymentResult {
   currency: string;
   paidAt: Date;
   raw: unknown;
+  studentId?: string;
+  planId?: string;
 }
 
 export interface SubscriptionEvent {
@@ -60,7 +62,7 @@ export class PaymobProvider implements PaymentsProvider {
     }
   }
 
-  private async post(path: string, body: Record<string, unknown>): Promise<any> {
+  private async post(path: string, body: Record<string, unknown>): Promise<Record<string, unknown>> {
     const res = await fetch(`${this.baseUrl}${path}`, {
       method: "POST",
       headers: { "Content-Type": "application/json", Authorization: `Bearer ${this.apiKey}` },
@@ -70,7 +72,7 @@ export class PaymobProvider implements PaymentsProvider {
       const txt = await res.text().catch(() => "");
       throw new Error(`Paymob ${res.status}: ${txt}`);
     }
-    return res.json();
+    return res.json() as Promise<Record<string, unknown>>;
   }
 
   async createCheckout(args: {
@@ -83,7 +85,7 @@ export class PaymobProvider implements PaymentsProvider {
   }): Promise<CheckoutSession> {
     // 1) Auth token
     const auth = await this.post("/auth/tokens", { api_key: this.apiKey });
-    const token = auth.token;
+    const token = String(auth.token);
 
     // 2) Create order
     const order = await this.post("/ecommerce/orders", {
@@ -100,7 +102,7 @@ export class PaymobProvider implements PaymentsProvider {
       auth_token: token,
       amount_cents: args.amountEGP * 100,
       expiration: 3600,
-      order_id: order.id,
+      order_id: String(order.id),
       billing_data: {
         email: args.email,
         first_name: "Student",
@@ -121,34 +123,100 @@ export class PaymobProvider implements PaymentsProvider {
       lock_order_when_paid: "true",
     });
 
-    const redirectUrl = `https://accept.paymob.com/api/acceptance/iframes/${this.integrationId}?payment_token=${paymentKey.token}`;
+    const redirectUrl = `https://accept.paymob.com/api/acceptance/iframes/${this.integrationId}?payment_token=${String(paymentKey.token)}`;
 
     return {
-      sessionId: paymentKey.token,
+      sessionId: String(paymentKey.token),
       redirectUrl,
       expiresAt: new Date(Date.now() + 3600 * 1000),
     };
   }
 
   verifyWebhook(payload: string, signature: string): PaymentResult | SubscriptionEvent | null {
-    // Paymob sends HMAC-SHA512 of the JSON payload
-    const expected = createHmac("sha512", this.hmacSecret).update(payload).digest("hex");
-    if (expected !== signature) return null;
+    let data: Record<string, unknown>;
+    try {
+      data = JSON.parse(payload) as Record<string, unknown>;
+    } catch {
+      return null;
+    }
 
-    const data = JSON.parse(payload);
-    // Success transaction callback
-    if (data.type === "TRANSACTION" && data.obj?.success === true) {
-      const obj = data.obj;
+    if (!this.verifySignature(data, signature)) return null;
+
+    if (data.type === "TRANSACTION") {
+      const obj = (data.obj ?? {}) as Record<string, unknown>;
+      const order = (obj.order ?? {}) as Record<string, unknown>;
+      const { studentId, planId } = this.parseMerchantOrder(order.merchant_order_id);
       return {
-        success: true,
-        providerRef: String(obj.id),
-        amountEGP: obj.amount_cents / 100,
-        currency: obj.currency,
-        paidAt: new Date(obj.created_at),
+        success: obj.success === true,
+        providerRef: String(obj.id ?? ""),
+        amountEGP: Number(obj.amount_cents ?? 0) / 100,
+        currency: String(obj.currency ?? "EGP"),
+        paidAt: new Date(Number(obj.created_at ?? Date.now())),
         raw: data,
+        studentId,
+        planId,
       };
     }
     return null;
+  }
+
+  private verifySignature(data: Record<string, unknown>, signature: string): boolean {
+    if (!signature || !this.hmacSecret) return false;
+    const expected = this.computeHmac(data);
+    const a = Buffer.from(expected);
+    const b = Buffer.from(signature);
+    return a.length === b.length && timingSafeEqual(a, b);
+  }
+
+  private computeHmac(data: Record<string, unknown>): string {
+    const hmac = createHmac("sha512", this.hmacSecret);
+    if (data.type === "TRANSACTION") {
+      const obj = (data.obj ?? {}) as Record<string, unknown>;
+      const order = (obj.order ?? {}) as Record<string, unknown>;
+      const source = (obj.source_data ?? {}) as Record<string, unknown>;
+      const fields = [
+        obj.amount_cents,
+        obj.created_at,
+        obj.currency,
+        obj.error_occured,
+        obj.has_parent_transaction,
+        obj.id,
+        obj.integration_id,
+        obj.is_3d_secure,
+        obj.is_auth,
+        obj.is_capture,
+        obj.is_refunded,
+        obj.is_standalone_payment,
+        obj.is_voided,
+        order.id,
+        obj.owner,
+        obj.pending,
+        source.pan,
+        source.sub_type,
+        source.type,
+        obj.success,
+      ];
+      hmac.update(fields.map((f) => this.stringifyField(f)).join(""));
+    } else {
+      hmac.update(JSON.stringify(data));
+    }
+    return hmac.digest("hex");
+  }
+
+  private stringifyField(value: unknown): string {
+    if (value === null || value === undefined) return "";
+    if (typeof value === "boolean") return value ? "true" : "false";
+    if (typeof value === "object") return JSON.stringify(value);
+    return String(value);
+  }
+
+  private parseMerchantOrder(merchantOrderId: unknown): { studentId?: string; planId?: string } {
+    if (typeof merchantOrderId !== "string") return {};
+    const parts = merchantOrderId.split("_");
+    if (parts[0] === "thanawico" && parts.length >= 4) {
+      return { studentId: parts[1], planId: parts[2] };
+    }
+    return {};
   }
 
   async cancelSubscription(providerRef: string): Promise<boolean> {

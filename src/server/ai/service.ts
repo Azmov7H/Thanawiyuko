@@ -1,34 +1,66 @@
 import { dbConnect } from "@/server/db/client";
 import { getAiProvider } from "./provider";
-import { loadAiConfig, type ModelTier } from "./config";
+import { loadAiConfig } from "./config";
 import { loadPrompt, renderPrompt } from "./config";
 import { LessonModel } from "@/server/modules/academic/content.models";
 import { TopicModel } from "@/server/modules/academic/content.models";
 import { MistakeModel } from "@/server/modules/mastery/mistake.model";
 import { StudentProfileModel } from "@/server/modules/academic/student-profile.model";
 import { AIConversationModel } from "@/server/modules/ai/conversation.model";
+import { cairoDayStartUTC } from "@/lib/cairo";
 
 const config = loadAiConfig();
+
+function isDuplicateKey(error: unknown): boolean {
+  return (
+    typeof error === "object" &&
+    error !== null &&
+    "code" in error &&
+    (error as { code?: number }).code === 11000
+  );
+}
 
 /** Per-user daily quota check + increment. */
 export async function checkAndConsumeQuota(userId: string, isPlus: boolean): Promise<{ ok: boolean; remaining: number; resetAt: Date }> {
   await dbConnect();
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
-  const tomorrow = new Date(today);
-  tomorrow.setDate(tomorrow.getDate() + 1);
-
-  const conv = await AIConversationModel.findOneAndUpdate(
-    { studentId: userId, quotaPeriod: today },
-    {
-      $inc: { "quota.used": 1 },
-      $setOnInsert: { studentId: userId, quotaPeriod: today, "quota.limit": isPlus ? config.dailyQuota.plus : config.dailyQuota.free },
-    },
-    { upsert: true, new: true },
-  ).lean();
-
+  const today = cairoDayStartUTC();
+  const tomorrow = cairoDayStartUTC(new Date(today.getTime() + 24 * 60 * 60 * 1000));
   const limit = isPlus ? config.dailyQuota.plus : config.dailyQuota.free;
-  const used = conv?.quota?.used ?? 1;
+
+  let conv = await AIConversationModel.findOne({ studentId: userId, quotaPeriod: today }).lean();
+  if (conv && (conv.quota?.used ?? 0) >= limit) {
+    return { ok: false, remaining: 0, resetAt: tomorrow };
+  }
+
+  if (conv) {
+    conv = await AIConversationModel.findOneAndUpdate(
+      { studentId: userId, quotaPeriod: today, "quota.used": { $lt: limit } },
+      { $inc: { "quota.used": 1 } },
+      { new: true },
+    ).lean();
+    if (!conv) return { ok: false, remaining: 0, resetAt: tomorrow };
+  } else {
+    try {
+      conv = await AIConversationModel.findOneAndUpdate(
+        { studentId: userId, quotaPeriod: today },
+        {
+          $setOnInsert: { studentId: userId, quotaPeriod: today, "quota.limit": limit },
+          $inc: { "quota.used": 1 },
+        },
+        { upsert: true, new: true },
+      ).lean();
+    } catch (error) {
+      if (!isDuplicateKey(error)) throw error;
+      conv = await AIConversationModel.findOneAndUpdate(
+        { studentId: userId, quotaPeriod: today, "quota.used": { $lt: limit } },
+        { $inc: { "quota.used": 1 } },
+        { new: true },
+      ).lean();
+      if (!conv) return { ok: false, remaining: 0, resetAt: tomorrow };
+    }
+  }
+
+  const used = conv.quota?.used ?? 1;
   return { ok: used <= limit, remaining: Math.max(0, limit - used), resetAt: tomorrow };
 }
 
@@ -167,10 +199,9 @@ export async function runTutorStream(args: {
   const cacheKey = `tutor:${args.userId}:${tier}:${args.topicId ?? "none"}:${Buffer.from(args.question).toString("base64").slice(0, 32)}`;
   const cached = getCachedExplanation(cacheKey);
   if (cached && !args.examActive) {
-    // Simulate streaming for cached responses
     for (const ch of cached.split("")) args.onToken(ch);
     await logAiCall({ studentId: args.userId, type: "tutor", model: tier, tokensIn: 0, tokensOut: 0, costUsd: 0, latencyMs: 0, cached: true });
-    return { cached: true, quota: quota.remaining };
+    return { content: cached, model: tier, tokensIn: 0, tokensOut: 0, costUsd: 0, quota: quota.remaining, cached: true };
   }
 
   const provider = getAiProvider();

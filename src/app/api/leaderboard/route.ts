@@ -33,5 +33,3 @@ export async function GET() {
     me: me ? { rank: me.rank, xp: me.xp, percentile: Math.round((1 - me.rank / 100) * 100) } : null,
   });
 }
-
-import mongoose from "mongoose";

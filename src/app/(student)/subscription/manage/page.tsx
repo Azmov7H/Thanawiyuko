@@ -1,8 +1,16 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
-import Link from "next/link";
 import { useState } from "react";
+
+type Invoice = {
+  id: string;
+  amountEGP: number;
+  currency: string;
+  status: string;
+  createdAt: string;
+  providerRef?: string;
+};
 
 /** Manage current subscription: view status, invoices, cancel. */
 export default function SubscriptionManagePage() {
@@ -28,7 +36,7 @@ export default function SubscriptionManagePage() {
     queryFn: async () => {
       const r = await fetch("/api/subscription/invoices");
       if (!r.ok) return [];
-      return r.json();
+      return (await r.json()) as Invoice[];
     },
     enabled: true,
   });
@@ -76,7 +84,7 @@ export default function SubscriptionManagePage() {
         <h2 className="font-bold text-ink">الفواتير</h2>
         {invoices?.length ? (
           <ul className="mt-3 flex flex-col gap-2">
-            {invoices.map((inv: any) => (
+            {invoices.map((inv) => (
               <li key={inv.id} className="flex items-center justify-between rounded-lg border border-line bg-base p-3 text-sm">
                 <div>
                   <span className="font-medium text-ink">{inv.amountEGP} ج.م</span>

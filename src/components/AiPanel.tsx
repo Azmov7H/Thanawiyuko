@@ -1,13 +1,11 @@
 "use client";
 
 import { useRef, useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
 
 type Msg = { role: "user" | "assistant"; content: string };
 
 /** AI Tutor panel — drawer (desktop) / bottom sheet (mobile). */
 export function AiPanel({ topicId }: { topicId?: string }) {
-  const router = useRouter();
   const [open, setOpen] = useState(false);
   const [messages, setMessages] = useState<Msg[]>([]);
   const [input, setInput] = useState("");
@@ -43,42 +41,55 @@ export function AiPanel({ topicId }: { topicId?: string }) {
           conversationId: convoIdRef.current ?? undefined,
         }),
       });
+      if (!res.ok) {
+        let message = "تعذر الاتصال بالذكاء الاصطناعي.";
+        try {
+          const payload = await res.json();
+          if (payload.messageAr) message = payload.messageAr;
+        } catch {
+        }
+        throw new Error(message);
+      }
 
       const reader = res.body?.getReader();
       if (!reader) throw new Error("لا يوجد رد من السيرفر");
 
       let assistantMsg = "";
+      let buffer = "";
       setMessages((m) => [...m, { role: "assistant", content: "" }]);
       const decoder = new TextDecoder();
 
       while (true) {
         const { done, value } = await reader.read();
         if (done) break;
-        const chunk = decoder.decode(value, { stream: true });
-        for (const line of chunk.split("\n")) {
-          if (!line.startsWith("data: ")) continue;
-          const data = line.slice(6).trim();
-          if (!data) continue;
-          try {
-            const parsed = JSON.parse(data);
-            if (parsed.type === "token") {
-              assistantMsg += parsed.content;
-              setMessages((m) => [...m.slice(0, -1), { role: "assistant", content: assistantMsg }]);
-            } else if (parsed.type === "done") {
-              if (parsed.quotaRemaining !== undefined) setQuota(parsed.quotaRemaining);
-            } else if (parsed.type === "error") {
-              if (parsed.code === "QUOTA_EXCEEDED") {
+        buffer += decoder.decode(value, { stream: true });
+        let newline = buffer.indexOf("\n");
+        while (newline >= 0) {
+          const line = buffer.slice(0, newline);
+          buffer = buffer.slice(newline + 1);
+          const data = line.startsWith("data:") ? line.slice(5).trim() : "";
+          if (data) {
+            try {
+              const parsed = JSON.parse(data);
+              if (parsed.type === "token") {
+                assistantMsg += parsed.content;
+                setMessages((m) => [...m.slice(0, -1), { role: "assistant", content: assistantMsg }]);
+              } else if (parsed.type === "done") {
+                if (parsed.quotaRemaining !== undefined) setQuota(parsed.quotaRemaining);
+                if (parsed.conversationId) convoIdRef.current = parsed.conversationId;
+                setMessages((m) => m.slice(0, -1));
+              } else if (parsed.type === "error") {
                 setError(parsed.messageAr);
                 setMessages((m) => m.slice(0, -1));
-              } else {
-                setError(parsed.messageAr);
               }
+            } catch {
             }
-          } catch {
-            /* ignore malformed */
           }
+          newline = buffer.indexOf("\n");
         }
       }
+
+      if (assistantMsg) setMessages((m) => [...m, { role: "assistant", content: assistantMsg }]);
     } catch (e) {
       setError(e instanceof Error ? e.message : "تعذر الاتصال بالذكاء الاصطناعي.");
       setMessages((m) => m.slice(0, -1));
@@ -121,7 +132,7 @@ export function AiPanel({ topicId }: { topicId?: string }) {
               {messages.length === 0 && (
                 <div className="text-center text-sm text-ink-mute py-8">
                   <p className="font-medium text-ink">أهلًا! اسألني أي حاجة في الدرس.</p>
-                  <p className="mt-1">مثال: "اشرح لي قانون نيوتن التاني بخطوات"</p>
+                  <p className="mt-1">مثال: &quot;اشرح لي قانون نيوتن التاني بخطوات&quot;</p>
                 </div>
               )}
               {messages.map((m, i) => (

@@ -3,6 +3,8 @@ import { IBM_Plex_Sans_Arabic, IBM_Plex_Mono } from "next/font/google";
 import "./globals.css";
 import { Providers } from "@/components/Providers";
 
+const appUrl = process.env.APP_URL ?? "http://localhost:3000";
+
 const plexAr = IBM_Plex_Sans_Arabic({
   variable: "--font-plex-ar",
   subsets: ["arabic", "latin"],
@@ -18,9 +20,29 @@ const plexMono = IBM_Plex_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "ثانويكو | ذاكر صح، مش كتير",
+  metadataBase: new URL(appUrl),
+  title: {
+    default: "ثانويكو | ذاكر صح، مش كتير",
+    template: "%s | ثانويكو",
+  },
   description:
     "نظام التعلم الشخصي لطلاب الثانوية العامة في مصر: ذاكر، اتدرب، افهم غلطاتك، وتابع تقدمك.",
+  robots: { index: true, follow: true },
+  openGraph: {
+    title: "ثانويكو | ذاكر صح، مش كتير",
+    description:
+      "نظام التعلم الشخصي لطلاب الثانوية العامة في مصر: ذاكر، اتدرب، افهم غلطاتك، وتابع تقدمك.",
+    url: appUrl,
+    siteName: "ثانويكو",
+    locale: "ar_EG",
+    type: "website",
+  },
+  twitter: {
+    card: "summary",
+    title: "ثانويكو | ذاكر صح، مش كتير",
+    description:
+      "نظام التعلم الشخصي لطلاب الثانوية العامة في مصر: ذاكر، اتدرب، افهم غلطاتك، وتابع تقدمك.",
+  },
 };
 
 export default function RootLayout({

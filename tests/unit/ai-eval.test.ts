@@ -34,7 +34,7 @@ it("runGoldenEval aggregates results", () => {
       "arabic-001": "إن تنصب، كان ترفع، المصدر: درس النواسخ. سؤال للتأكد: ؟",
       "eng-001": "since/for مع Present Perfect، المصدر: درس الأزمنة. سؤال للتأكد: ؟",
     };
-    const { passed, total, failures } = runGoldenEval(responses);
+    const { passed, total } = runGoldenEval(responses);
     expect(passed).toBeGreaterThanOrEqual(1); // harness works
     expect(total).toBe(GOLDEN_SAMPLE.length);
   });

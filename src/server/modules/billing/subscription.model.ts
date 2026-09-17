@@ -55,7 +55,7 @@ const paymentSchema = new Schema<PaymentDoc>(
   {
     subscriptionId: { type: Schema.Types.ObjectId, ref: "Subscription", required: true },
     studentId: { type: Schema.Types.ObjectId, ref: "StudentProfile", required: true },
-    amountEGP: { type: Number, required: true, min: 1 },
+    amountEGP: { type: Number, required: true, min: 0 },
     currency: { type: String, default: "EGP" },
     provider: { type: String, enum: ["paymob", "fawry", "manual"], default: "paymob" },
     providerRef: { type: String, required: true, unique: true },

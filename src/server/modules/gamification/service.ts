@@ -7,7 +7,7 @@ import { StreakModel } from "@/server/modules/mastery/streak.model";
 import { XPTransactionModel } from "@/server/modules/gamification/xp.model";
 import { AchievementModel, UserAchievementModel } from "@/server/modules/gamification/achievement.model";
 import { cairoDayKey, cairoDayStartUTC } from "@/lib/cairo";
-import { levelFromXP, xpForNextLevel } from "@/server/modules/gamification/xp.model";
+import { levelFromXP } from "@/server/modules/gamification/xp.model";
 
 const ACHIEVEMENT_RULES: Record<string, (ctx: EvalContext) => Promise<boolean>> = {
   first_quiz: async (ctx) => ctx.attemptsCount >= 1,

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { PLANS, getPlan, listPlans, PlanId, GRACE_DAYS } from "@/server/payments/config";
+import { getPlan, listPlans, GRACE_DAYS } from "@/server/payments/config";
 import { createHmac } from "node:crypto";
 
 describe("plans config", () => {

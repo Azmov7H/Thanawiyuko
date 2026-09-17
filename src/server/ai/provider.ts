@@ -94,7 +94,6 @@ export class OpenRouterProvider implements AiProvider {
     if (!reader) throw new Error("No response body");
 
     let content = "";
-    const tokensIn = 0;
     let tokensOut = 0;
     const decoder = new TextDecoder();
 

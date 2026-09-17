@@ -2,15 +2,13 @@
 
 import { useEffect } from "react";
 import Link from "next/link";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 
 /** Success page after Paymob redirect. */
 export default function SubscriptionSuccessPage() {
   const router = useRouter();
-  const params = useSearchParams();
 
   useEffect(() => {
-    // Poll for activation
     const t = setInterval(async () => {
       try {
         const r = await fetch("/api/subscription");
@@ -23,7 +21,7 @@ export default function SubscriptionSuccessPage() {
       } catch {}
     }, 3000);
     return () => clearInterval(t);
-  }, []);
+  }, [router]);
 
   return (
     <div className="flex min-h-full w-full max-w-md mx-auto flex-col items-center justify-center px-4 py-12">

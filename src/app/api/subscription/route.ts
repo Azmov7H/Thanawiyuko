@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { auth } from "@/server/auth/config";
-import { getSubscription, hasPlusAccess, cancelSubscription, getInvoices } from "@/server/billing/service";
-import { listPlans, getPlan } from "@/server/payments/config";
+import { getSubscription, hasPlusAccess, cancelSubscription } from "@/server/billing/service";
+import { listPlans } from "@/server/payments/config";
 
 /** GET /api/subscription — current subscription status + plans. */
 export async function GET() {
