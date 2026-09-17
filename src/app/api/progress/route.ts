@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import mongoose from "mongoose";
 import { dbConnect } from "@/server/db/client";
 import { studentOfSession } from "@/app/api/subjects/route";
 import { TopicMasteryModel } from "@/server/modules/mastery/topic-mastery.model";
@@ -25,6 +26,7 @@ export async function GET() {
     return NextResponse.json({ code: "INTERNAL", messageAr: "الخدمة غير متاحة حاليًا." }, { status: 503 });
   }
   const { userId, profile } = s;
+  const studentObjectId = new mongoose.Types.ObjectId(userId);
   const ent = await getEntitlements(userId);
 
   const today = cairoDayStartUTC();
@@ -33,7 +35,7 @@ export async function GET() {
     MistakeModel.find({ studentId: userId, dueAt: { $lte: today }, resolvedAt: null }).lean(),
     StreakModel.findOne({ studentId: userId }).lean(),
     XPTransactionModel.aggregate([
-      { $match: { studentId: userId } },
+      { $match: { studentId: studentObjectId } },
       {
         $group: {
           _id: null,

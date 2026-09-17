@@ -21,7 +21,7 @@
 | T-F2 | P1 | F | Free/Plus entitlement matrix enforcement | DONE |
 | T-G1 | P1 | G | Admin role/authz + audit viewer | DONE |
 | T-H1 | P1 | H | Structured logging + request ids | DONE |
-| T-H3 | P1 | H | Integration/authorization tests | TODO |
+| T-H3 | P1 | H | Integration/authorization tests | DONE |
 | T-I1 | P2 | I | Landing page upgrade | DONE |
 | T-I3 | P2 | I | RTL accessibility pass | DONE |
 | T-I4 | P2 | I | axe-playwright a11y smoke suite + CI | DONE |
@@ -217,9 +217,17 @@
   `logger.test.ts`; `LOG_LEVEL` documented in `.env.example`.
 
 ### T-H3 — Integration/authorization tests
-- **Description**: Add DB-backed integration tests (e.g. `mongodb-memory-server`) for authz and
-  critical flows (register→onboarding→practice→submit→progress).
-- **Status**: TODO
+- **Description**: Add DB-backed integration tests for authz and critical flows.
+- **Status**: DONE — `vitest.integration.config.ts` (serial, `tests/integration/**`, setup file
+  forces `DATABASE_URL` to `MONGODB_URI_TEST`), `npm run test:integration`. Suite:
+  `admin-authz.test.ts` (real Mongo + mocked session: unauthenticated/student denied, admin
+  list/search, no secret leakage, self-modification blocked, suspend + audit row, admin-blocked
+  role change, super-only `set-role`, set-role validation, audit trail gating) and
+  `learning-flow.test.ts` (submit → `TopicMastery`, `Mistake`, XP ledger, `Streak`,
+  achievements, then `/api/progress` read-back). 10 tests. `mongodb-memory-server` dropped in
+  favour of a plain Mongo (local `mongod` / CI `mongo:8` service). **Found & fixed a real bug**:
+  `/api/progress` XP aggregation matched a string `studentId` against ObjectId values, so the
+  dashboard always showed 0 XP (`src/app/api/progress/route.ts`).
 
 ---
 

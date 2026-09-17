@@ -3,13 +3,13 @@ import path from "node:path";
 
 export default defineConfig({
   test: {
-    include: ["tests/unit/**/*.test.ts"],
+    include: ["tests/integration/**/*.test.ts"],
     environment: "node",
-    coverage: {
-      provider: "v8",
-      reporter: ["text", "json", "html"],
-      exclude: ["tests/**", "**/*.d.ts", "**/*.config.*", "**/mocks/**"],
-    },
+    globals: false,
+    setupFiles: ["tests/integration/setup.ts"],
+    fileParallelism: false,
+    testTimeout: 20_000,
+    hookTimeout: 30_000,
   },
   resolve: { alias: { "@": path.resolve(__dirname, "src") } },
 });

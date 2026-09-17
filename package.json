@@ -9,6 +9,7 @@
     "lint": "eslint",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
+    "test:integration": "vitest run --config vitest.integration.config.ts",
     "test:a11y": "playwright test",
     "seed:curriculum": "tsx scripts/seed-curriculum.ts",
     "make-admin": "tsx scripts/make-admin.ts"

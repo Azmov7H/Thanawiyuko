@@ -24,6 +24,31 @@ jobs:
           DATABASE_URL: mongodb://localhost:27017/thanawico-ci
           AUTH_SECRET: ci-placeholder-secret
 
+  integration:
+    runs-on: ubuntu-latest
+    services:
+      mongo:
+        image: mongo:8
+        ports:
+          - 27017:27017
+        options: >-
+          --health-cmd "mongosh --quiet --eval 'db.adminCommand({ ping: 1 })'"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    env:
+      MONGODB_URI_TEST: mongodb://127.0.0.1:27017/thanawico_integration_test
+      AUTH_SECRET: ci-placeholder-secret
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - run: npm run typecheck
+      - run: npm run test:integration
+
   a11y:
     runs-on: ubuntu-latest
     steps:
