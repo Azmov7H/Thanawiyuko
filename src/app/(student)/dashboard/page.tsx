@@ -3,8 +3,11 @@
 import { useQuery } from "@tanstack/react-query";
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import { XpProgress } from "@/components/XpProgress";
+import { StreakWidget } from "@/components/StreakWidget";
+import { AchievementGallery } from "@/components/AchievementGallery";
 
-/** M5 dashboard: plan-today + weak-top-3 + mastery bars + streak/XP + due reviews */
+/** M7 dashboard: gamification widgets + plan + progress */
 export default function DashboardPage() {
   const [stale, setStale] = useState(false);
 
@@ -41,17 +44,10 @@ export default function DashboardPage() {
           <h1 className="text-xl font-bold text-ink">لوحتك اليوم</h1>
           {stale && <span className="text-xs text-ink-mute">محدث قبل ثوانٍ</span>}
         </div>
-        <div className="mt-3 grid grid-cols-3 gap-2">
-          {[
-            { label: "XP الكلي", value: d.xp.total, sub: `مستوى ${d.xp.level}` },
-            { label: "اليوم", value: d.xp.today, sub: "نقاط" },
-            { label: "سلسلة", value: d.streak.current, sub: `أطول ${d.streak.longest}` },
-          ].map((s) => (
-            <div key={s.label} className="rounded-xl border border-line bg-base p-3 text-center">
-              <div className="tnum text-lg font-bold text-ink">{s.value}</div>
-              <div className="text-xs text-ink-mute">{s.label} • {s.sub}</div>
-            </div>
-          ))}
+        <div className="mt-3 grid grid-cols-1 md:grid-cols-3 gap-4">
+          <XpProgress />
+          <StreakWidget />
+          <AchievementGallery />
         </div>
       </section>
 
