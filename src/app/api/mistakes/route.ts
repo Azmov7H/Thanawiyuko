@@ -4,6 +4,7 @@ import { studentOfSession } from "@/app/api/subjects/route";
 import { MistakeModel } from "@/server/modules/mastery/mistake.model";
 import { QuestionModel } from "@/server/modules/questions/question.model";
 import { TopicModel } from "@/server/modules/academic/content.models";
+import { getEntitlements } from "@/server/billing/entitlements";
 
 /** GET /api/mistakes?filter=due|all — mistake library with hydrated question content. */
 export async function GET(req: Request) {
@@ -21,7 +22,8 @@ export async function GET(req: Request) {
   const query: Record<string, unknown> = { studentId: userId, resolvedAt: null };
   if (filter !== "all") query.dueAt = { $lte: new Date() };
 
-  const mistakes = await MistakeModel.find(query).sort({ dueAt: 1 }).limit(50).lean();
+  const ent = await getEntitlements(userId);
+  const mistakes = await MistakeModel.find(query).sort({ dueAt: 1 }).limit(ent.mistakesHistoryLimit).lean();
   const questionIds = mistakes.map((m) => m.questionId);
   const topicIds = [...new Set(mistakes.map((m) => String(m.topicId)))];
 
@@ -39,6 +41,8 @@ export async function GET(req: Request) {
   const titleByTopic = new Map(topics.map((t) => [String(t._id), t.titleAr]));
 
   return NextResponse.json({
+    limit: ent.mistakesHistoryLimit,
+    isPlus: ent.isPlus,
     items: mistakes
       .map((m) => {
         const q = questionById.get(String(m.questionId));

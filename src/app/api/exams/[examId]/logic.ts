@@ -8,6 +8,7 @@ import { AttemptModel } from "@/server/modules/assessment/attempt.model";
 import { QuestionModel } from "@/server/modules/questions/question.model";
 import { shuffled } from "@/lib/random";
 import { toPublic } from "@/server/modules/assessment/scoring";
+import { getEntitlements } from "@/server/billing/entitlements";
 
 function examInScope(exam: { grade: string; track: string | null }, profile: { grade: string | null; track: string | null }): boolean {
   if (profile.grade && exam.grade !== profile.grade) return false;
@@ -30,7 +31,10 @@ export async function briefing(examId: string) {
   const exam = await ExamModel.findOne({ _id: examId, status: "published" }).lean();
   if (!exam || !examInScope(exam, s.profile))
     return NextResponse.json({ code: "NOT_FOUND", messageAr: "الامتحان غير موجود." }, { status: 404 });
-  const used = await AttemptModel.countDocuments({ examId: exam._id, userId: s.userId });
+  const ent = await getEntitlements(s.userId);
+  const usedThisExam = await AttemptModel.countDocuments({ examId: exam._id, userId: s.userId });
+  const usedTotal = ent.fullMockAccess ? usedThisExam : await AttemptModel.countDocuments({ userId: s.userId, kind: "exam" });
+  const attemptsAllowed = ent.fullMockAccess ? exam.attemptsAllowed : ent.mockAttemptsAllowed;
   return NextResponse.json({
     exam: {
       id: String(exam._id),
@@ -38,8 +42,9 @@ export async function briefing(examId: string) {
       description: exam.description,
       durationMin: exam.durationMin,
       totalQ: exam.blueprint.reduce((n: number, r: { count: number }) => n + r.count, 0),
-      attemptsAllowed: exam.attemptsAllowed,
-      attemptsLeft: Math.max(0, exam.attemptsAllowed - used),
+      attemptsAllowed,
+      attemptsLeft: Math.max(0, attemptsAllowed - usedTotal),
+      plusRequired: !ent.fullMockAccess && usedTotal >= ent.mockAttemptsAllowed,
     },
   });
 }
@@ -71,12 +76,23 @@ export async function startExam(examId: string, clientAttemptId?: string) {
     });
   }
 
-  const used = await AttemptModel.countDocuments({ examId: exam._id, userId: s.userId });
-  if (used >= exam.attemptsAllowed) {
-    return NextResponse.json(
-      { code: "EXAM_LIMIT", messageAr: "استنفدت محاولات هذا الامتحان." },
-      { status: 403 },
-    );
+  const ent = await getEntitlements(s.userId);
+  if (ent.fullMockAccess) {
+    const used = await AttemptModel.countDocuments({ examId: exam._id, userId: s.userId });
+    if (used >= exam.attemptsAllowed) {
+      return NextResponse.json(
+        { code: "EXAM_LIMIT", messageAr: "استنفدت محاولات هذا الامتحان." },
+        { status: 403 },
+      );
+    }
+  } else {
+    const usedTotal = await AttemptModel.countDocuments({ userId: s.userId, kind: "exam" });
+    if (usedTotal >= ent.mockAttemptsAllowed) {
+      return NextResponse.json(
+        { code: "PLUS_REQUIRED", messageAr: "الامتحان التجريبي الكامل متاح لمشتركي بلس. جرّب الامتحان المجاني أولًا." },
+        { status: 403 },
+      );
+    }
   }
 
   // Resolve blueprint: sample per row, then shuffle globally per attempt.

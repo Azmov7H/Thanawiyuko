@@ -7,6 +7,7 @@ import { TopicModel } from "@/server/modules/academic/content.models";
 import { MistakeModel } from "@/server/modules/mastery/mistake.model";
 import { StudentProfileModel } from "@/server/modules/academic/student-profile.model";
 import { AIConversationModel } from "@/server/modules/ai/conversation.model";
+import { entitlementsFor } from "@/server/billing/entitlements";
 import { cairoDayStartUTC } from "@/lib/cairo";
 
 const config = loadAiConfig();
@@ -25,7 +26,7 @@ export async function checkAndConsumeQuota(userId: string, isPlus: boolean): Pro
   await dbConnect();
   const today = cairoDayStartUTC();
   const tomorrow = cairoDayStartUTC(new Date(today.getTime() + 24 * 60 * 60 * 1000));
-  const limit = isPlus ? config.dailyQuota.plus : config.dailyQuota.free;
+  const limit = entitlementsFor(isPlus).aiDailyQuota;
 
   let conv = await AIConversationModel.findOne({ studentId: userId, quotaPeriod: today }).lean();
   if (conv && (conv.quota?.used ?? 0) >= limit) {

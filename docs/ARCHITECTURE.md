@@ -143,5 +143,5 @@ provider (stream/non-stream) → persist message(s) → log. AI never mutates le
 
 - Vercel-compatible Next build; env vars documented in `.env.example`
   (`DATABASE_URL`, `AUTH_SECRET`, `APP_URL`, `NEXTAUTH_URL`, `AI_*`, `PAYMOB_*`, `CRON_SECRET`,
-  `PRACTICE_DAILY_LIMIT`, `FEATURE_*`).
+  `FREE_PRACTICE_DAILY_LIMIT` (legacy `PRACTICE_DAILY_LIMIT`), `FEATURE_*`).
 - Daily reconciliation endpoint to be scheduled externally with `x-cron-secret`.

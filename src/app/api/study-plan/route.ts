@@ -5,6 +5,7 @@ import { StudyPlanModel } from "@/server/modules/planning/study-plan.model";
 import { buildPlanContext } from "@/server/modules/planning/plan-input";
 import { generatePlan } from "@/lib/planner";
 import { cairoDayKey } from "@/lib/cairo";
+import { getEntitlements } from "@/server/billing/entitlements";
 
 export async function GET() {
   const s = await studentOfSession();
@@ -15,6 +16,7 @@ export async function GET() {
     return NextResponse.json({ code: "INTERNAL", messageAr: "الخدمة غير متاحة حاليًا." }, { status: 503 });
   }
   const { userId, profile } = s;
+  const ent = await getEntitlements(userId);
   const today = cairoDayKey();
   let plan = await StudyPlanModel.findOne({ studentId: userId, date: today }).lean();
   if (!plan) {
@@ -23,7 +25,14 @@ export async function GET() {
     const items = generatePlan(context.planInput);
     plan = { items, date: today } as { items: typeof items; date: string };
   }
-  return NextResponse.json({ plan: plan?.items ?? [], date: today });
+  const allItems = plan?.items ?? [];
+  const items = ent.adaptivePlan ? allItems : allItems.slice(0, ent.studyPlanPreviewItems);
+  return NextResponse.json({
+    plan: items,
+    date: today,
+    adaptive: ent.adaptivePlan,
+    upgradeRequired: !ent.adaptivePlan,
+  });
 }
 
 export async function POST() {
@@ -35,6 +44,13 @@ export async function POST() {
     return NextResponse.json({ code: "INTERNAL", messageAr: "الخدمة غير متاحة حاليًا." }, { status: 503 });
   }
   const { userId, profile } = s;
+  const ent = await getEntitlements(userId);
+  if (!ent.adaptivePlan) {
+    return NextResponse.json(
+      { code: "PLUS_REQUIRED", messageAr: "الخطة اليومية المتكيفة متاحة لمشتركي بلس." },
+      { status: 403 },
+    );
+  }
   const today = cairoDayKey();
   let plan = await StudyPlanModel.findOne({ studentId: userId, date: today });
   if (plan && plan.status === "active") {

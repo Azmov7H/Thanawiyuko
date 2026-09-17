@@ -18,7 +18,7 @@
 | T-D2 | P1 | D | Lesson completion → StudySession | DONE |
 | T-E1 | P1 | E | Deterministic recommendation engine | DONE |
 | T-F1 | P1 | F | DB-driven plans | TODO |
-| T-F2 | P1 | F | Free/Plus entitlement matrix enforcement | TODO |
+| T-F2 | P1 | F | Free/Plus entitlement matrix enforcement | DONE |
 | T-G1 | P1 | G | Admin role/authz + audit viewer | TODO |
 | T-H1 | P1 | H | Structured logging + request ids | TODO |
 | T-H3 | P1 | H | Integration/authorization tests | TODO |
@@ -178,7 +178,12 @@
 ### T-F2 — Entitlement matrix enforcement
 - **Description**: Server-side Free vs Plus limits for practice/exam/AI/mocks; centralized
   `hasPlusAccess`/`entitlements` checks; no frontend authority.
-- **Status**: TODO
+- **Status**: DONE — `src/server/billing/entitlements.ts` is the single Free/Plus matrix
+  (practice quota, AI quota, mock attempts, mistakes history, adaptive plan), resolved from
+  `hasPlusAccess`. Wired: practice/start (30 vs unlimited), exams briefing/start (1 free mock
+  then `PLUS_REQUIRED`), mistakes (20 vs 200), study-plan GET preview + POST gate,
+  `/api/progress` plan cap + `upgradeRequired`, AI quota via `entitlementsFor`. Unit tests in
+  `entitlements.test.ts`.
 
 ---
 

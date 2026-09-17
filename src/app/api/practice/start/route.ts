@@ -10,6 +10,7 @@ import { shuffled } from "@/lib/random";
 import { cairoDayStartUTC } from "@/lib/cairo";
 import { QuestionModel } from "@/server/modules/questions/question.model";
 import { TopicModel } from "@/server/modules/academic/content.models";
+import { getEntitlements } from "@/server/billing/entitlements";
 
 const startSchema = z
   .object({
@@ -21,11 +22,6 @@ const startSchema = z
   .refine((v) => Boolean(v.subjectId) !== Boolean(v.topicId), {
     message: "حدد مادة أو موضوعًا واحدًا.",
   });
-
-export function dailyLimit(): number {
-  const n = Number(process.env.PRACTICE_DAILY_LIMIT ?? 30);
-  return Number.isFinite(n) && n > 0 ? Math.floor(n) : 30;
-}
 
 /** POST /api/practice/start — sample questions, snapshot, create attempt. */
 export async function POST(req: Request) {
@@ -74,13 +70,14 @@ export async function POST(req: Request) {
   }
 
   // Daily practice budget (§4.5 anti-farm + §3 free tier).
+  const ent = await getEntitlements(userId);
   const dayStart = cairoDayStartUTC();
   const todays = await AttemptModel.aggregate([
     { $match: { userId: new mongoose.Types.ObjectId(userId), startedAt: { $gte: dayStart } } },
     { $group: { _id: null, n: { $sum: "$total" } } },
   ]);
   const used = todays[0]?.n ?? 0;
-  const limit = dailyLimit();
+  const limit = ent.practiceDailyQuota;
   if (used + parsed.data.count > limit) {
     return NextResponse.json(
       {
@@ -157,7 +154,7 @@ export async function POST(req: Request) {
       attemptId: String(attempt._id),
       questions: toPublic(attempt.snapshots),
       total: attempt.total,
-      remaining: limit - used - attempt.total,
+      remaining: Number.isFinite(limit) ? Math.max(0, limit - used - attempt.total) : null,
     },
     { status: 201 },
   );

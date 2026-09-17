@@ -13,6 +13,7 @@ import { cairoDayKey, cairoDayStartUTC } from "@/lib/cairo";
 import { isWeakTopic, weakTopicScore } from "@/lib/weakness";
 import { computeReadiness } from "@/lib/readiness";
 import { buildRecommendations } from "@/lib/recommendations";
+import { getEntitlements } from "@/server/billing/entitlements";
 
 /** GET /api/progress — unified progress snapshot (dashboard feed). */
 export async function GET() {
@@ -24,6 +25,7 @@ export async function GET() {
     return NextResponse.json({ code: "INTERNAL", messageAr: "الخدمة غير متاحة حاليًا." }, { status: 503 });
   }
   const { userId, profile } = s;
+  const ent = await getEntitlements(userId);
 
   const today = cairoDayStartUTC();
   const [mastery, mistakes, streak, xpAgg] = await Promise.all([
@@ -139,6 +141,7 @@ export async function GET() {
     const planItems = generatePlan(context.planInput);
     plan = { items: planItems, date: todayKey } as { items: typeof planItems; date: string };
   }
+  const planItems = plan?.items ?? [];
 
   return NextResponse.json({
     xp: { total: totalXP, today: todayXP, level: levelFromXP(totalXP) },
@@ -148,6 +151,7 @@ export async function GET() {
     readiness,
     next,
     mistakesDue: mistakes.length,
-    plan: plan?.items ?? [],
+    plan: ent.adaptivePlan ? planItems : planItems.slice(0, ent.studyPlanPreviewItems),
+    upgradeRequired: !ent.adaptivePlan,
   });
 }
