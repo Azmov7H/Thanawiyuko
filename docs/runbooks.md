@@ -24,6 +24,7 @@
 | Rate limit موزّع (Redis/Upstash) | ❌ غير منفّذ | `GAP` — fallback: حدود الذاكرة |
 | حذف/تصدير الحساب | ✅ منفّذ (T-N2) | `src/server/modules/account/service.ts` |
 | صفحات الخصوصية/الشروط + إقرار ولي الأمر | ✅ منفّذ | `/privacy`, `/terms`, التسجيل |
+| بنية تصدير PDF | 🟡 بنية جاهزة (T-K1) | `src/server/modules/pdf/` — `PDF_ENGINE=chromium` يحتاج متصفحًا على المضيف |
 
 ---
 

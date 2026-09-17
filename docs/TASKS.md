@@ -26,7 +26,7 @@
 | T-I3 | P2 | I | RTL accessibility pass | DONE |
 | T-I4 | P2 | I | axe-playwright a11y smoke suite + CI | DONE |
 | T-J1 | P2 | J | i18n foundation | DONE |
-| T-K1 | P2 | K | PDF export architecture | TODO |
+| T-K1 | P2 | K | PDF export architecture | DONE |
 | T-L1 | P2 | L | Transactional notifications | TODO |
 | T-M1 | P3 | M | Teacher role + profile stub | TODO |
 | T-N1 | P1 | N | Restore ops docs + backup/restore drill | DONE |
@@ -265,7 +265,22 @@
   (client) to read from the dictionary. `en` is a known-but-disabled locale (MVP stays
   Arabic-only, per README §1048); J3 becomes adding `dictionaries/en.ts` without touching UI.
   Tests: `tests/unit/i18n.test.ts` (8).
-- T-K1 PDF export architecture — TODO
+- T-K1 PDF export architecture — DONE: added `src/server/modules/pdf/`:
+  - `document.ts` — Zod-validated, renderer-agnostic document model (`PdfDocument` with
+    headings/paragraphs/callouts/key-values/lists/tables/spacers/page breaks).
+  - `html.ts` — pure Arabic/RTL HTML serializer (`renderPdfHtml`) with print CSS
+    (`@page` A4, Cairo font stack, `break-inside: avoid`, tabular numerals) and full
+    HTML escaping; no app UI leaks into the document.
+  - `engine.ts` — pluggable `PdfEngine` abstraction; `chromiumPdfEngine` prints the HTML
+    via a lazily imported Playwright Chromium (A4, page numbers in the footer); selection
+    through `PDF_ENGINE` (`chromium` default, `disabled` to hard-off).
+  - `service.ts` — `generatePdf(doc)` → `{ buffer, filename, contentType }`, plus
+    `parsePdfDocument`, `defaultPdfFilename`, RFC 5987 `contentDisposition`.
+  - `scripts/pdf-smoke.ts` (`npm run pdf:smoke`) renders a sample doc; verified a real
+    A4, 2-page PDF with embedded Arabic shaping fonts (53 KB). Tests:
+    `tests/unit/pdf.test.ts` (10). `.env.example` documents `PDF_ENGINE`.
+  - Known gap: the Chromium engine needs a host with a browser (self-host/Docker); Vercel
+    serverless needs a hosted engine (tracked for K2/§31).
 - T-L1 Transactional notifications — TODO
 
 ## Phase M — Teacher Dimension (P3, V2)
