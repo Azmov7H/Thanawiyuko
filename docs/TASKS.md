@@ -29,7 +29,9 @@
 | T-K1 | P2 | K | PDF export architecture | TODO |
 | T-L1 | P2 | L | Transactional notifications | TODO |
 | T-M1 | P3 | M | Teacher role + profile stub | TODO |
-| T-N1 | P1 | N | Restore ops docs + backup/restore drill | TODO |
+| T-N1 | P1 | N | Restore ops docs + backup/restore drill | DONE |
+| T-N2 | P1 | N | Account deletion/export + privacy pages + guardian consent | TODO |
+| T-N3 | P2 | N | Error monitoring + distributed limits + enforce kill switches | TODO |
 
 ---
 
@@ -262,5 +264,17 @@
 - M2–M5 content studio / analytics / discovery / economy — backlog
 
 ## Phase N — Production Readiness (P1)
-- T-N1 Restore operational docs (data-minimization, deploy checklist, runbooks, privacy,
-  account-deletion SOP) and run a backup/restore drill — TODO
+- T-N1 Restore operational docs + backup/restore drill — DONE: restored and corrected
+  `docs/runbooks.md`, `docs/deploy-checklist.md`, `docs/data-minimization.md`,
+  `docs/privacy-policy.md`, `docs/account-deletion-sop.md` (each now states implemented
+  vs `GAP` against real code). Rewrote `scripts/restore-drill.sh` into a real
+  dump → restore into a throwaway DB → per-collection count comparison → cleanup, and ran
+  it against local `mongod` (green). Added `npm run seed:achievements`
+  (`scripts/seed-achievements.ts`, idempotent, 10 definitions matching `ACHIEVEMENT_RULES`),
+  closing the gap where no code seeded `AchievementModel` so achievements never unlocked.
+  The docs also record known gaps (unenforced kill switches, no Sentry, no `/privacy`
+  pages, no account deletion, JWT sessions cannot be revoked individually).
+- T-N2 Account deletion/export, `/privacy` + `/terms` pages, guardian consent — TODO
+  (spec in `docs/account-deletion-sop.md`; requires `deletion_pending`/`deletionRequestedAt`).
+- T-N3 Error monitoring (Sentry), distributed rate limiting, and actually enforcing
+  `src/lib/features.ts` kill switches — TODO.

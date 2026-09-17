@@ -137,9 +137,9 @@ Git HEAD: `00c7c71 feat(billing): enhance subscription management and payment ha
 - Planner inputs stubbed (`recentActivity`, `examWeight`), so "explainable" reasons are partially synthetic.
 - `gamification/service.ts` has an import at the **bottom** of the file and a `// TODO` cluster in `EvalContext`.
 - AI quota is stored on the first `AIConversation` of the Cairo day (index not unique) — accepted MVP limitation.
-- Hardcoded plans in code instead of DB; feature flags env-only.
+- Plans are DB-driven (`PlanModel`, seeded from `src/server/payments/config.ts`); feature flags are defined in `src/lib/features.ts` but **not enforced** anywhere.
 - `README.md` is a full normative spec; code intentionally implements a subset (MVP). Docs must track reality.
-- `docs/` was emptied in `00c7c71` (privacy/runbooks/deploy docs deleted); this audit re-establishes tracking.
+- `docs/` was emptied in `00c7c71`; the operational set (runbooks, deploy checklist, data-minimization, privacy, account-deletion SOP) was restored and corrected in T-N1.
 
 ## 6. Risk areas (change carefully)
 

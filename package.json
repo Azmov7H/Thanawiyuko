@@ -12,6 +12,7 @@
     "test:integration": "vitest run --config vitest.integration.config.ts",
     "test:a11y": "playwright test",
     "seed:curriculum": "tsx scripts/seed-curriculum.ts",
+    "seed:achievements": "tsx scripts/seed-achievements.ts",
     "make-admin": "tsx scripts/make-admin.ts"
   },
   "dependencies": {
