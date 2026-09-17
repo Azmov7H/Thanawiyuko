@@ -13,7 +13,7 @@ import { checkRateLimit } from "@/server/ratelimit";
  */
 export const { handlers, auth, signIn, signOut } = NextAuth(() => ({
   adapter: MongoDBAdapter(authMongoClient(), { databaseName: "thanawico" }),
-  session: { strategy: "database", maxAge: 30 * 24 * 60 * 60 },
+  session: { strategy: "jwt", maxAge: 30 * 24 * 60 * 60 },
   pages: { signIn: "/login" },
   trustHost: true,
   providers: [
@@ -52,11 +52,18 @@ export const { handlers, auth, signIn, signOut } = NextAuth(() => ({
     }),
   ],
   callbacks: {
-    async session({ session, user }) {
-      const u = user as unknown as { id: string; role?: string };
+    async jwt({ token, user }) {
+      if (user) {
+        const u = user as unknown as { id: string; role?: string };
+        token.id = u.id;
+        token.role = u.role ?? "student";
+      }
+      return token;
+    },
+    async session({ session, token }) {
       if (session.user) {
-        (session.user as { id?: string }).id = u.id;
-        (session.user as { role?: string }).role = u.role ?? "student";
+        (session.user as { id?: string }).id = token.id as string;
+        (session.user as { role?: string }).role = token.role as string;
       }
       return session;
     },
