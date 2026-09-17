@@ -1,6 +1,7 @@
 "use client";
 
 import { useMutation, useQuery } from "@tanstack/react-query";
+import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 
 type Tree = {
@@ -8,7 +9,12 @@ type Tree = {
   units: Array<{
     id: string;
     titleAr: string;
-    topics: Array<{ id: string; titleAr: string; questionCount: number }>;
+    topics: Array<{
+      id: string;
+      titleAr: string;
+      questionCount: number;
+      lessons: Array<{ id: string; titleAr: string; readingMinutes: number }>;
+    }>;
   }>;
 };
 
@@ -73,22 +79,36 @@ export default function SubjectPage() {
           <h2 className="font-bold text-ink">{u.titleAr}</h2>
           <ul className="mt-2 flex flex-col gap-2">
             {u.topics.map((t) => (
-              <li
-                key={t.id}
-                className="flex items-center justify-between gap-3 rounded-lg border border-line bg-base p-3"
-              >
-                <div>
-                  <p className="text-sm font-medium text-ink">{t.titleAr}</p>
-                  <p className="tnum text-xs text-ink-mute">{t.questionCount} سؤال</p>
+              <li key={t.id} className="rounded-lg border border-line bg-base p-3">
+                <div className="flex items-center justify-between gap-3">
+                  <div>
+                    <p className="text-sm font-medium text-ink">{t.titleAr}</p>
+                    <p className="tnum text-xs text-ink-mute">{t.questionCount} سؤال</p>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => start.mutate(t.id)}
+                    disabled={start.isPending || t.questionCount < 3}
+                    className="shrink-0 rounded-lg bg-brand-600 px-3 py-2 text-sm font-bold text-white disabled:opacity-50"
+                  >
+                    {t.questionCount < 3 ? "قريبًا" : "تدرب"}
+                  </button>
                 </div>
-                <button
-                  type="button"
-                  onClick={() => start.mutate(t.id)}
-                  disabled={start.isPending || t.questionCount < 3}
-                  className="shrink-0 rounded-lg bg-brand-600 px-3 py-2 text-sm font-bold text-white disabled:opacity-50"
-                >
-                  {t.questionCount < 3 ? "قريبًا" : "تدرب"}
-                </button>
+                {t.lessons.length > 0 && (
+                  <ul className="mt-2 flex flex-col gap-1">
+                    {t.lessons.map((l) => (
+                      <li key={l.id}>
+                        <Link
+                          href={`/lessons/${l.id}`}
+                          className="flex items-center justify-between rounded-md px-2 py-1.5 text-xs text-brand-700 hover:bg-surface"
+                        >
+                          <span>اقرأ: {l.titleAr}</span>
+                          <span className="tnum text-ink-mute">{l.readingMinutes} د</span>
+                        </Link>
+                      </li>
+                    ))}
+                  </ul>
+                )}
               </li>
             ))}
           </ul>

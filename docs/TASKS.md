@@ -14,8 +14,8 @@
 | T-B4 | P0 | B | Learning loop — planner/weak-topic inputs | DONE |
 | T-C1 | P1 | C | Decide/implement `/subjects/[id]` + `/mistakes` | DONE |
 | T-C2 | P1 | C | Enable `/progress`, `/study-plan` in nav | DONE |
-| T-D1 | P1 | D | Lesson/topic consumption page | TODO |
-| T-D2 | P1 | D | Lesson completion → StudySession | TODO |
+| T-D1 | P1 | D | Lesson/topic consumption page | DONE |
+| T-D2 | P1 | D | Lesson completion → StudySession | DONE |
 | T-E1 | P1 | E | Deterministic recommendation engine | TODO |
 | T-F1 | P1 | F | DB-driven plans | TODO |
 | T-F2 | P1 | F | Free/Plus entitlement matrix enforcement | TODO |
@@ -143,12 +143,15 @@
   published-only, entitlement-aware.
 - **Files**: new API `src/app/api/lessons/[lessonId]/route.ts`, new pages.
 - **Acceptance criteria**: unpublished content never returned to students.
-- **Status**: TODO
+- **Status**: DONE — `GET /api/lessons/[lessonId]` (published-only; lesson + topic/subject + prev/next)
+  and `src/app/(student)/lessons/[lessonId]/page.tsx` reader; `subjectTree` now returns published
+  lessons per topic and the subject page links them.
 
 ### T-D2 — Lesson completion logging
 - **Description**: Mark-complete / dwell rule logs `StudySession` (no mastery grant per README §4.3).
 - **Dependencies**: T-D1.
-- **Status**: TODO
+- **Status**: DONE — new `StudySession` model (one row per student/lesson/Cairo-day) and
+  `POST /api/lessons/[lessonId]/complete`; reader tracks dwell and posts minutes. No mastery granted.
 
 ---
 

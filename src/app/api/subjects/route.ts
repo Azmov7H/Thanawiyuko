@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { auth } from "@/server/auth/config";
 import { dbConnect } from "@/server/db/client";
 import { StudentProfileModel } from "@/server/modules/academic/student-profile.model";
-import { SubjectModel, TopicModel, UnitModel } from "@/server/modules/academic/content.models";
+import { SubjectModel, TopicModel, UnitModel, LessonModel } from "@/server/modules/academic/content.models";
 import { QuestionModel } from "@/server/modules/questions/question.model";
 
 function unauth() {
@@ -67,6 +67,16 @@ export async function subjectTree(subjectId: string) {
         titleAr: t.titleAr,
         conceptTags: t.conceptTags,
         questionCount: await QuestionModel.countDocuments({ topicId: t._id, status: "published" }),
+        lessons: (
+          await LessonModel.find({ topicId: t._id, status: "published" })
+            .select("titleAr readingMinutes order")
+            .sort({ order: 1 })
+            .lean()
+        ).map((l) => ({
+          id: String(l._id),
+          titleAr: l.titleAr,
+          readingMinutes: l.readingMinutes,
+        })),
       })),
     );
     tree.push({ id: String(u._id), titleAr: u.titleAr, topics: withCounts });
