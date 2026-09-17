@@ -75,6 +75,7 @@ export async function POST(req: Request) {
     email: parsed.data.email,
     passwordHash: await hashPassword(parsed.data.password),
     role: "student",
+    guardianConsentAt: new Date(),
   });
   await StudentProfileModel.create({ userId: user._id });
 

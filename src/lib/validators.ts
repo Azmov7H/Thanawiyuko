@@ -24,6 +24,13 @@ export const registerSchema = z.object({
     .string()
     .min(8, "كلمة المرور 8 أحرف على الأقل")
     .max(128, "كلمة المرور طويلة جدًا"),
+  guardianConsent: z
+    .boolean()
+    .refine((v) => v === true, { message: "مطلوب إقرار ولي الأمر للمتابعة" }),
+});
+
+export const deleteAccountSchema = z.object({
+  password: z.string().min(1, "كلمة المرور مطلوبة").max(128),
 });
 
 export const onboardingPatchSchema = z

@@ -307,6 +307,12 @@ export default function LandingPage() {
             <Link href="/register" className="hover:text-ink">
               حساب جديد
             </Link>
+            <Link href="/privacy" className="hover:text-ink">
+              الخصوصية
+            </Link>
+            <Link href="/terms" className="hover:text-ink">
+              الشروط
+            </Link>
           </nav>
         </div>
       </footer>

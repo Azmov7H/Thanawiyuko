@@ -3,9 +3,11 @@
 **الهدف:** تنفيذ حق الحذف (Right to Erasure) بأمان وشفافية وامتثال للقانون المصري.
 **آخر تحديث:** 2026-09-18
 
-> **الحالة: غير منفّذ (مواصفة مقترحة) — T-N2.**
-> لا توجد حاليًا أي مسارات `/api/account/*`، ولا واجهة «حذف حسابي»، ولا `deletionRequestedAt`.
-> هذا المستند هو خطة التنفيذ المعتمَدة قبل الإطلاق.
+> **الحالة: منفّذ (T-N2).**
+> المسارات: `POST /api/account/delete-request`، `POST /api/account/delete-cancel`،
+> `GET /api/account/export`. المنطق في `src/server/modules/account/service.ts`،
+> والتنفيذ النهائي عبر `/api/cron/reconcile` (مهلة `DELETION_GRACE_DAYS`، افتراضي 30).
+> واجهة الإدارة في `/settings` مع شريط تحذير دائم في واجهة الطالب.
 
 ---
 
@@ -67,8 +69,8 @@ for (user of usersWhere(status === "deletion_pending" AND deletionRequestedAt < 
   await AIConversationModel.updateMany({ studentId: user._id }, { $set: { messages: [], title: null } });
   await SubscriptionModel.updateOne({ studentId: user._id }, { $set: { status: "cancelled", tier: "free" } });
 
-  // 3. المحاولات: إبقاء إحصاءات مجهولة (userId/studentId = null) بعد جعل الحقول nullable.
-  //    PaymentModel: إبقاء المبلغ/المرجع للضرائب مع إزالة الرابط بالطالب.
+  // 3. المحاولات (Attempts) + المدفوعات: تبقى كما هي (معرّفات مجهولة الهوية بلا PII).
+  //    لا تُجعل الحقول nullable؛ يكفي أن المستخدم نفسه مُخفى الهوية.
 
   // 4. سجل التدقيق
   await AuditLogModel.create({ actorId: SYSTEM_ACTOR, action: "account.final_delete", entity: "user", entityId: user._id });
@@ -84,15 +86,17 @@ for (user of usersWhere(status === "deletion_pending" AND deletionRequestedAt < 
 
 | البيانات | الإجراء | السبب |
 |----------|---------|-------|
-| الاسم، البريد، كلمة المرور | **إخفاء/تعطيل** | PII مباشر |
+| الاسم، البريد، كلمة المرور | **إخفاء + تعطيل** (اسم «مستخدم محذوف»، بريد مُشتق، hash عشوائي) | PII مباشر |
 | الملف الدراسي | **حذف** | PII غير مباشر |
-| المحاولات (Attempts) | **إخفاء المعرف** (`null`) | إحصاءات مجهولة |
-| الإجابات، الدرجات، التوقيت | **تبقى مجهولة** | تحسين المنتج/المنهج |
+| المحاولات (Attempts) | **إبقاء مجهولة** — تبقى معرّفات ObjectId المشيرة لحساب مُخفى الهوية، بلا أي PII | إحصاءات تعلّم مجهولة الهوية |
+| الإجابات، الدرجات، التوقيت | **تبقى داخل Attempts** | تحسين المنتج/المنهج |
 | مكتبة الأخطاء (Mistakes) | **حذف** | مرتبطة بالهوية |
-| محادثات الذكاء الاصطناعي | **مسح المحتوى** (`messages=[]`) | خصوصية المحادثات |
-| الاشتراكات + المدفوعات | **إبقاء المبلغ/المرجع، إزالة الرابط** | متطلب ضريبي (5 سنوات) |
+| تقدّم المواضيع، XP، السلسلة، الإنجازات | **حذف** | مرتبطة بالهوية |
+| محادثات الذكاء الاصطناعي | **مسح المحتوى** (`messages=[]`, `title=null`) | خصوصية المحادثات |
+| خطة المذاكرة وجلسات الدرس | **حذف** | مرتبطة بالهوية |
+| الاشتراكات | **إلغاء** (`cancelled`, `tier=free`) | إنهاء الاستحقاق |
+| المدفوعات | **تبقى** (المبلغ/المرجع/`studentId` مجهول الهوية) | متطلب ضريبي (5 سنوات) |
 | سجل التدقيق | **يبقى** | سلامة السجل |
-| الإنجازات، XP، السلسلة | **حذف** | مرتبطة بالهوية |
 
 ---
 
@@ -111,12 +115,12 @@ for (user of usersWhere(status === "deletion_pending" AND deletionRequestedAt < 
 ---
 
 ## 6. قائمة التحقق قبل الإطلاق (Pre-Launch Checklist — T-N2)
-- [ ] تعديل المخطط: `deletion_pending`, `deletionRequestedAt`, `deletedAt`.
-- [ ] `POST /api/account/delete-request` + `POST /api/account/delete-cancel` + Rate limit.
-- [ ] Cron `processFinalDeletion()` محمي بـ `CRON_SECRET`.
-- [ ] `GET /api/account/export` (تصدير JSON) — شرط للحذف.
-- [ ] اختبارات تكامل: طلب → تراجع (يوم 5) → نشط؛ طلب → بلا تراجع (يوم 31) → مجهول.
-- [ ] توثيق في `privacy-policy.md`.
+- [x] تعديل المخطط: `deletion_pending`, `deletionRequestedAt`, `deletedAt`, `guardianConsentAt`.
+- [x] `POST /api/account/delete-request` + `POST /api/account/delete-cancel` (مع تحديد معدل).
+- [x] Cron `processFinalDeletion()` مدمج في `/api/cron/reconcile` المحمي بـ `CRON_SECRET`.
+- [x] `GET /api/account/export` (تصدير JSON).
+- [x] اختبارات تكامل: `tests/integration/account-lifecycle.test.ts` (طلب/تراجع/تصدير/تنفيذ نهائي).
+- [x] توثيق في `privacy-policy.md` ومنح شريط تراجع في واجهة الطالب.
 
 ---
 

@@ -1,9 +1,10 @@
 import { reconcileGracePeriod } from "@/server/billing/service";
 import { reconcileStreaks } from "@/server/modules/gamification/service";
+import { processFinalDeletion } from "@/server/modules/account/service";
 import { logServerError } from "@/server/logger";
 import { NextResponse } from "next/server";
 
-/** Daily cron: grace period reconciliation + streak reconciliation. */
+/** Daily cron: grace period + streak reconciliation + expired account deletions. */
 export async function GET(req: Request) {
   const secret = req.headers.get("x-cron-secret");
   if (secret !== process.env.CRON_SECRET) {
@@ -12,7 +13,8 @@ export async function GET(req: Request) {
   try {
     await reconcileGracePeriod();
     await reconcileStreaks();
-    return NextResponse.json({ ok: true, at: new Date().toISOString() });
+    const { purged } = await processFinalDeletion();
+    return NextResponse.json({ ok: true, purged, at: new Date().toISOString() });
   } catch (e) {
     await logServerError("cron.reconcile.failed", e, { route: "/api/cron/reconcile", job: "reconcile" });
     return NextResponse.json({ ok: false, error: "reconciliation_failed" }, { status: 500 });

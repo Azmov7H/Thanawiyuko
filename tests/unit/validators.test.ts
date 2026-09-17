@@ -7,6 +7,7 @@ describe("registerSchema", () => {
       name: "أحمد",
       email: "  Ahmed@Example.COM ",
       password: "password123",
+      guardianConsent: true,
     });
     expect(r.success).toBe(true);
     if (r.success) expect(r.data.email).toBe("ahmed@example.com");
@@ -17,6 +18,17 @@ describe("registerSchema", () => {
       name: "أحمد",
       email: "a@b.co",
       password: "short",
+      guardianConsent: true,
+    });
+    expect(r.success).toBe(false);
+  });
+
+  it("requires guardian consent", () => {
+    const r = registerSchema.safeParse({
+      name: "أحمد",
+      email: "a@b.co",
+      password: "password123",
+      guardianConsent: false,
     });
     expect(r.success).toBe(false);
   });

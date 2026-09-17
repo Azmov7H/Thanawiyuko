@@ -93,11 +93,11 @@
 
 ## 10. الخصوصية والقانون (Privacy & Legal)
 - [ ] `docs/privacy-policy.md` مراجَعة قانونيًا
-- [ ] `GAP`: صفحتا `/privacy` و`/terms` غير مبنيّتين بعد
-- [ ] `GAP`: خانة موافقة ولي الأمر في التسجيل غير منفّذة
-- [ ] `GAP`: `GET /api/account/export` (تصدير JSON) غير منفّذ
-- [ ] `GAP`: حذف الحساب غير منفّذ — الخطة في `docs/account-deletion-sop.md` (T-N2)
-- [ ] `docs/data-minimization.md` محدّث ومراجَع
+- [x] صفحتا `/privacy` و`/terms` مبنيّتان ومربوطتان من الفوتر وsitemap
+- [x] خانة موافقة ولي الأمر إلزامية في التسجيل (`guardianConsentAt`)
+- [x] `GET /api/account/export` (تصدير JSON) — مدمج من صفحة `/settings`
+- [x] حذف الحساب: طلب + تراجع + تنفيذ نهائي عبر cron — `docs/account-deletion-sop.md`
+- [x] `docs/data-minimization.md` محدّث ومراجَع
 - [ ] عقود معالجة بيانات (DPA) مع: Atlas، Paymob، OpenRouter، ومنصة النشر
 
 ## 11. CI/CD والنشر (CI/CD)

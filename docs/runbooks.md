@@ -15,15 +15,15 @@
 | رؤوس أمان (CSP/HSTS/XFO/Referrer/Permissions) | ✅ منفّذ | `next.config.ts` |
 | تحديد معدل Auth (5/دقيقة/مسارات) | ✅ منفّذ (ذاكرة العملية الواحدة) | `src/proxy.ts` |
 | Health check | ✅ منفّذ | `GET /api/health`, rewrite `/health` |
-| Cron الاستحقاق/السلاسل | ✅ منفّذ (`CRON_SECRET`) | `src/app/api/cron/reconcile/route.ts` |
+| Cron الاستحقاق/السلاسل/الحذف | ✅ منفّذ (`CRON_SECRET`) | `src/app/api/cron/reconcile/route.ts` |
 | سجلات JSON مع `requestId` وحجب PII | ✅ منفّذ | `src/lib/logger.ts`, `src/server/logger.ts` |
-| سجل تدقيق (أدمن/خطط/دفع/محتوى) | ✅ منفّذ | `AuditLogModel` |
+| سجل تدقيق (أدمن/خطط/دفع/محتوى/حساب) | ✅ منفّذ | `AuditLogModel` |
 | Feature Flags (Kill Switches) | 🟡 مُعرّفة فقط | `src/lib/features.ts` — `GAP`: لا تُقرأ في أي مسار بعد |
 | صفحة/وضع الصيانة | ❌ غير منفّذ | `GAP` — لا `/maintenance` |
 | مراقبة الأخطاء (Sentry) | ❌ غير منفّذ | `GAP` |
 | Rate limit موزّع (Redis/Upstash) | ❌ غير منفّذ | `GAP` — fallback: حدود الذاكرة |
-| حذف/تصدير الحساب | ❌ غير منفّذ | `GAP` — راجع `docs/account-deletion-sop.md` |
-| صفحات الخصوصية/الشروط | ❌ غير منفّذ | `GAP` |
+| حذف/تصدير الحساب | ✅ منفّذ (T-N2) | `src/server/modules/account/service.ts` |
+| صفحات الخصوصية/الشروط + إقرار ولي الأمر | ✅ منفّذ | `/privacy`, `/terms`, التسجيل |
 
 ---
 
@@ -165,7 +165,7 @@ MONGODB_URI="mongodb://127.0.0.1:27017/thanawico" ./scripts/restore-drill.sh
 
 | التكرار | المهمة | المسؤول | الملاحظات |
 |----------|--------|---------|----------|
-| يومي | Cron `reconcile` (Grace + Streaks) | Auto | محمي بـ `CRON_SECRET` |
+| يومي | Cron `reconcile` (Grace + Streaks + تنفيذ حذف منتهي المهلة) | Auto | محمي بـ `CRON_SECRET` |
 | يومي | مراقبة التكاليف (AI، Paymob) | DevOps | تنبيه عند 80% |
 | أسبوعي | تحديث Dependencies (`npm audit`) | Dev | Dependabot PRs |
 | شهري | Restore Drill | DevOps | `scripts/restore-drill.sh` |

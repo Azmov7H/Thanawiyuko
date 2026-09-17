@@ -3,6 +3,8 @@ import type { Metadata } from "next";
 import { auth } from "@/server/auth/config";
 import { dbConnect } from "@/server/db/client";
 import { StudentProfileModel } from "@/server/modules/academic/student-profile.model";
+import { UserModel } from "@/server/modules/auth/user.model";
+import { deletionPurgeAt } from "@/server/modules/account/service";
 import { AppShell } from "@/components/AppShell";
 
 /** Student area guard: session required. Fail closed → /login on any auth/DB error. */
@@ -22,6 +24,24 @@ async function currentUserId(): Promise<string | null> {
   }
 }
 
+async function deletionLabel(userId: string): Promise<string | null> {
+  try {
+    await dbConnect();
+    const u = await UserModel.findById(userId)
+      .select("status deletionRequestedAt")
+      .lean();
+    if (u?.status === "deletion_pending" && u.deletionRequestedAt) {
+      return new Intl.DateTimeFormat("ar-EG", {
+        dateStyle: "long",
+        timeZone: "Africa/Cairo",
+      }).format(deletionPurgeAt(u.deletionRequestedAt));
+    }
+  } catch {
+    return null;
+  }
+  return null;
+}
+
 export default async function StudentLayout({
   children,
 }: {
@@ -30,7 +50,9 @@ export default async function StudentLayout({
   const id = await currentUserId();
   if (!id) redirect("/login");
 
-  return <AppShell>{children}</AppShell>;
+  const purgeLabel = await deletionLabel(id);
+
+  return <AppShell deletionPurgeAt={purgeLabel}>{children}</AppShell>;
 }
 
 export async function requireProfile() {

@@ -10,6 +10,7 @@ export default function RegisterPage() {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [guardianConsent, setGuardianConsent] = useState(false);
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
 
@@ -20,7 +21,7 @@ export default function RegisterPage() {
     const res = await fetch("/api/auth/register", {
       method: "POST",
       headers: { "content-type": "application/json" },
-      body: JSON.stringify({ name, email, password }),
+      body: JSON.stringify({ name, email, password, guardianConsent }),
     });
     if (!res.ok) {
       const data = await res.json().catch(() => null);
@@ -88,6 +89,26 @@ export default function RegisterPage() {
             placeholder="••••••••"
           />
         </label>
+        <label className="flex items-start gap-2 text-xs text-ink-soft">
+          <input
+            type="checkbox"
+            required
+            checked={guardianConsent}
+            onChange={(e) => setGuardianConsent(e.target.checked)}
+            className="mt-0.5 h-4 w-4 shrink-0"
+          />
+          <span>
+            أقر بأنني أبلغت ولي أمري ووافق، وأوافق على{" "}
+            <Link href="/terms" className="font-bold text-brand-700 underline">
+              شروط الاستخدام
+            </Link>{" "}
+            و
+            <Link href="/privacy" className="font-bold text-brand-700 underline">
+              سياسة الخصوصية
+            </Link>
+            .
+          </span>
+        </label>
         {error && (
           <p role="alert" className="rounded-lg bg-red-50 px-3 py-2 text-sm text-bad">
             {error}
@@ -95,7 +116,7 @@ export default function RegisterPage() {
         )}
         <button
           type="submit"
-          disabled={busy}
+          disabled={busy || !guardianConsent}
           className="rounded-lg bg-brand-600 py-3 font-bold text-white disabled:opacity-60"
         >
           {busy ? "جارٍ إنشاء الحساب…" : "ابدأ مجانًا"}

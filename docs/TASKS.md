@@ -30,7 +30,7 @@
 | T-L1 | P2 | L | Transactional notifications | TODO |
 | T-M1 | P3 | M | Teacher role + profile stub | TODO |
 | T-N1 | P1 | N | Restore ops docs + backup/restore drill | DONE |
-| T-N2 | P1 | N | Account deletion/export + privacy pages + guardian consent | TODO |
+| T-N2 | P1 | N | Account deletion/export + privacy pages + guardian consent | DONE |
 | T-N3 | P2 | N | Error monitoring + distributed limits + enforce kill switches | TODO |
 
 ---
@@ -274,7 +274,20 @@
   closing the gap where no code seeded `AchievementModel` so achievements never unlocked.
   The docs also record known gaps (unenforced kill switches, no Sentry, no `/privacy`
   pages, no account deletion, JWT sessions cannot be revoked individually).
-- T-N2 Account deletion/export, `/privacy` + `/terms` pages, guardian consent — TODO
-  (spec in `docs/account-deletion-sop.md`; requires `deletion_pending`/`deletionRequestedAt`).
+- T-N2 Account deletion/export, `/privacy` + `/terms` pages, guardian consent — DONE:
+  - `UserModel` gains `deletion_pending` status, `deletionRequestedAt`, `deletedAt`,
+    `guardianConsentAt`; login now allows `deletion_pending` (so a user can cancel) but still
+    blocks `suspended`.
+  - `src/server/modules/account/service.ts`: `requestAccountDeletion`,
+    `cancelAccountDeletion`, `exportAccount` (JSON), `purgeUser` (anonymize + delete
+    identity-linked rows, cancel subscription), `processFinalDeletion` (grace from
+    `DELETION_GRACE_DAYS`, default 30). Wired into `/api/cron/reconcile`.
+  - Routes: `POST /api/account/delete-request` (password-confirmed, rate-limited),
+    `POST /api/account/delete-cancel`, `GET /api/account/export`.
+  - `/settings` page (nav enabled) with export download + delete/undo flow; persistent
+    deletion banner in the student shell.
+  - Public `/privacy` and `/terms` pages, linked from landing footer and sitemap; required
+    guardian-consent checkbox at registration (stored as `guardianConsentAt`).
+  - Tests: `tests/integration/account-lifecycle.test.ts` (5) + validator unit test.
 - T-N3 Error monitoring (Sentry), distributed rate limiting, and actually enforcing
   `src/lib/features.ts` kill switches — TODO.

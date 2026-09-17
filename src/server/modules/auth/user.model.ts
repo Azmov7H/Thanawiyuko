@@ -7,7 +7,10 @@ export interface UserDoc extends mongoose.Document {
   email: string;
   passwordHash: string;
   role: UserRole;
-  status: "active" | "suspended" | "deleted";
+  status: "active" | "suspended" | "deletion_pending" | "deleted";
+  guardianConsentAt: Date | null;
+  deletionRequestedAt: Date | null;
+  deletedAt: Date | null;
   createdAt: Date;
 }
 
@@ -30,9 +33,12 @@ const userSchema = new Schema<UserDoc>(
     },
     status: {
       type: String,
-      enum: ["active", "suspended", "deleted"],
+      enum: ["active", "suspended", "deletion_pending", "deleted"],
       default: "active",
     },
+    guardianConsentAt: { type: Date, default: null },
+    deletionRequestedAt: { type: Date, default: null },
+    deletedAt: { type: Date, default: null },
   },
   { timestamps: { createdAt: true, updatedAt: false } },
 );

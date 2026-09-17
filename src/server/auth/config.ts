@@ -32,7 +32,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth(() => ({
         await dbConnect();
         const user = await UserModel.findOne({
           email: parsed.data.email,
-          status: "active",
+          status: { $in: ["active", "deletion_pending"] },
         })
           .select("+passwordHash")
           .lean();

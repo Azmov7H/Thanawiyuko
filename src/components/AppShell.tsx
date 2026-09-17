@@ -15,7 +15,7 @@ export const NAV_ITEMS: NavItem[] = [
   { href: "/practice", label: "تدرب" },
   { href: "/study-plan", label: "خطتي" },
   { href: "/progress", label: "التقدم" },
-  { href: "/settings", label: "المزيد", soon: true },
+  { href: "/settings", label: "حسابي" },
 ];
 
 export function BottomNav() {
@@ -110,7 +110,13 @@ export function SideNav() {
 import { AiPanel } from "@/components/AiPanel";
 import { SkipLink } from "@/components/SkipLink";
 
-export function AppShell({ children }: { children: React.ReactNode }) {
+export function AppShell({
+  children,
+  deletionPurgeAt,
+}: {
+  children: React.ReactNode;
+  deletionPurgeAt?: string | null;
+}) {
   return (
     <div className="flex min-h-full flex-col">
       <SkipLink />
@@ -124,6 +130,16 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           </span>
         </div>
       </header>
+      {deletionPurgeAt && (
+        <div role="status" className="border-b border-red-200 bg-red-50 px-4 py-2 text-sm text-bad">
+          <div className="mx-auto flex w-full max-w-5xl flex-wrap items-center justify-between gap-2">
+            <span>حسابك قيد الحذف — سيتم الحذف النهائي في {deletionPurgeAt}.</span>
+            <Link href="/settings" className="font-bold underline">
+              تراجع
+            </Link>
+          </div>
+        </div>
+      )}
       <div className="mx-auto flex w-full max-w-5xl flex-1 gap-6 px-4 py-6 pb-24 md:pb-6">
         <SideNav />
         <main id="main" tabIndex={-1} className="min-w-0 flex-1 outline-none">{children}</main>
