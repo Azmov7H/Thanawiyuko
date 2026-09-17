@@ -20,7 +20,7 @@
 | T-F1 | P1 | F | DB-driven plans | DONE |
 | T-F2 | P1 | F | Free/Plus entitlement matrix enforcement | DONE |
 | T-G1 | P1 | G | Admin role/authz + audit viewer | DONE |
-| T-H1 | P1 | H | Structured logging + request ids | TODO |
+| T-H1 | P1 | H | Structured logging + request ids | DONE |
 | T-H3 | P1 | H | Integration/authorization tests | TODO |
 | T-I1 | P2 | I | Landing page upgrade | TODO |
 | T-I3 | P2 | I | RTL accessibility pass | TODO |
@@ -206,7 +206,14 @@
 ## Phase H — Observability & Quality (P1)
 
 ### T-H1 — Structured logging + request ids
-- **Status**: TODO
+- **Status**: DONE — `src/lib/logger.ts` (levels, threshold via `LOG_LEVEL`,
+  recursive redaction of password/token/email/phone/card/transcript, `errorToLog`, JSON
+  emission) + `src/lib/request-id.ts` (edge-safe `x-request-id` validation/generation) +
+  `src/server/logger.ts` (`hashUser` sha256 pseudonym, `getRequestId`, `logServerEvent`/
+  `logServerError`). `src/proxy.ts` generates/forwards `x-request-id`, echoes it on
+  responses, and now matches all routes (global security headers). Replaced every server
+  `console.*` with structured events (auth/AI/payments/cron/learning). Tests in
+  `logger.test.ts`; `LOG_LEVEL` documented in `.env.example`.
 
 ### T-H3 — Integration/authorization tests
 - **Description**: Add DB-backed integration tests (e.g. `mongodb-memory-server`) for authz and

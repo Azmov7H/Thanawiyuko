@@ -8,6 +8,8 @@ import { MistakeModel } from "@/server/modules/mastery/mistake.model";
 import { StudentProfileModel } from "@/server/modules/academic/student-profile.model";
 import { AIConversationModel } from "@/server/modules/ai/conversation.model";
 import { entitlementsFor } from "@/server/billing/entitlements";
+import { logEvent } from "@/lib/logger";
+import { hashUser } from "@/server/logger";
 import { cairoDayStartUTC } from "@/lib/cairo";
 
 const config = loadAiConfig();
@@ -129,9 +131,8 @@ export async function logAiCall(data: {
   helpful?: boolean;
 }): Promise<void> {
   await dbConnect();
-  // In production, write to a dedicated AI log collection or analytics pipeline.
-  // For MVP, just console.log with structured data.
-  console.log("[AI_LOG]", JSON.stringify({ ...data, at: new Date().toISOString() }));
+  const { studentId, ...rest } = data;
+  logEvent("info", "ai.call", { ...rest, userHash: hashUser(studentId) });
 }
 
 /** Build tutor prompt with context. */

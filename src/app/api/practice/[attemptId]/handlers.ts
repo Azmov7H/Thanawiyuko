@@ -11,6 +11,7 @@ import {
 } from "@/server/modules/assessment/attempt.model";
 import { gradeAnswers, scoreOf, toPublic } from "@/server/modules/assessment/scoring";
 import { recordAttemptOutcomes } from "@/server/modules/learning/service";
+import { logServerError } from "@/server/logger";
 
 async function ownedAttempt(
   userId: string,
@@ -265,7 +266,10 @@ export async function submitAction(req: Request, attemptId: string) {
       })),
     });
   } catch (e) {
-    console.error("[Learning] practice outcome recording failed:", e);
+    await logServerError("learning.practice_outcome.failed", e, {
+      route: "/api/practice/[attemptId]",
+      attemptId: String(attempt._id),
+    });
   }
 
   return NextResponse.json({

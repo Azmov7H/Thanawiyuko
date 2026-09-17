@@ -1,4 +1,5 @@
 import { createHmac, timingSafeEqual } from "node:crypto";
+import { logEvent } from "@/lib/logger";
 
 export interface CheckoutSession {
   sessionId: string;
@@ -58,7 +59,7 @@ export class PaymobProvider implements PaymentsProvider {
     this.hmacSecret = process.env.PAYMOB_HMAC_SECRET ?? "";
     this.integrationId = process.env.PAYMOB_INTEGRATION_ID ?? "";
     if (!this.apiKey || !this.hmacSecret || !this.integrationId) {
-      console.warn("[Payments] Paymob credentials not fully set — provider will fail on calls");
+      logEvent("warn", "payments.provider.misconfigured", { provider: "paymob" });
     }
   }
 
@@ -221,7 +222,7 @@ export class PaymobProvider implements PaymentsProvider {
 
   async cancelSubscription(providerRef: string): Promise<boolean> {
     // Paymob doesn't have a direct subscription cancel; we handle via our DB grace/downgrade
-    console.log("[Payments] Cancel requested for", providerRef, "— handled via entitlement downgrade");
+    logEvent("info", "payments.cancel_requested", { provider: "paymob", providerRef });
     return true;
   }
 }

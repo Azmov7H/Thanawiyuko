@@ -6,6 +6,7 @@ import { hasPlusAccess } from "@/server/billing/service";
 import { dbConnect } from "@/server/db/client";
 import { runTutorStream } from "@/server/ai/service";
 import { AIConversationModel } from "@/server/modules/ai/conversation.model";
+import { logServerError } from "@/server/logger";
 import { cairoDayStartUTC } from "@/lib/cairo";
 
 const tutorRequestSchema = z.object({
@@ -84,7 +85,7 @@ export async function POST(req: Request) {
       $push: { messages: { $each: [userMessage], $slice: -200 } },
     });
   } catch (error) {
-    console.error("[AI] failed to persist user message:", error);
+    await logServerError("ai.tutor.persist_failed", error, { route: "/api/ai/tutor" });
     return NextResponse.json({ code: "INTERNAL", messageAr: "تعذر حفظ المحادثة." }, { status: 500 });
   }
 

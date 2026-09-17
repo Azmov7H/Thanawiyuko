@@ -1,4 +1,5 @@
 import { loadAiConfig, ModelTier } from "./config";
+import { logEvent } from "@/lib/logger";
 
 /** Unified AI response shape. */
 export interface AiResponse {
@@ -43,7 +44,7 @@ export class OpenRouterProvider implements AiProvider {
     this.baseUrl = process.env.AI_GATEWAY_URL ?? "https://openrouter.ai/api/v1";
     this.apiKey = process.env.AI_GATEWAY_KEY ?? "";
     if (!this.apiKey) {
-      console.warn("[AI] AI_GATEWAY_KEY not set — provider will fail on calls");
+      logEvent("warn", "ai.provider.misconfigured", { missing: "AI_GATEWAY_KEY" });
     }
   }
 

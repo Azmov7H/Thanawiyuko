@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
+import { REQUEST_ID_HEADER, isValidRequestId, newRequestId } from "@/lib/request-id";
 
 const AUTH_PATHS = ["/api/auth/", "/login", "/register"];
 const RATE_LIMIT_WINDOW_MS = 60_000;
@@ -29,6 +30,11 @@ export function proxy(req: NextRequest) {
   const { pathname } = req.nextUrl;
   const ip = getClientIp(req);
 
+  const incoming = req.headers.get(REQUEST_ID_HEADER);
+  const reqId = isValidRequestId(incoming) ? incoming : newRequestId();
+  const requestHeaders = new Headers(req.headers);
+  requestHeaders.set(REQUEST_ID_HEADER, reqId);
+
   // Rate limit auth endpoints
   if (AUTH_PATHS.some((p) => pathname.startsWith(p))) {
     const key = `auth:${ip}:${pathname}`;
@@ -36,19 +42,20 @@ export function proxy(req: NextRequest) {
     if (!allowed) {
       return new NextResponse(JSON.stringify({ code: "RATE_LIMITED", messageAr: "محاولات كثيرة. حاول بعد قليل." }), {
         status: 429,
-        headers: { "Content-Type": "application/json", "Retry-After": String(retryAfter) },
+        headers: { "Content-Type": "application/json", "Retry-After": String(retryAfter), [REQUEST_ID_HEADER]: reqId },
       });
     }
   }
 
   // Security headers for all responses
-  const res = NextResponse.next();
+  const res = NextResponse.next({ request: { headers: requestHeaders } });
   res.headers.set("X-Content-Type-Options", "nosniff");
   res.headers.set("X-Frame-Options", "DENY");
   res.headers.set("Referrer-Policy", "strict-origin-when-cross-origin");
+  res.headers.set(REQUEST_ID_HEADER, reqId);
   return res;
 }
 
 export const config = {
-  matcher: ["/api/auth/:path*", "/login", "/register"],
+  matcher: ["/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp|ico)$).*)"],
 };

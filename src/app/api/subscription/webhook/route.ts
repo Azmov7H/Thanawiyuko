@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { getPaymentsProvider } from "@/server/payments/provider";
 import { handlePaymentSuccess, handlePaymentFailed } from "@/server/billing/service";
+import { logServerError } from "@/server/logger";
 
 /** POST /api/subscription/webhook — Paymob callback (raw body for HMAC). */
 export async function POST(req: Request) {
@@ -32,7 +33,10 @@ export async function POST(req: Request) {
       }
       return NextResponse.json({ ok: true });
     } catch (e) {
-      console.error("[Webhook] payment processing error:", e);
+      await logServerError("payments.webhook.failed", e, {
+        route: "/api/subscription/webhook",
+        providerRef: result.providerRef,
+      });
       return NextResponse.json({ ok: false, error: "processing_failed" }, { status: 500 });
     }
   }

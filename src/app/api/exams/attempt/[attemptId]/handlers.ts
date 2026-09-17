@@ -18,6 +18,7 @@ import {
 } from "@/server/modules/assessment/scoring";
 import { TopicModel } from "@/server/modules/academic/content.models";
 import { recordAttemptOutcomes } from "@/server/modules/learning/service";
+import { logServerError } from "@/server/logger";
 
 async function ownedExamAttempt(
   userId: string,
@@ -189,7 +190,10 @@ export async function submitExam(
       })),
     });
   } catch (e) {
-    console.error("[Learning] exam outcome recording failed:", e);
+    await logServerError("learning.exam_outcome.failed", e, {
+      route: "/api/exams/attempt/[attemptId]",
+      attemptId: String(attempt._id),
+    });
   }
 
   return NextResponse.json({
