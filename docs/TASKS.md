@@ -11,7 +11,7 @@
 | T-B1 | P0 | B | Learning loop — identity convention | DONE |
 | T-B2 | P0 | B | Learning loop — record outcomes on submit | DONE |
 | T-B3 | P0 | B | Learning loop — wire practice + exam submits | DONE |
-| T-B4 | P0 | B | Learning loop — planner/weak-topic inputs | TODO |
+| T-B4 | P0 | B | Learning loop — planner/weak-topic inputs | DONE |
 | T-C1 | P1 | C | Decide/implement `/subjects/[id]` + `/mistakes` | TODO |
 | T-C2 | P1 | C | Enable `/progress`, `/study-plan` in nav | TODO |
 | T-D1 | P1 | D | Lesson/topic consumption page | TODO |
@@ -107,7 +107,11 @@
 - **Security impact**: none.
 - **UX impact**: plan reasons become truthful.
 - **Acceptance criteria**: planner unit tests for recency/weights; weak topics reflect real mastery.
-- **Status**: TODO
+- **Status**: DONE — `generatePlan` now consumes normalized `subjectWeights`, real `recentActivity`
+  (from mastery `updatedAt`), and enforces 2-topic/subject/day cap; `void subjectWeights` removed.
+  New `src/lib/weakness.ts` implements the §4.7 three-condition detector + severity score; new
+  `src/server/modules/planning/plan-input.ts` (`buildPlanContext`) is the single plan-input source
+  used by `/api/study-plan` and `/api/progress`. Tests: `weakness.test.ts` + planner recency/weight/cap.
 
 ---
 

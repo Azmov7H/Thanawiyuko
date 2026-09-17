@@ -70,4 +70,55 @@ describe("generatePlan deterministic greedy", () => {
     const total = plan.reduce((n, p) => n + p.minutes, 0);
     expect(total).toBeLessThanOrEqual(45);
   });
+
+  it("prioritizes neglected topics over recently practiced ones", () => {
+    const same = new Map([
+      ["t1", { masteryScore: 40, band: "weak", n: 10, subjectId: "s1", examWeight: 1 }],
+      ["t2", { masteryScore: 40, band: "weak", n: 10, subjectId: "s1", examWeight: 1 }],
+    ]);
+    const plan = generatePlan({
+      targetExamDate: future,
+      dailyMinutes: 60,
+      topics: same,
+      mistakesDue: [],
+      recentActivity: { t1: 0, t2: 30 },
+      subjectWeights: new Map([["s1", 10]]),
+    });
+    expect(plan[0]?.topicId).toBe("t2");
+  });
+
+  it("prioritizes higher subject weights", () => {
+    const same = new Map([
+      ["t1", { masteryScore: 40, band: "weak", n: 10, subjectId: "s1", examWeight: 1 }],
+      ["t2", { masteryScore: 40, band: "weak", n: 10, subjectId: "s2", examWeight: 1 }],
+    ]);
+    const plan = generatePlan({
+      targetExamDate: future,
+      dailyMinutes: 60,
+      topics: same,
+      mistakesDue: [],
+      recentActivity: {},
+      subjectWeights: new Map([["s1", 10], ["s2", 40]]),
+    });
+    expect(plan[0]?.topicId).toBe("t2");
+  });
+
+  it("caps learning topics at 2 per subject per day", () => {
+    const many = new Map([
+      ["t1", { masteryScore: 30, band: "weak", n: 10, subjectId: "s1", examWeight: 1 }],
+      ["t2", { masteryScore: 30, band: "weak", n: 10, subjectId: "s1", examWeight: 1 }],
+      ["t3", { masteryScore: 30, band: "weak", n: 10, subjectId: "s1", examWeight: 1 }],
+      ["t4", { masteryScore: 30, band: "weak", n: 10, subjectId: "s2", examWeight: 1 }],
+    ]);
+    const plan = generatePlan({
+      targetExamDate: future,
+      dailyMinutes: 180,
+      topics: many,
+      mistakesDue: [],
+      recentActivity: {},
+      subjectWeights: new Map([["s1", 10], ["s2", 10]]),
+    });
+    const s1 = plan.filter((p) => p.subjectId === "s1" && p.action !== "review");
+    expect(s1.length).toBeLessThanOrEqual(2);
+  });
 });

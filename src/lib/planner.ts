@@ -5,11 +5,19 @@
  * AI only rewrites copy — never changes allocation.
  */
 
+export type PlanTopicInput = {
+  masteryScore: number;
+  band: string;
+  n: number;
+  subjectId: string;
+  examWeight: number;
+};
+
 export type PlanInput = {
   targetExamDate: Date | null;            // Cairo day
   dailyMinutes: number;
   /** topicId -> { masteryScore, band, n, subjectId, examWeight } */
-  topics: Map<string, { masteryScore: number; band: string; n: number; subjectId: string; examWeight: number }>;
+  topics: Map<string, PlanTopicInput>;
   mistakesDue: Array<{ topicId: string; conceptTag: string | null }>;
   recentActivity: Record<string, number>; // topicId -> last practiced days ago
   subjectWeights: Map<string, number>;
@@ -24,23 +32,29 @@ export type PlanItem = {
   qCount?: number;
 };
 
+const MAX_TOPICS_PER_SUBJECT = 2;
+
 /**
  * Greedy planner with explainable reasons.
  * 1) 20% time → mistakesDue (oldest first).
- * 2) Remaining → needScore = (100 - mastery) × examWeight × recencyNeglect
+ * 2) Remaining → needScore = (100 - mastery) × examWeight × recencyNeglect × subjectWeightFactor
  *    Cap 2 topics/day/subject, sessions 15–45 min.
  * 3) Insert 1 spaced revision for a previously-mastered topic (idle >7d).
  * 4) If target <30d → shift 50% to timed mixed practice; if >90d → learning focus.
  */
 export function generatePlan(input: PlanInput): PlanItem[] {
   const { targetExamDate, dailyMinutes, topics, mistakesDue, recentActivity, subjectWeights } = input;
-  void subjectWeights;
   const total = dailyMinutes;
   const reviewBudget = Math.max(10, Math.floor(total * 0.2));
   const learningBudget = total - reviewBudget;
 
+  const maxWeight = Math.max(1, ...subjectWeights.values());
+  const subjectFactor = (subjectId: string) =>
+    Math.max(0.1, (subjectWeights.get(subjectId) ?? 1) / maxWeight);
+
   const plan: PlanItem[] = [];
   const used: Record<string, number> = {}; // topicId -> minutes allocated today
+  const subjectTopics: Record<string, number> = {};
 
   // 1) Mistake review due
   let reviewUsed = 0;
@@ -66,8 +80,9 @@ export function generatePlan(input: PlanInput): PlanItem[] {
     .map(([topicId, d]) => {
       const daysSince = recentActivity[topicId] ?? 999;
       const recencyNeglect = daysSince > 14 ? 1.5 : daysSince > 7 ? 1.2 : 1.0;
-      const need = (100 - d.masteryScore) * d.examWeight * recencyNeglect;
-      return { topicId, subjectId: d.subjectId, need, mastery: d.masteryScore, band: d.band };
+      const factor = subjectFactor(d.subjectId);
+      const need = (100 - d.masteryScore) * d.examWeight * recencyNeglect * factor;
+      return { topicId, subjectId: d.subjectId, need, mastery: d.masteryScore, band: d.band, factor };
     })
     .filter((x) => x.band !== "mastered" || x.mastery < 100)
     .sort((a, b) => b.need - a.need);
@@ -76,6 +91,7 @@ export function generatePlan(input: PlanInput): PlanItem[] {
   for (const x of needs) {
     if (learnUsed >= learningBudget) break;
     if ((used[x.topicId] ?? 0) >= 45) continue; // cap per topic
+    if ((subjectTopics[x.subjectId] ?? 0) >= MAX_TOPICS_PER_SUBJECT) continue;
     const mins = Math.min(45, learningBudget - learnUsed);
     if (mins < 15) break;
     plan.push({
@@ -83,11 +99,12 @@ export function generatePlan(input: PlanInput): PlanItem[] {
       subjectId: x.subjectId,
       action: x.band === "weak" ? "lesson" : "practice",
       minutes: mins,
-      reason: `إتقان ${x.mastery < 50 ? "ضعيف" : "مقبول"} (${x.mastery}%) — وزن الامتحان ${x.subjectId ? "عالي" : "معياري"}`,
+      reason: `إتقان ${x.mastery < 50 ? "ضعيف" : "مقبول"} (${x.mastery}%) — وزن المادة ${Math.round(x.factor * 100)}%`,
       qCount: x.band === "weak" ? 5 : 10,
     });
     learnUsed += mins;
     used[x.topicId] = (used[x.topicId] ?? 0) + mins;
+    subjectTopics[x.subjectId] = (subjectTopics[x.subjectId] ?? 0) + 1;
   }
 
   // 3) Spaced revision (mastered but idle >7d)
@@ -96,7 +113,7 @@ export function generatePlan(input: PlanInput): PlanItem[] {
     .sort((a, b) => (recentActivity[a[0]] ?? 0) - (recentActivity[b[0]] ?? 0));
   if (idleMastered.length > 0 && plan.length < 5) {
     const [topicId, d] = idleMastered[0];
-    if (learnUsed + 15 <= learningBudget) {
+    if (learnUsed + 15 <= learningBudget && (subjectTopics[d.subjectId] ?? 0) < MAX_TOPICS_PER_SUBJECT) {
       plan.push({
         topicId,
         subjectId: d.subjectId,
