@@ -19,7 +19,7 @@
 | T-E1 | P1 | E | Deterministic recommendation engine | DONE |
 | T-F1 | P1 | F | DB-driven plans | DONE |
 | T-F2 | P1 | F | Free/Plus entitlement matrix enforcement | DONE |
-| T-G1 | P1 | G | Admin role/authz + audit viewer | TODO |
+| T-G1 | P1 | G | Admin role/authz + audit viewer | DONE |
 | T-H1 | P1 | H | Structured logging + request ids | TODO |
 | T-H3 | P1 | H | Integration/authorization tests | TODO |
 | T-I1 | P2 | I | Landing page upgrade | TODO |
@@ -195,7 +195,11 @@
 
 ### T-G1 — Admin roles + audit viewer
 - **Description**: Role-based admin capabilities, audit-log read UI, user search/suspend.
-- **Status**: TODO
+- **Status**: DONE — `requireSuperUser()` guard + pure rules in `src/lib/admin.ts`
+  (`canManageUser`, `canAssignRole`) enforcing §5.1 (admin manages non-admins; super manages
+  admins; super flag never assigned). `GET/PATCH /api/admin/users` searches users and
+  suspends/activates/sets roles with `user.*` audit entries. `GET /api/admin/audit` read
+  trail. UI: `/admin/users` and `/admin/audit` + nav links. Tests in `admin.test.ts`.
 
 ---
 

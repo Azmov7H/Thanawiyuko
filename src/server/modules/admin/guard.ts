@@ -24,3 +24,10 @@ export async function requireAdminUser(): Promise<{ id: string; role: string }> 
   }
   return { id, role };
 }
+
+/** Throws AdminForbidden unless the session user is super (§5.1 super-only actions). */
+export async function requireSuperUser(): Promise<{ id: string; role: string }> {
+  const admin = await requireAdminUser();
+  if (admin.role !== "super") throw new AdminForbidden("هذا الإجراء متاح للمشرف الأعلى فقط.");
+  return admin;
+}
