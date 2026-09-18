@@ -1,7 +1,12 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
-import Link from "next/link";
+import { PageHeader } from "@/components/ui/PageHeader";
+import { Button } from "@/components/ui/Button";
+import { Skeleton } from "@/components/ui/Skeleton";
+import { EmptyState } from "@/components/ui/EmptyState";
+import { ErrorState } from "@/components/ui/ErrorState";
+import { Icon } from "@/components/ui/Icon";
 
 type ExamListItem = {
   id: string;
@@ -26,33 +31,64 @@ export default function ExamsPage() {
     },
   });
 
+  if (list.isPending) {
+    return (
+      <div className="flex flex-col gap-5" aria-busy="true">
+        <Skeleton className="h-10 w-56" />
+        <Skeleton className="h-36" />
+        <Skeleton className="h-36" />
+      </div>
+    );
+  }
+
+  if (list.isError) {
+    return <ErrorState title="تعذر تحميل الامتحانات." onRetry={() => list.refetch()} />;
+  }
+
+  const exams = list.data!.exams;
+
   return (
-    <div className="flex flex-col gap-4">
-      <h1 className="text-xl font-bold text-ink">الامتحانات التجريبية</h1>
-      <p className="text-sm text-ink-mute">
-        امتحانات موقوتة بوقت حقيقي — درّب نفسك على ضغط اللجنة قبل اليوم الكبير.
-      </p>
-      {list.isPending && <p className="text-sm text-ink-mute">جارٍ التحميل…</p>}
-      {list.isError && (
-        <p role="alert" className="rounded-lg bg-danger-bg px-3 py-2 text-sm text-bad">
-          تعذر تحميل الامتحانات.
-        </p>
+    <div className="flex flex-col gap-6">
+      <PageHeader
+        eyebrow="صالة الامتحانات"
+        title="الامتحانات التجريبية"
+        description="امتحانات موقوتة بوقت حقيقي — درّب نفسك على ضغط اللجنة قبل اليوم الكبير."
+      />
+
+      {exams.length === 0 && (
+        <EmptyState
+          icon="exams"
+          title="لا امتحانات منشورة لصفك بعد"
+          body="جرّب جلسات التدريب في الانتظار — وارجع هنا قريبًا."
+          action={
+            <Button href="/practice" icon="practice" variant="secondary">
+              تدريب الآن
+            </Button>
+          }
+        />
       )}
-      {list.data?.exams.map((e) => (
-        <article key={e.id} className="rounded-2xl border border-line bg-surface p-4">
-          <h2 className="font-bold text-ink">{e.titleAr}</h2>
-          {e.description && <p className="mt-1 text-sm text-ink-mute">{e.description}</p>}
-          <p className="tnum mt-2 text-xs text-ink-mute">
-            {e.totalQ} سؤال • {e.durationMin} دقيقة • محاولات متبقية: {e.attemptsLeft}
-            {e.best && <> • أفضل نتيجة: {e.best.accuracy}%</>}
+
+      {exams.map((e) => (
+        <article key={e.id} className="animate-rise rounded-2xl border border-line bg-surface p-4">
+          <div className="flex items-start justify-between gap-3">
+            <div>
+              <h2 className="font-bold text-ink">{e.titleAr}</h2>
+              {e.description && <p className="mt-1 text-sm text-ink-mute">{e.description}</p>}
+            </div>
+            {e.best && (
+              <span className="tnum shrink-0 rounded-full bg-brand-tint px-2.5 py-1 text-xs font-bold text-brand-strong">
+                أفضل نتيجة {e.best.accuracy}%
+              </span>
+            )}
+          </div>
+          <p className="tnum mt-2 flex items-center gap-1 text-xs text-ink-mute">
+            <Icon name="clock" size={14} />
+            {e.durationMin} دقيقة • {e.totalQ} سؤال • محاولات متبقية: {e.attemptsLeft}
           </p>
           {e.attemptsLeft > 0 ? (
-            <Link
-              href={`/exam/${e.id}`}
-              className="mt-3 block rounded-lg bg-brand-600 py-2.5 text-center text-sm font-bold text-white"
-            >
+            <Button href={`/exam/${e.id}`} icon="exams" className="mt-3 w-full">
               عرض التعليمات والبدء
-            </Link>
+            </Button>
           ) : (
             <p className="mt-3 rounded-lg bg-base py-2.5 text-center text-sm text-ink-mute">
               استنفدت محاولات هذا الامتحان
@@ -60,11 +96,6 @@ export default function ExamsPage() {
           )}
         </article>
       ))}
-      {list.data?.exams.length === 0 && (
-        <p className="rounded-2xl border border-dashed border-line p-6 text-center text-sm text-ink-mute">
-          لا امتحانات منشورة لصفك بعد — قريبًا.
-        </p>
-      )}
     </div>
   );
 }

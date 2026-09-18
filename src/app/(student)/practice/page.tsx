@@ -3,6 +3,9 @@
 import { useQuery } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { PageHeader } from "@/components/ui/PageHeader";
+import { Button } from "@/components/ui/Button";
+import { Skeleton } from "@/components/ui/Skeleton";
 
 type Subject = { id: string; code: string; nameAr: string };
 type Topic = { id: string; titleAr: string; questionCount: number };
@@ -61,11 +64,15 @@ export default function PracticePickerPage() {
 
   return (
     <div className="flex flex-col gap-4">
-      <h1 className="text-xl font-bold text-ink">جلسة تدريب جديدة</h1>
+      <PageHeader
+        eyebrow="إجابة بإجابة"
+        title="جلسة تدريب جديدة"
+        description="اختر مادة وعدد أسئلة — وهنتقفل فورًا على أي إجابة غلط."
+      />
 
       <section className="rounded-2xl border border-line bg-surface p-4">
         <h2 className="text-sm font-bold text-ink">1. اختر المادة</h2>
-        {subjects.isPending && <p className="mt-2 text-sm text-ink-mute">جارٍ التحميل…</p>}
+        {subjects.isPending && <Skeleton className="mt-3 h-12" />}
         {subjects.isError && (
           <p className="mt-2 text-sm text-bad">تعذر تحميل المواد. تأكد من إتمام التوجيه.</p>
         )}
@@ -96,7 +103,7 @@ export default function PracticePickerPage() {
       {subjectId !== "" && (
         <section className="rounded-2xl border border-line bg-surface p-4">
           <h2 className="text-sm font-bold text-ink">2. اختر موضوعًا (أو المادة كلها)</h2>
-          {tree.isPending && <p className="mt-2 text-sm text-ink-mute">جارٍ التحميل…</p>}
+          {tree.isPending && <Skeleton className="mt-3 h-12" />}
           {tree.isError && (
             <p role="alert" className="mt-2 text-sm text-bad">
               تعذر تحميل المواضيع — جرّب بعد قليل.
@@ -172,13 +179,9 @@ export default function PracticePickerPage() {
         </p>
       )}
       {subjectId !== "" && (
-        <button
-          onClick={start}
-          disabled={busy}
-          className="rounded-lg bg-brand-600 py-3 font-bold text-white disabled:opacity-60"
-        >
+        <Button onClick={start} disabled={busy} size="lg" icon="practice" className="w-full">
           {busy ? "جارٍ تجهيز الأسئلة…" : "ابدأ الجلسة"}
-        </button>
+        </Button>
       )}
     </div>
   );

@@ -2,6 +2,11 @@
 
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import { PageHeader } from "@/components/ui/PageHeader";
+import { Button } from "@/components/ui/Button";
+import { Skeleton } from "@/components/ui/Skeleton";
+import { EmptyState } from "@/components/ui/EmptyState";
+import { Icon } from "@/components/ui/Icon";
 
 type NotificationItem = {
   id: string;
@@ -81,34 +86,38 @@ export default function NotificationsPage() {
   }
 
   return (
-    <div className="space-y-4">
-      <div className="flex flex-wrap items-center justify-between gap-2">
-        <h1 className="text-xl font-bold text-ink">الإشعارات</h1>
-        {unread > 0 && (
-          <button
-            type="button"
-            onClick={async () => {
-              await fetch("/api/notifications/read-all", { method: "POST" }).catch(() => {});
-              setUnread(0);
-              setItems((prev) => prev.map((x) => ({ ...x, readAt: new Date().toISOString() })));
-            }}
-            className="text-sm font-medium text-brand-strong hover:underline"
-          >
-            تحديد الكل كمقروء
-          </button>
-        )}
-      </div>
+    <div className="flex flex-col gap-5">
+      <PageHeader
+        eyebrow="آخر الأخبار"
+        title="الإشعارات"
+        description={
+          unread > 0 ? `لديك ${unread} غير مقروء من رسائلنا — شوف مراجعتك وتحديثاتك.` : "كل الإشعارات مقروءة."
+        }
+        actions={
+          unread > 0 ? (
+            <Button
+              onClick={async () => {
+                await fetch("/api/notifications/read-all", { method: "POST" }).catch(() => {});
+                setUnread(0);
+                setItems((prev) => prev.map((x) => ({ ...x, readAt: new Date().toISOString() })));
+              }}
+              variant="secondary"
+            >
+              تحديد الكل كمقروء
+            </Button>
+          ) : undefined
+        }
+      />
 
-      <p className="text-sm text-ink-mute">
-        {unread > 0 ? `لديك ${unread} إشعار (إشعارات) غير مقروء.` : "كل الإشعارات مقروءة."}
-      </p>
-
-      {loading && <p className="py-8 text-center text-sm text-ink-mute">جارٍ التحميل…</p>}
+      {loading && (
+        <div className="flex flex-col gap-3" aria-busy="true">
+          <Skeleton className="h-20" />
+          <Skeleton className="h-20" />
+        </div>
+      )}
 
       {!loading && items.length === 0 && (
-        <div className="rounded-xl border border-dashed border-line p-8 text-center text-sm text-ink-mute">
-          لا إشعارات بعد.
-        </div>
+        <EmptyState icon="bell" title="لا إشعارات بعد" body="لما يحصل حاجة جديدة هتلاقيها هنا." />
       )}
 
       <ul className="flex flex-col gap-2">
@@ -117,37 +126,46 @@ export default function NotificationsPage() {
             <button
               type="button"
               onClick={() => openItem(n)}
-              className={`w-full rounded-xl border border-line bg-surface p-4 text-start hover:border-ink-mute ${
+              className={`flex w-full items-start gap-3 rounded-xl border border-line bg-surface p-4 text-start transition-colors hover:border-ink-mute ${
                 n.readAt ? "opacity-80" : "border-brand-soft"
               }`}
             >
-              <span className="flex items-start justify-between gap-3">
-                <span className="font-bold text-ink">{n.titleAr}</span>
-                <span className="tnum shrink-0 text-xs text-ink-mute">{timeAgoAr(n.createdAt)}</span>
+              <span
+                className={`mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg ${
+                  n.readAt ? "bg-base text-ink-mute" : "bg-brand-tint text-brand-strong"
+                }`}
+              >
+                <Icon name="bell" size={16} />
               </span>
-              <span className="mt-1 block text-sm leading-relaxed text-ink-mute">{n.bodyAr}</span>
-              {n.emailStatus === "failed" && (
-                <span className="mt-2 inline-block rounded-full bg-danger-bg px-2 py-0.5 text-xs text-bad">
-                  فشل إرسال نسخة البريد
+              <span className="flex-1">
+                <span className="flex items-start justify-between gap-3">
+                  <span className="font-bold text-ink">{n.titleAr}</span>
+                  <span className="tnum shrink-0 text-xs text-ink-mute">{timeAgoAr(n.createdAt)}</span>
                 </span>
-              )}
+                <span className="mt-1 block text-sm leading-relaxed text-ink-mute">{n.bodyAr}</span>
+                {n.emailStatus === "failed" && (
+                  <span className="mt-2 inline-block rounded-full bg-danger-bg px-2 py-0.5 text-xs text-bad">
+                    فشل إرسال نسخة البريد
+                  </span>
+                )}
+              </span>
             </button>
           </li>
         ))}
       </ul>
 
       {hasMore && (
-        <button
-          type="button"
+        <Button
           onClick={() => {
             const next = page + 1;
             setPage(next);
             load(next);
           }}
-          className="block w-full rounded-lg border border-line bg-surface py-2.5 text-sm font-bold text-ink hover:border-ink-mute"
+          variant="secondary"
+          iconPosition="end"
         >
           تحميل المزيد
-        </button>
+        </Button>
       )}
     </div>
   );

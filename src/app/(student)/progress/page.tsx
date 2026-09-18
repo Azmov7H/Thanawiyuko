@@ -1,10 +1,14 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
-import Link from "next/link";
 import { XpProgress } from "@/components/XpProgress";
 import { StreakWidget } from "@/components/StreakWidget";
 import { AchievementGallery } from "@/components/AchievementGallery";
+import { PageHeader } from "@/components/ui/PageHeader";
+import { SectionHeader } from "@/components/ui/SectionHeader";
+import { Button } from "@/components/ui/Button";
+import { Skeleton } from "@/components/ui/Skeleton";
+import { ErrorState } from "@/components/ui/ErrorState";
 
 type ProgressData = {
   xp: { total: number; today: number; level: number };
@@ -27,28 +31,37 @@ export default function ProgressPage() {
     },
   });
 
-  if (progress.isPending) return <p className="py-10 text-center text-sm text-ink-mute">جارٍ تحميل تقدمك…</p>;
-  if (progress.isError) {
+  if (progress.isPending) {
     return (
-      <p role="alert" className="rounded-lg bg-danger-bg px-3 py-2 text-sm text-bad">
-        تعذر تحميل التقدم.
-      </p>
+      <div className="flex flex-col gap-5" aria-busy="true">
+        <Skeleton className="h-10 w-48" />
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+          <Skeleton className="h-32" />
+          <Skeleton className="h-32" />
+          <Skeleton className="h-32" />
+        </div>
+        <Skeleton className="h-40" />
+      </div>
     );
+  }
+
+  if (progress.isError) {
+    return <ErrorState title="تعذر تحميل التقدم." onRetry={() => progress.refetch()} />;
   }
   const d = progress.data!;
 
   return (
-    <div className="flex flex-col gap-4">
-      <div className="flex flex-wrap items-center justify-between gap-2">
-        <h1 className="text-xl font-bold text-ink">تقدمك</h1>
-        <a
-          href="/api/export/progress"
-          download
-          className="inline-flex min-h-9 items-center rounded-lg border border-brand-accent px-3 py-1 text-sm font-bold text-brand-strong hover:bg-brand-tint"
-        >
-          تصدير PDF
-        </a>
-      </div>
+    <div className="flex flex-col gap-6">
+      <PageHeader
+        title="تقدمك"
+        eyebrow="إجمالي إتقانك"
+        description="اكسر المذاكرة لمواد ومواضيع — وبلّغ على اللي محتاج تركيز."
+        actions={
+          <Button href="/api/export/progress" download icon="download" variant="secondary" ariaLabel="تصدير تقرير PDF">
+            تصدير PDF
+          </Button>
+        }
+      />
 
       <section className="grid grid-cols-1 gap-4 md:grid-cols-3">
         <XpProgress />
@@ -57,11 +70,11 @@ export default function ProgressPage() {
       </section>
 
       {d.subjects.length > 0 && (
-        <section className="rounded-2xl border border-line bg-surface p-4">
-          <h2 className="font-bold text-ink">الإتقان حسب المادة</h2>
-          <ul className="mt-3 flex flex-col gap-3">
+        <section>
+          <SectionHeader title="الإتقان حسب المادة" meta={<span className="tnum text-xs text-ink-mute">{d.subjects.length} مادة</span>} />
+          <ul className="mt-3 flex flex-col gap-4">
             {d.subjects.map((s) => {
-              const color = s.mastery < 50 ? "bg-bad" : s.mastery < 70 ? "bg-gold-600" : "bg-ok";
+              const color = s.mastery < 40 ? "bg-danger-solid" : s.mastery < 70 ? "bg-gold-600" : "bg-ok";
               return (
                 <li key={s.subjectId}>
                   <div className="flex items-center justify-between text-sm">
@@ -71,14 +84,14 @@ export default function ProgressPage() {
                     </span>
                   </div>
                   <div
-                    className="mt-1 h-2 w-full overflow-hidden rounded-full bg-base"
+                    className="mt-1.5 h-2 w-full overflow-hidden rounded-full bg-line"
                     role="progressbar"
                     aria-label={`إتقان ${s.nameAr}`}
                     aria-valuenow={s.mastery}
                     aria-valuemin={0}
                     aria-valuemax={100}
                   >
-                    <div className={`h-full ${color}`} style={{ width: `${s.mastery}%` }} />
+                    <div className={`h-full rounded-full ${color} transition-all duration-500`} style={{ width: `${s.mastery}%` }} />
                   </div>
                 </li>
               );
@@ -88,17 +101,20 @@ export default function ProgressPage() {
       )}
 
       {d.weakTopics.length > 0 && (
-        <section className="rounded-2xl border border-bad/20 bg-danger-bg p-4">
-          <h2 className="font-bold text-bad">نقاط تحتاج تركيز</h2>
-          <ul className="mt-2 flex flex-col gap-1.5">
+        <section>
+          <SectionHeader title="نقاط تحتاج تركيز" meta={<span className="text-xs text-ink-mute">حسب آخر إجاباتك</span>} />
+          <ul className="mt-2 flex flex-col gap-2">
             {d.weakTopics.map((w) => (
-              <li key={w.topicId} className="flex items-center justify-between gap-3 rounded-lg bg-surface p-2 text-sm">
+              <li
+                key={w.topicId}
+                className="flex items-center justify-between gap-3 rounded-xl border border-warn-line bg-warn-bg px-4 py-2.5 text-sm"
+              >
                 <div>
                   <span className="font-medium text-ink">{w.topicTitleAr ?? "موضوع"}</span>
                   {w.subjectNameAr && <span className="mx-2 text-xs text-ink-mute">{w.subjectNameAr}</span>}
                 </div>
                 <span className="flex shrink-0 items-center gap-2">
-                  <span className="tnum font-bold text-bad">{w.masteryScore}%</span>
+                  <span className="tnum font-bold text-gold-accent">{w.masteryScore}%</span>
                   <span className="text-xs text-ink-mute">من {w.n} إجابة</span>
                 </span>
               </li>
@@ -108,14 +124,11 @@ export default function ProgressPage() {
       )}
 
       {d.mistakesDue > 0 && (
-        <section className="rounded-2xl border border-warn-line bg-warn-bg p-3">
+        <section className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-warn-line bg-warn-bg px-4 py-3">
           <p className="font-bold text-gold-accent">لديك {d.mistakesDue} مراجعة مستحقة.</p>
-          <Link
-            href="/mistakes"
-            className="mt-1 inline-block rounded-lg bg-gold-600 px-3 py-1.5 text-sm font-bold text-white"
-          >
+          <Button href="/mistakes" variant="gold" size="sm">
             ابدأ المراجعة
-          </Link>
+          </Button>
         </section>
       )}
     </div>

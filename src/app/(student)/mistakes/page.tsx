@@ -3,6 +3,12 @@
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { PageHeader } from "@/components/ui/PageHeader";
+import { Button } from "@/components/ui/Button";
+import { EmptyState } from "@/components/ui/EmptyState";
+import { ErrorState } from "@/components/ui/ErrorState";
+import { Skeleton } from "@/components/ui/Skeleton";
+import { Icon } from "@/components/ui/Icon";
 
 type MistakeItem = {
   id: string;
@@ -47,27 +53,41 @@ export default function MistakesPage() {
     onSuccess: (d) => router.push(`/practice/session/${d.attemptId}`),
   });
 
-  return (
-    <div className="flex flex-col gap-4">
-      <div className="flex flex-wrap items-center justify-between gap-2">
-        <h1 className="text-xl font-bold text-ink">مكتبة الأخطاء</h1>
-        <div className="flex items-center gap-2">
-          <a
-            href="/api/export/mistakes"
-            download
-            className="min-h-11 rounded-lg border border-brand-accent px-3 py-1.5 text-sm font-bold text-brand-strong hover:bg-brand-tint"
-          >
-            تصدير PDF
-          </a>
-          <button
-            type="button"
-            onClick={() => setAll((v) => !v)}
-            className="min-h-11 rounded-lg border border-line px-3 py-1.5 text-sm text-ink-soft"
-          >
-            {all ? "المستحقة فقط" : "كل الأخطاء"}
-          </button>
-        </div>
+  if (list.isPending) {
+    return (
+      <div className="flex flex-col gap-5" aria-busy="true">
+        <Skeleton className="h-10 w-48" />
+        <Skeleton className="h-40" />
+        <Skeleton className="h-40" />
       </div>
+    );
+  }
+
+  if (list.isError) {
+    return <ErrorState title="تعذر تحميل الأخطاء." onRetry={() => list.refetch()} />;
+  }
+
+  const items = list.data!.items;
+
+  return (
+    <div className="flex flex-col gap-6">
+      <PageHeader
+        eyebrow="تعلم من أخطائك"
+        title="مكتبة الأخطاء"
+        description={all
+          ? "كل أخطائك التي راجعتها — حلّها مرة تانية وتأكد إنك فاهمها."
+          : "الأخطاء المستحقة للمراجعة اليوم — حل واصلح قبل ما تنسى."}
+        actions={
+          <div className="flex items-center gap-2">
+            <Button href="/api/export/mistakes" download icon="download" variant="secondary" ariaLabel="تصدير تقرير PDF">
+              تصدير PDF
+            </Button>
+            <Button onClick={() => setAll((v) => !v)} variant="ghost" iconPosition="end">
+              {all ? "المستحقة فقط" : "كل الأخطاء"}
+            </Button>
+          </div>
+        }
+      />
 
       {start.isError && (
         <p role="alert" className="rounded-lg bg-danger-bg px-3 py-2 text-sm text-bad">
@@ -75,21 +95,23 @@ export default function MistakesPage() {
         </p>
       )}
 
-      {list.isPending && <p className="text-sm text-ink-mute">جارٍ التحميل…</p>}
-      {list.isError && (
-        <p role="alert" className="rounded-lg bg-danger-bg px-3 py-2 text-sm text-bad">
-          تعذر تحميل الأخطاء.
-        </p>
+      {items.length === 0 && (
+        <EmptyState
+          icon="mistakes"
+          title={all ? "مكتبة الأخطاء فاضية" : "ولا خطأ مستحق اليوم"}
+          body={all ? "لما تخطأ هتلاقي أخطاءك هنا للمراجعة." : "لا شيء مستحق اليوم — راجع صفحة كل الأخطاء وقت ما تحب."}
+          action={
+            !all ? (
+              <Button onClick={() => setAll(true)} variant="secondary">
+                عرض كل الأخطاء
+              </Button>
+            ) : undefined
+          }
+        />
       )}
 
-      {list.data?.items.length === 0 && (
-        <p className="rounded-2xl border border-dashed border-line p-6 text-center text-sm text-ink-mute">
-          لا توجد أخطاء {all ? "" : "مستحقة الآن"} — أداء رائع.
-        </p>
-      )}
-
-      {list.data?.items.map((m) => (
-        <article key={m.id} className="rounded-2xl border border-line bg-surface p-4">
+      {items.map((m) => (
+        <article key={m.id} className="animate-rise rounded-2xl border border-line bg-surface p-4">
           <div className="flex items-center justify-between text-xs text-ink-mute">
             <span>{m.topicTitleAr ?? "موضوع"}{m.conceptTag ? ` • ${m.conceptTag}` : ""}</span>
             <span className="tnum">أُعيدت {m.reviewCount} مرة</span>
@@ -109,13 +131,22 @@ export default function MistakesPage() {
                         ? "border-bad bg-danger-bg text-ink"
                         : "border-line text-ink-soft"
                   }`}
+                  dir="rtl"
                 >
                   <span className="tnum flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-base text-xs font-bold">
                     {i + 1}
                   </span>
                   <span>{o.text}</span>
-                  {isRight && <span className="ms-auto text-xs font-bold text-ok">✓ الصحيحة</span>}
-                  {isWrongChosen && <span className="ms-auto text-xs font-bold text-bad">✗ اختيارك</span>}
+                  {isRight && (
+                    <span className="ms-auto flex items-center gap-1 text-xs font-bold text-ok">
+                      <Icon name="check" size={14} /> الصحيحة
+                    </span>
+                  )}
+                  {isWrongChosen && (
+                    <span className="ms-auto flex items-center gap-1 text-xs font-bold text-bad">
+                      <Icon name="x" size={14} /> اختيارك
+                    </span>
+                  )}
                 </div>
               );
             })}
@@ -125,14 +156,14 @@ export default function MistakesPage() {
               {m.explanationMD}
             </p>
           )}
-          <button
-            type="button"
+          <Button
             onClick={() => start.mutate(m.topicId)}
             disabled={start.isPending}
-            className="mt-3 w-full rounded-lg bg-brand-600 py-2.5 text-sm font-bold text-white disabled:opacity-60"
+            className="mt-3 w-full"
+            icon="practice"
           >
             {start.isPending ? "جارٍ البدء…" : "تدرب على هذا الموضوع"}
-          </button>
+          </Button>
         </article>
       ))}
     </div>

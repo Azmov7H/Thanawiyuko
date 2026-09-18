@@ -1,7 +1,10 @@
 "use client";
 
-import Link from "next/link";
 import { useEffect, useState } from "react";
+import { Button } from "@/components/ui/Button";
+import { Icon } from "@/components/ui/Icon";
+import { Skeleton } from "@/components/ui/Skeleton";
+import { ErrorState } from "@/components/ui/ErrorState";
 
 type ReviewItem = {
   qId: string;
@@ -43,39 +46,41 @@ export default function ResultPage({ params }: { params: Promise<{ attemptId: st
   }, [params]);
 
   if (error) {
-    return (
-      <p role="alert" className="rounded-lg bg-danger-bg px-3 py-2 text-sm text-bad">
-        {error}
-      </p>
-    );
+    return <ErrorState title={error} />;
   }
   if (!data) {
-    return <p className="py-10 text-center text-sm text-ink-mute">جارٍ تحميل النتيجة…</p>;
+    return (
+      <div className="flex flex-col gap-5" aria-busy="true">
+        <Skeleton className="h-40" />
+        <Skeleton className="h-40" />
+        <Skeleton className="h-40" />
+      </div>
+    );
   }
 
   return (
     <div className="flex flex-col gap-4">
-      <section className="rounded-2xl border border-line bg-surface p-5 text-center">
+      <section className="animate-rise rounded-2xl border border-line bg-surface p-5 text-center">
         <p className="text-sm text-ink-mute">نتيجتك في الجلسة</p>
         <p className="tnum mt-1 text-3xl font-bold text-ink">
           {data.score} / {data.total}
         </p>
         <p className="tnum mt-1 text-sm font-bold text-brand-strong">الدقة {data.accuracy}%</p>
-        <div className="mt-4 flex gap-2">
-          <Link href="/practice" className="flex-1 rounded-lg bg-brand-600 py-2.5 text-center text-sm font-bold text-white">
+        <div className="mt-4 flex flex-col gap-2 sm:flex-row">
+          <Button href="/practice" icon="practice" className="flex-1">
             جلسة جديدة
-          </Link>
-          <Link href="/mistakes" className="flex-1 rounded-lg bg-gold-600 py-2.5 text-center text-sm font-bold text-white">
+          </Button>
+          <Button href="/mistakes" variant="gold" icon="mistakes" className="flex-1">
             راجع أخطاءك
-          </Link>
-          <Link href="/dashboard" className="flex-1 rounded-lg border border-line py-2.5 text-center text-sm font-bold text-ink">
+          </Button>
+          <Button href="/dashboard" variant="secondary" className="flex-1">
             اللوحة
-          </Link>
+          </Button>
         </div>
       </section>
 
       {data.review.map((r, i) => (
-        <article key={r.qId} className="rounded-2xl border border-line bg-surface p-4">
+        <article key={r.qId} className="animate-rise rounded-2xl border border-line bg-surface p-4">
           <p className="text-sm font-medium leading-relaxed text-ink">
             <span className="tnum text-ink-mute">{i + 1}. </span>
             {r.stemMD}
@@ -87,7 +92,7 @@ export default function ResultPage({ params }: { params: Promise<{ attemptId: st
               return (
                 <li
                   key={o.key}
-                  className={`rounded-lg border px-3 py-2 text-sm ${
+                  className={`flex items-center justify-between gap-2 rounded-lg border px-3 py-2 text-sm ${
                     right
                       ? "border-ok bg-success-bg font-bold text-ink"
                       : mine
@@ -95,9 +100,17 @@ export default function ResultPage({ params }: { params: Promise<{ attemptId: st
                         : "border-line text-ink-mute"
                   }`}
                 >
-                  {o.text}
-                  {right && <span className="ms-2 text-xs font-bold text-ok">✓ الصحيحة</span>}
-                  {mine && !right && <span className="ms-2 text-xs font-bold text-bad">✗ اختيارك</span>}
+                  <span>{o.text}</span>
+                  {right && (
+                    <span className="flex shrink-0 items-center gap-1 text-xs font-bold text-ok">
+                      <Icon name="check" size={14} /> الصحيحة
+                    </span>
+                  )}
+                  {mine && !right && (
+                    <span className="flex shrink-0 items-center gap-1 text-xs font-bold text-bad">
+                      <Icon name="x" size={14} /> اختيارك
+                    </span>
+                  )}
                 </li>
               );
             })}
