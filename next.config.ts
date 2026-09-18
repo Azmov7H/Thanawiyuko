@@ -1,12 +1,13 @@
 import type { NextConfig } from "next";
+import { withSentryConfig } from "@sentry/nextjs/config";
 
 const csp = [
   "default-src 'self'",
-  "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://accept.paymob.com",
+  "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://accept.paymob.com https://js.sentry.io",
   "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
   "font-src 'self' data: https://fonts.gstatic.com",
   "img-src 'self' data: https:",
-  "connect-src 'self' https://accept.paymob.com https://api.paymob.com wss://*.upstash.io",
+  "connect-src 'self' https://accept.paymob.com https://api.paymob.com wss://*.upstash.io https://*.ingest.sentry.io https://*.sentry.io",
   "frame-src https://accept.paymob.com",
   "base-uri 'self'",
   "form-action 'self' https://accept.paymob.com",
@@ -62,4 +63,8 @@ const nextConfig: NextConfig = {
   },
 };
 
-export default nextConfig;
+export default withSentryConfig(nextConfig, {
+  telemetry: false,
+  silent: true,
+  sourcemaps: { disable: !process.env.SENTRY_DSN },
+});

@@ -2,9 +2,12 @@ import { NextResponse } from "next/server";
 import { auth } from "@/server/auth/config";
 import { getSubscription, hasPlusAccess, cancelSubscription } from "@/server/billing/service";
 import { listActivePlans } from "@/server/billing/plans";
+import { featureGate } from "@/server/feature-gate";
 
 /** GET /api/subscription — current subscription status + plans. */
 export async function GET() {
+  const gated = featureGate("PAYMENTS_ENABLED");
+  if (gated) return gated;
   const session = await auth();
   const userId = (session?.user as { id?: string } | undefined)?.id;
   if (!userId)
@@ -33,6 +36,8 @@ export async function GET() {
 
 /** POST /api/subscription/cancel — cancel subscription (end of period). */
 export async function POST(req: Request) {
+  const gated = featureGate("PAYMENTS_ENABLED");
+  if (gated) return gated;
   const session = await auth();
   const userId = (session?.user as { id?: string } | undefined)?.id;
   if (!userId)

@@ -6,7 +6,7 @@ import {
   updateNotificationPreferences,
 } from "@/server/modules/notifications/service";
 import { notificationPreferencesSchema } from "@/lib/validators";
-import { checkRateLimit } from "@/server/ratelimit";
+import { rateLimit } from "@/server/ratelimit";
 import { hashUser, logServerError } from "@/server/logger";
 
 export const dynamic = "force-dynamic";
@@ -36,7 +36,7 @@ export async function PATCH(req: Request) {
     );
   }
 
-  const rl = checkRateLimit(`notif-prefs:${userId}`, 20, 60_000);
+  const rl = await rateLimit(`notif-prefs:${userId}`, 20, 60_000);
   if (!rl.ok) {
     return NextResponse.json(
       { code: "RATE_LIMITED", messageAr: "طلبات كثيرة. حاول بعد قليل." },

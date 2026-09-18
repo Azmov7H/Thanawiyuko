@@ -5,7 +5,7 @@ import { authMongoClient, dbConnect } from "@/server/db/client";
 import { UserModel } from "@/server/modules/auth/user.model";
 import { verifyPassword } from "@/lib/password";
 import { loginSchema } from "@/lib/validators";
-import { checkRateLimit } from "@/server/ratelimit";
+import { rateLimit } from "@/server/ratelimit";
 
 /**
  * Auth.js v5 — database sessions in httpOnly cookies (§13, ADR-04).
@@ -25,7 +25,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth(() => ({
           "unknown";
         const parsed = loginSchema.safeParse(raw);
         const id = parsed.success ? parsed.data.email : "invalid";
-        const rl = checkRateLimit(`login:${ip}:${id}`, 5, 60_000);
+        const rl = await rateLimit(`login:${ip}:${id}`, 5, 60_000);
         if (!rl.ok) throw new Error("RATE_LIMITED");
 
         if (!parsed.success) return null;

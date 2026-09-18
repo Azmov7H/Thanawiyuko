@@ -1,10 +1,13 @@
 import { NextResponse } from "next/server";
 import { getPaymentsProvider } from "@/server/payments/provider";
 import { handlePaymentSuccess, handlePaymentFailed } from "@/server/billing/service";
+import { featureGate } from "@/server/feature-gate";
 import { logServerError } from "@/server/logger";
 
 /** POST /api/subscription/webhook — Paymob callback (raw body for HMAC). */
 export async function POST(req: Request) {
+  const gated = featureGate("PAYMENTS_ENABLED");
+  if (gated) return gated;
   const signature =
     req.headers.get("x-paymob-signature") ??
     req.headers.get("hmac") ??

@@ -18,10 +18,10 @@
 | Cron الاستحقاق/السلاسل/الحذف | ✅ منفّذ (`CRON_SECRET`) | `src/app/api/cron/reconcile/route.ts` |
 | سجلات JSON مع `requestId` وحجب PII | ✅ منفّذ | `src/lib/logger.ts`, `src/server/logger.ts` |
 | سجل تدقيق (أدمن/خطط/دفع/محتوى/حساب) | ✅ منفّذ | `AuditLogModel` |
-| Feature Flags (Kill Switches) | 🟡 مُعرّفة فقط | `src/lib/features.ts` — `GAP`: لا تُقرأ في أي مسار بعد |
-| صفحة/وضع الصيانة | ❌ غير منفّذ | `GAP` — لا `/maintenance` |
-| مراقبة الأخطاء (Sentry) | ❌ غير منفّذ | `GAP` |
-| Rate limit موزّع (Redis/Upstash) | ❌ غير منفّذ | `GAP` — fallback: حدود الذاكرة |
+| Feature Flags (Kill Switches) | ✅ منفّذة (T-N3) | `featureGate()` في المسارات + `MAINTENANCE_MODE` في الـ proxy؛ تُقرأ من `FEATURE_*` (تغيّرها يتطلب إعادة بناء/نشر) |
+| صفحة/وضع الصيانة | ✅ منفّذ (T-N3) | `FEATURE_MAINTENANCE_MODE=true` → كل المسارات عدا `/health` تُرجع 503 |
+| مراقبة الأخطاء (Sentry) | ✅ منفّذ (T-N3) | `@sentry/nextjs` — يعمل عند ضبط `SENTRY_DSN`/`NEXT_PUBLIC_SENTRY_DSN`؛ بدونه no-op |
+| Rate limit موزّع (Redis/Upstash) | ✅ منفّذ (T-N3) | `rateLimit()` — Upstash اختياري (`UPSTASH_REDIS_REST_URL`/`_TOKEN`)؛ fallback: حدود الذاكرة بتوزيع فشل مفتوح |
 | حذف/تصدير الحساب | ✅ منفّذ (T-N2) | `src/server/modules/account/service.ts` |
 | صفحات الخصوصية/الشروط + إقرار ولي الأمر | ✅ منفّذ | `/privacy`, `/terms`, التسجيل |
 | بنية تصدير PDF | 🟡 بنية جاهزة (T-K1) | `src/server/modules/pdf/` — `PDF_ENGINE=chromium` يحتاج متصفحًا على المضيف |

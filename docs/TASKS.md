@@ -31,7 +31,7 @@
 | T-M1 | P3 | M | Teacher role + profile stub | TODO |
 | T-N1 | P1 | N | Restore ops docs + backup/restore drill | DONE |
 | T-N2 | P1 | N | Account deletion/export + privacy pages + guardian consent | DONE |
-| T-N3 | P2 | N | Error monitoring + distributed limits + enforce kill switches | TODO |
+| T-N3 | P2 | N | Error monitoring + distributed limits + enforce kill switches | DONE |
 
 ---
 
@@ -344,4 +344,23 @@
     guardian-consent checkbox at registration (stored as `guardianConsentAt`).
   - Tests: `tests/integration/account-lifecycle.test.ts` (5) + validator unit test.
 - T-N3 Error monitoring (Sentry), distributed rate limiting, and actually enforcing
-  `src/lib/features.ts` kill switches — TODO.
+  `src/lib/features.ts` kill switches — DONE:
+  - **Sentry (optional, DSN-guarded):** added `@sentry/nextjs`; `src/instrumentation.ts`
+    (`register()` per runtime + `onRequestError = Sentry.captureRequestError`),
+    `sentry.server.config.ts` / `sentry.edge.config.ts` / `instrumentation-client.ts`
+    (with `onRouterTransitionStart`), `app/global-error.tsx`, `next.config.ts` wrapped in
+    `withSentryConfig` (source-map upload gated on `SENTRY_DSN`). Everything is a no-op
+    until `SENTRY_DSN` / `NEXT_PUBLIC_SENTRY_DSN` are set, so local/CI builds stay clean
+    and CSP gains `*.ingest.sentry.io`.
+  - **Distributed rate limiting (optional):** `src/server/ratelimit.ts` now exposes
+    `await rateLimit(key, limit, windowMs)` that uses Upstash Redis fixed-window
+    (`INCR`/`EXPIRE`) when `UPSTASH_REDIS_REST_URL`+`_TOKEN` are set, falls back to the
+    in-memory bucket on config-absence or Redis failure (fail-open, documented). Migrated
+    login, register, delete-request, and notification-preference limiters to it.
+  - **Kill switches actually enforced:** new `featureGate(flag)` helper returns 503
+    (`FEATURE_DISABLED` + `Retry-After`) when a flag is off; wired into `/api/ai/tutor`
+    (`AI_ENABLED`), subscription routes (`PAYMENTS_ENABLED`), and exams routes
+    (`EXAMS_ENABLED`). `MAINTENANCE_MODE` is enforced at the edge proxy (all paths except
+    `/health` + `/api/health` → 503). `.env.example` documents every `FEATURE_*` switch.
+  - Tests: `tests/unit/features.test.ts` (feature gate + env resolution, 6),
+    `tests/unit/ratelimit.test.ts` (memory + distributed mock + fallback, 8).

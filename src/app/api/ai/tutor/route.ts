@@ -5,6 +5,7 @@ import { auth } from "@/server/auth/config";
 import { hasPlusAccess } from "@/server/billing/service";
 import { dbConnect } from "@/server/db/client";
 import { runTutorStream } from "@/server/ai/service";
+import { featureGate } from "@/server/feature-gate";
 import { AIConversationModel } from "@/server/modules/ai/conversation.model";
 import { logServerError } from "@/server/logger";
 import { cairoDayStartUTC } from "@/lib/cairo";
@@ -23,6 +24,8 @@ function errorMessage(error: unknown, fallback: string) {
 
 /** POST /api/ai/tutor — streaming tutor chat (SSE). */
 export async function POST(req: Request) {
+  const gated = featureGate("AI_ENABLED");
+  if (gated) return gated;
   const session = await auth();
   const userId = session?.user?.id;
   if (!userId)

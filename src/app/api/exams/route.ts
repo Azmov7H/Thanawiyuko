@@ -1,11 +1,14 @@
 import { NextResponse } from "next/server";
 import { dbConnect } from "@/server/db/client";
+import { featureGate } from "@/server/feature-gate";
 import { studentOfSession } from "@/app/api/subjects/route";
 import { ExamModel } from "@/server/modules/assessment/exam.model";
 import { AttemptModel } from "@/server/modules/assessment/attempt.model";
 
 /** GET /api/exams — published mocks for the student's grade/track + attempts left. */
 export async function GET() {
+  const gated = featureGate("EXAMS_ENABLED");
+  if (gated) return gated;
   const s = await studentOfSession();
   if (!s)
     return NextResponse.json({ code: "UNAUTHENTICATED", messageAr: "سجّل الدخول أولًا." }, { status: 401 });

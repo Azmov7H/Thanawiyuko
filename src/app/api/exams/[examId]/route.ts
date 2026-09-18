@@ -1,3 +1,4 @@
+import { featureGate } from "@/server/feature-gate";
 import { briefing, startExam } from "./logic";
 
 /** GET /api/exams/[examId] — briefing. */
@@ -5,6 +6,8 @@ export async function GET(
   _req: Request,
   { params }: { params: Promise<{ examId: string }> },
 ) {
+  const gated = featureGate("EXAMS_ENABLED");
+  if (gated) return gated;
   const { examId } = await params;
   return briefing(examId);
 }
@@ -14,6 +17,8 @@ export async function POST(
   req: Request,
   { params }: { params: Promise<{ examId: string }> },
 ) {
+  const gated = featureGate("EXAMS_ENABLED");
+  if (gated) return gated;
   const { examId } = await params;
   let key: string | undefined;
   try {

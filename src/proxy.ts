@@ -3,6 +3,7 @@ import type { NextRequest } from "next/server";
 import { REQUEST_ID_HEADER, isValidRequestId, newRequestId } from "@/lib/request-id";
 
 const AUTH_PATHS = ["/api/auth/", "/login", "/register"];
+const MAINTENANCE_ALLOW = ["/health", "/api/health"];
 const RATE_LIMIT_WINDOW_MS = 60_000;
 const RATE_LIMIT_MAX = 5;
 
@@ -34,6 +35,24 @@ export function proxy(req: NextRequest) {
   const reqId = isValidRequestId(incoming) ? incoming : newRequestId();
   const requestHeaders = new Headers(req.headers);
   requestHeaders.set(REQUEST_ID_HEADER, reqId);
+
+  // Kill switch: maintenance mode blocks everything but health checks.
+  const maintenance = process.env.FEATURE_MAINTENANCE_MODE;
+  if (maintenance === "1" || maintenance?.toLowerCase() === "true") {
+    if (!MAINTENANCE_ALLOW.some((p) => pathname.startsWith(p))) {
+      return new NextResponse(
+        JSON.stringify({ code: "MAINTENANCE_MODE", messageAr: "الخدمة متوقفة مؤقتًا للصيانة." }),
+        {
+          status: 503,
+          headers: {
+            "Content-Type": "application/json",
+            "Retry-After": "3600",
+            [REQUEST_ID_HEADER]: reqId,
+          },
+        },
+      );
+    }
+  }
 
   // Rate limit auth endpoints
   if (AUTH_PATHS.some((p) => pathname.startsWith(p))) {

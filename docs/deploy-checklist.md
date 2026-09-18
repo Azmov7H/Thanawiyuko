@@ -28,8 +28,8 @@
 - [ ] لا أسرار في `.env.local` أو الكود أو Git history (استخدم `.env.example` للقوالب)
 - [ ] رؤوس الأمان مختبرة: CSP/HSTS/X-Frame-Options/Referrer-Policy/Permissions-Policy
       (`next.config.ts`) + `src/proxy.ts`
-- [ ] Rate limit على مسارات المصادقة (5/دقيقة) — **ملاحظة:** الحدّ في ذاكرة العملية الواحدة؛
-      على تعدد النسخ فعّل مخزنًا موزّعًا (`GAP` — T-N3)
+- [ ] Rate limit على مسارات المصادقة (5/دقيقة) — `rateLimit()` (T-N3)؛
+      على تعدد النسخ فعّل `UPSTASH_REDIS_REST_URL`/`_TOKEN` لتوزيع الحدود
 - [ ] لا `eval`، ولا `dangerouslySetInnerHTML` بدون تنظيف
 - [ ] `AuditLog` يسجّل: عمليات الأدمن (`user.*`، `plan.update`، محتوى/امتحانات) والاسترداد
       (`payment.refund`)
@@ -83,8 +83,9 @@
 - [ ] سجلات JSON مع `requestId` وحجب PII (`src/lib/logger.ts`)
 - [ ] `LOG_LEVEL` مضبوط لبيئة الإنتاج
 - [ ] `AuditLog` يعمل لكل عمليات الأدمن والدفع
-- [ ] `GAP`: لا مراقبة أخطاء (Sentry) — T-N3
-- [ ] `GAP`: لا تنبيهات (Error rate/Latency/AI Cost) — T-N3
+- [ ] مراقبة الأخطاء (Sentry) مفعّلة: `SENTRY_DSN` + `NEXT_PUBLIC_SENTRY_DSN` (البنية جاهزة T-N3)
+- [ ] `GAP`: تنبيه تكلفة الذكاء الاصطناعي (`AI_BUDGET_ALERT_PCT`) غير موصول بقناة تنبيه بعد
+      (تنبيهات Error rate/Latency متاحة عبر Sentry)
 
 ## 9. النسخ الاحتياطي والاستعادة (Backup & Restore)
 - [ ] نسخ احتياطية/PITR مفعّلة على عنقود الإنتاج
@@ -109,7 +110,8 @@
 
 ## 12. العمليات اليومية (Day 1 Operations)
 - [ ] Runbooks محدّثة: `docs/runbooks.md` (سيناريوهات، RCA، أعلام)
-- [ ] `GAP`: Feature Flags معرّفة (`src/lib/features.ts`) لكن غير مُفعّلة في الكود (T-N3)
+- [ ] Feature Flags مُفعّلة: `FEATURE_*` تُقرأ في `featureGate()` والـ proxy (T-N3)؛
+      توثيقها في `.env.example`
 - [ ] جدول on-call وأرقام ومصادر تنبيه
 - [ ] قالب الحادث (Runbooks §1) + عملية Postmortem
 

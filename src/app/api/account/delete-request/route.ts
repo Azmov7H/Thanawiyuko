@@ -4,7 +4,7 @@ import { dbConnect } from "@/server/db/client";
 import { UserModel } from "@/server/modules/auth/user.model";
 import { verifyPassword } from "@/lib/password";
 import { deleteAccountSchema } from "@/lib/validators";
-import { checkRateLimit } from "@/server/ratelimit";
+import { rateLimit } from "@/server/ratelimit";
 import { deletionPurgeAt, requestAccountDeletion } from "@/server/modules/account/service";
 
 const WINDOW_MS = 60 * 60 * 1000;
@@ -20,7 +20,7 @@ export async function POST(req: Request) {
     );
   }
 
-  const rl = checkRateLimit(`delete-request:${userId}`, 5, WINDOW_MS);
+  const rl = await rateLimit(`delete-request:${userId}`, 5, WINDOW_MS);
   if (!rl.ok) {
     return NextResponse.json(
       { code: "RATE_LIMITED", messageAr: "محاولات كثيرة. حاول لاحقًا." },

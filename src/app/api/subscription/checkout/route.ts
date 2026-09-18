@@ -2,11 +2,14 @@ import { NextResponse } from "next/server";
 import { auth } from "@/server/auth/config";
 import { startCheckout } from "@/server/billing/service";
 import { findPlan, listActivePlans } from "@/server/billing/plans";
+import { featureGate } from "@/server/feature-gate";
 import type { PlanView } from "@/lib/plans";
 import { isPlanKey } from "@/lib/plans";
 
 /** GET /api/subscription/plans — public plan list. */
 export async function GET() {
+  const gated = featureGate("PAYMENTS_ENABLED");
+  if (gated) return gated;
   try {
     const plans = await listActivePlans();
     return NextResponse.json({ plans });
@@ -17,6 +20,8 @@ export async function GET() {
 
 /** POST /api/subscription/checkout — start Paymob checkout. */
 export async function POST(req: Request) {
+  const gated = featureGate("PAYMENTS_ENABLED");
+  if (gated) return gated;
   const session = await auth();
   const userId = (session?.user as { id?: string } | undefined)?.id;
   if (!userId)

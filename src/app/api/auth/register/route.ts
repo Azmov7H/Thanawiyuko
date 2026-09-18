@@ -4,7 +4,7 @@ import { UserModel } from "@/server/modules/auth/user.model";
 import { StudentProfileModel } from "@/server/modules/academic/student-profile.model";
 import { registerSchema } from "@/lib/validators";
 import { hashPassword } from "@/lib/password";
-import { checkRateLimit } from "@/server/ratelimit";
+import { rateLimit } from "@/server/ratelimit";
 import { createNotification } from "@/server/modules/notifications/service";
 import { hashUser, logServerError } from "@/server/logger";
 
@@ -18,7 +18,7 @@ function clientIp(req: Request): string {
 
 /** POST /api/auth/register — student self-registration (one account = one profile). */
 export async function POST(req: Request) {
-  const rl = checkRateLimit(`register:${clientIp(req)}`, 5, WINDOW_MS);
+  const rl = await rateLimit(`register:${clientIp(req)}`, 5, WINDOW_MS);
   if (!rl.ok) {
     return NextResponse.json(
       {
