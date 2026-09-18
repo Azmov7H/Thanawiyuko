@@ -37,9 +37,9 @@ export function NotificationPreferences({
   return (
     <section
       aria-labelledby="notification-preferences"
-      className="rounded-xl border border-line bg-surface p-4"
+      className="rounded-2xl border border-line bg-surface p-5"
     >
-      <h2 id="notification-preferences" className="text-lg font-bold text-ink">
+      <h2 id="notification-preferences" className="font-bold text-ink">
         إشعارات الحساب
       </h2>
       <p className="mt-1 text-xs text-ink-mute">

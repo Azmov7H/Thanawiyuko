@@ -1,8 +1,11 @@
 "use client";
 
 import { useMutation, useQuery } from "@tanstack/react-query";
-import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
+import { Button } from "@/components/ui/Button";
+import { Skeleton } from "@/components/ui/Skeleton";
+import { ErrorState } from "@/components/ui/ErrorState";
+import { Icon } from "@/components/ui/Icon";
 
 type LessonData = {
   lesson: {
@@ -60,32 +63,45 @@ export default function LessonPage({ params }: { params: Promise<{ lessonId: str
     onSuccess: () => setDone(true),
   });
 
-  if (lesson.isPending) return <p className="py-10 text-center text-sm text-ink-mute">جارٍ تحميل الدرس…</p>;
-  if (lesson.isError) {
+  if (lesson.isPending) {
     return (
-      <p role="alert" className="rounded-lg bg-danger-bg px-3 py-2 text-sm text-bad">
-        تعذر تحميل الدرس.
-      </p>
+      <div className="flex flex-col gap-5" aria-busy="true">
+        <Skeleton className="h-4 w-48" />
+        <Skeleton className="h-40" />
+        <Skeleton className="h-12" />
+      </div>
     );
+  }
+  if (lesson.isError) {
+    return <ErrorState title="تعذر تحميل الدرس." onRetry={() => lesson.refetch()} />;
   }
   const { lesson: l, topic, subject, prev, next } = lesson.data!;
 
   return (
     <div className="flex flex-col gap-4">
-      <div className="text-xs text-ink-mute">
-        {subject && <span>{subject.nameAr} • </span>}
-        {topic && <span>{topic.titleAr} • </span>}
-        <span className="tnum">{l.readingMinutes} دقائق قراءة</span>
-      </div>
+      <nav aria-label="مسار الدرس" className="flex flex-wrap items-center gap-1 text-xs text-ink-mute">
+        {subject && <span>{subject.nameAr}</span>}
+        {topic && (
+          <>
+            <Icon name="arrow-prev" size={12} aria-hidden />
+            <span className="font-medium text-ink-soft">{topic.titleAr}</span>
+          </>
+        )}
+      </nav>
 
-      <article className="rounded-2xl border border-line bg-surface p-4">
-        <h1 className="text-xl font-bold text-ink">{l.titleAr}</h1>
-        <div className="mt-3 whitespace-pre-wrap text-sm leading-relaxed text-ink-soft">{l.bodyMD}</div>
+      <article className="rounded-2xl border border-line bg-surface p-5 md:p-7">
+        <div className="flex flex-wrap items-center justify-between gap-2">
+          <h1 className="text-2xl font-bold text-ink">{l.titleAr}</h1>
+          <span className="tnum rounded-full bg-base px-2.5 py-1 text-xs text-ink-mute">
+            {l.readingMinutes} دقائق قراءة
+          </span>
+        </div>
+        <div className="mt-3 whitespace-pre-wrap text-sm leading-relaxed text-ink-soft prose-rtl">{l.bodyMD}</div>
 
         {l.diagrams.length > 0 && (
           <div className="mt-4 flex flex-col gap-3">
             {l.diagrams.map((src, i) => (
-              // eslint-disable-next-line @next/next/no-img-element
+              /* eslint-disable-next-line @next/next/no-img-element */
               <img
                 key={src}
                 src={src}
@@ -101,8 +117,9 @@ export default function LessonPage({ params }: { params: Promise<{ lessonId: str
             href={l.videoUrl}
             target="_blank"
             rel="noreferrer"
-            className="mt-4 inline-block rounded-lg border border-brand-accent px-4 py-2 text-sm font-bold text-brand-strong"
+            className="mt-4 inline-flex min-h-9 items-center justify-center gap-2 rounded-lg border border-brand-accent px-4 py-2 text-sm font-bold text-brand-strong transition-colors hover:bg-brand-tint"
           >
+            <Icon name="play" size={16} aria-hidden />
             شاهد الفيديو التوضيحي
           </a>
         )}
@@ -114,36 +131,34 @@ export default function LessonPage({ params }: { params: Promise<{ lessonId: str
         </p>
       )}
 
-      <button
-        type="button"
+      <Button
         onClick={() => complete.mutate()}
         disabled={complete.isPending || done}
-        className="rounded-lg bg-brand-600 py-3 font-bold text-white disabled:opacity-60"
+        type="button"
+        icon={done ? "check" : undefined}
+        className="w-full"
       >
-        {done ? "تم تسجيل إتمام الدرس ✓" : complete.isPending ? "جارٍ التسجيل…" : "علّم الدرس كمكتمل"}
-      </button>
+        {done ? "تم تسجيل إتمام الدرس" : complete.isPending ? "جارٍ التسجيل…" : "علّم الدرس كمكتمل"}
+      </Button>
 
       {topic && subject && (
-        <Link
-          href={`/subjects/${subject.id}`}
-          className="text-center text-sm text-brand-strong"
-        >
+        <Button href={`/subjects/${subject.id}`} variant="ghost" icon="practice" className="w-full">
           تدرب على أسئلة «{topic.titleAr}»
-        </Link>
+        </Button>
       )}
 
       <div className="flex items-center justify-between gap-2 text-sm">
         {prev ? (
-          <Link href={`/lessons/${prev.id}`} className="text-brand-strong">
-            ← {prev.titleAr}
-          </Link>
+          <Button href={`/lessons/${prev.id}`} variant="ghost" className="justify-start">
+            <span className="text-base leading-none">→</span> {prev.titleAr}
+          </Button>
         ) : (
           <span />
         )}
         {next ? (
-          <Link href={`/lessons/${next.id}`} className="text-brand-strong">
-            {next.titleAr} →
-          </Link>
+          <Button href={`/lessons/${next.id}`} variant="ghost" iconPosition="end" className="justify-end">
+            {next.titleAr} <span className="text-base leading-none">←</span>
+          </Button>
         ) : (
           <span />
         )}

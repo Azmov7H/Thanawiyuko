@@ -4,6 +4,10 @@ import { useCallback, useEffect, useRef, useState, use } from "react";
 import { useRouter } from "next/navigation";
 import { now as perfNow } from "@/lib/perf";
 import { useModal } from "@/lib/use-modal";
+import { Button } from "@/components/ui/Button";
+import { Skeleton } from "@/components/ui/Skeleton";
+import { ErrorState } from "@/components/ui/ErrorState";
+import { Icon } from "@/components/ui/Icon";
 
 type Q = {
   qId: string;
@@ -219,14 +223,15 @@ export default function ExamTakePage({ params }: { params: Promise<{ attemptId: 
   }
 
   if (!q && !error) {
-    return <p className="py-10 text-center text-sm text-ink-mute">جارٍ تحميل الامتحان…</p>;
+    return (
+      <div className="flex flex-col gap-4" aria-busy="true">
+        <Skeleton className="h-12" />
+        <Skeleton className="h-64" />
+      </div>
+    );
   }
   if (!q) {
-    return (
-      <p role="alert" className="rounded-lg bg-danger-bg px-3 py-2 text-sm text-bad">
-        {error}
-      </p>
-    );
+    return <ErrorState title={error} />;
   }
 
   const urgent = remaining != null && remaining < 5 * 60_000;
@@ -241,7 +246,11 @@ export default function ExamTakePage({ params }: { params: Promise<{ attemptId: 
           <span className="tnum text-xs text-ink-mute">
             {answered} / {total} مجاب
           </span>
-          <button onClick={() => setShowNav((v) => !v)} className="rounded-lg border border-line bg-surface px-3 py-1.5 text-sm text-ink">
+          <button
+            onClick={() => setShowNav((v) => !v)}
+            className="inline-flex items-center gap-1.5 rounded-lg border border-line bg-surface px-3 py-1.5 text-sm text-ink"
+          >
+            <Icon name="star" size={16} aria-hidden />
             {showNav ? "إخفاء الأسئلة" : "خريطة الأسئلة"}
           </button>
         </div>

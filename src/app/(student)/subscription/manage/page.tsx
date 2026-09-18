@@ -3,6 +3,12 @@
 import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
 import { useModal } from "@/lib/use-modal";
+import { PageHeader } from "@/components/ui/PageHeader";
+import { SectionHeader } from "@/components/ui/SectionHeader";
+import { Button } from "@/components/ui/Button";
+import { Skeleton } from "@/components/ui/Skeleton";
+import { ErrorState } from "@/components/ui/ErrorState";
+import { Icon } from "@/components/ui/Icon";
 
 type Invoice = {
   id: string;
@@ -11,6 +17,13 @@ type Invoice = {
   status: string;
   createdAt: string;
   providerRef?: string;
+};
+
+const STATUS_LABEL: Record<string, { label: string; cls: string }> = {
+  succeeded: { label: "مدفوع", cls: "text-ok" },
+  refunded: { label: "مسترد", cls: "text-gold-accent" },
+  pending: { label: "قيد المعالجة", cls: "text-ink-mute" },
+  failed: { label: "فاشل", cls: "text-bad" },
 };
 
 /** Manage current subscription: view status, invoices, cancel. */
@@ -63,23 +76,29 @@ export default function SubscriptionManagePage() {
     }
   }
 
-  if (subPending) return <p className="py-10 text-center text-sm text-ink-mute">جارٍ التحميل…</p>;
-
-  if (subError)
+  if (subPending) {
     return (
-      <div className="flex flex-col items-center gap-3 py-10 text-center">
-        <p role="alert" className="rounded-lg bg-danger-bg px-3 py-2 text-sm text-bad">
-          تعذر تحميل اشتراكك — حاول مرة أخرى بعد قليل.
-        </p>
-        <button type="button" onClick={() => refetch()} className="rounded-lg bg-brand-600 px-3 py-1.5 text-sm font-bold text-white">
-          إعادة المحاولة
-        </button>
+      <div className="flex flex-col gap-5" aria-busy="true">
+        <Skeleton className="h-10 w-48" />
+        <Skeleton className="h-28" />
+        <Skeleton className="h-40" />
       </div>
     );
+  }
+
+  if (subError) return <ErrorState title="تعذر تحميل اشتراكك — حاول مرة أخرى بعد قليل." onRetry={() => refetch()} />;
+
+  const endLabel = sub.subscription?.currentPeriodEnd
+    ? new Date(sub.subscription.currentPeriodEnd).toLocaleDateString("ar-EG")
+    : "—";
 
   return (
     <div className="flex flex-col gap-6">
-      <h1 className="text-2xl font-bold text-ink">إدارة الاشتراك</h1>
+      <PageHeader
+        eyebrow="حسابك المدفوع"
+        title="إدارة الاشتراك"
+        description="شوف حالتك وفواتيرك — ولو حببت تلغي، اختار بطريقة مريحة."
+      />
 
       {error && (
         <p role="alert" className="rounded-lg bg-danger-bg px-3 py-2 text-sm text-bad">
@@ -87,39 +106,57 @@ export default function SubscriptionManagePage() {
         </p>
       )}
 
-      <section className="rounded-2xl border border-line bg-surface p-5">
-        <div className="flex items-center justify-between">
-          <div>
-            <h2 className="font-bold text-ink">خطتك الحالية</h2>
-            <p className="tnum text-sm text-ink-mute">تنتهي في {sub.subscription?.currentPeriodEnd ? new Date(sub.subscription.currentPeriodEnd).toLocaleDateString("ar-EG") : "—"}</p>
-          </div>
-          <span className={`rounded-full px-3 py-1 text-xs font-bold ${sub.hasPlusAccess ? "bg-success-bg text-ok" : "bg-danger-bg text-bad"}`}>
-            {sub.hasPlusAccess ? "بلس نشط" : "مجاني"}
+      <section className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-line bg-surface p-5">
+        <div className="flex items-center gap-3">
+          <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-brand-tint text-brand-strong">
+            <Icon name="bolt" size={22} />
           </span>
+          <div>
+            <h2 className="font-bold text-ink">{sub.subscription?.plan ?? "مجاني"}</h2>
+            <p className="tnum mt-0.5 text-sm text-ink-mute">تنتهي في {endLabel}</p>
+          </div>
         </div>
-        {sub.subscription?.cancelAtPeriodEnd && (
-          <p className="mt-2 text-sm text-gold-accent">الاشتراك ملغي — هينتهي في نهاية الفترة.</p>
-        )}
+        <span
+          className={`rounded-full px-3 py-1 text-xs font-bold ${
+            sub.hasPlusAccess ? "bg-success-bg text-ok" : "bg-danger-bg text-bad"
+          }`}
+        >
+          {sub.hasPlusAccess ? "بلس نشط" : "مجاني"}
+        </span>
       </section>
 
+      {sub.subscription?.cancelAtPeriodEnd && (
+        <p className="rounded-lg bg-warn-bg px-3 py-2 text-sm text-gold-accent">
+          الاشتراك ملغي — سينتهي تلقائيًا في نهاية الفترة.
+        </p>
+      )}
+
       <section className="rounded-2xl border border-line bg-surface p-5">
-        <h2 className="font-bold text-ink">الفواتير</h2>
+        <SectionHeader title="الفواتير" meta={<span className="tnum text-xs text-ink-mute">{invoices?.length ?? 0} فاتورة</span>} />
         {invoicesPending ? (
-          <p className="mt-3 text-sm text-ink-mute">جارٍ تحميل الفواتير…</p>
+          <div className="mt-3 flex flex-col gap-2" aria-busy="true">
+            <Skeleton className="h-10" />
+            <Skeleton className="h-10" />
+          </div>
         ) : invoicesError ? (
-          <p className="mt-3 text-sm text-bad">تعذر تحميل الفواتير.</p>
+          <p className="mt-3 text-sm text-ink-mute">تعذر تحميل الفواتير.</p>
         ) : invoices?.length ? (
           <ul className="mt-3 flex flex-col gap-2">
-            {invoices.map((inv) => (
-              <li key={inv.id} className="flex items-center justify-between rounded-lg border border-line bg-base p-3 text-sm">
-                <div>
-                  <span className="font-medium text-ink">{inv.amountEGP} ج.م</span>
-                  <span className="mx-2 text-ink-mute">•</span>
-                  <span className={`tnum ${inv.status === "succeeded" ? "text-ok" : inv.status === "refunded" ? "text-gold-accent" : "text-bad"}`}>{inv.status}</span>
-                </div>
-                <span className="tnum text-xs text-ink-mute">{new Date(inv.createdAt).toLocaleDateString("ar-EG")}</span>
-              </li>
-            ))}
+            {invoices.map((inv) => {
+              const st = STATUS_LABEL[inv.status] ?? { label: inv.status, cls: "text-ink-mute" };
+              return (
+                <li key={inv.id} className="flex items-center justify-between rounded-lg border border-line bg-base p-3 text-sm">
+                  <div className="flex items-center gap-3">
+                    <Icon name="check" size={16} className={st.cls} />
+                    <span className="tnum font-medium text-ink">{inv.amountEGP} ج.م</span>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <span className={`tnum text-xs ${st.cls}`}>{st.label}</span>
+                    <span className="tnum text-xs text-ink-mute">{new Date(inv.createdAt).toLocaleDateString("ar-EG")}</span>
+                  </div>
+                </li>
+              );
+            })}
           </ul>
         ) : (
           <p className="mt-3 text-sm text-ink-mute">لا فواتير بعد.</p>
@@ -128,20 +165,16 @@ export default function SubscriptionManagePage() {
 
       <section className="rounded-2xl border border-danger-line bg-danger-bg p-5">
         <h2 className="font-bold text-bad">إلغاء الاشتراك</h2>
-        <p className="mt-1 text-sm text-ink-mute">هتقدر تكمل تستخدم بلس لحد نهاية الفترة المدفوعة. لو عايز تلغي فورًا (بدون استرداد)، اختر الخيار التاني.</p>
-        <div className="mt-3 flex gap-2">
-          <button
-            onClick={() => setConfirming(true)}
-            className="flex-1 rounded-lg border border-danger-line bg-surface py-2.5 font-bold text-bad"
-          >
+        <p className="mt-1 text-sm text-ink-mute">
+          تقدر تكمل بالمجاني لحد نهاية الفترة المدفوعة. لو عايز تلغي فورًا (بدون استرداد)، اختار الخيار التاني.
+        </p>
+        <div className="mt-3 flex flex-col gap-2 sm:flex-row">
+          <Button onClick={() => setConfirming(true)} variant="secondary" className="flex-1">
             إلغاء في نهاية الفترة
-          </button>
-          <button
-            onClick={() => { setConfirming(true); /* immediate handled in confirm */ }}
-            className="flex-1 rounded-lg bg-danger-solid py-2.5 font-bold text-white"
-          >
+          </Button>
+          <Button onClick={() => setConfirming(true)} variant="danger" className="flex-1">
             إلغاء فوري (بدون استرداد)
-          </button>
+          </Button>
         </div>
       </section>
 
@@ -154,27 +187,21 @@ export default function SubscriptionManagePage() {
           aria-modal="true"
           aria-labelledby="cancel-subscription-title"
         >
-          <div className="w-full max-w-sm rounded-2xl bg-surface p-5">
+          <div className="w-full max-w-sm rounded-2xl border border-line bg-surface p-5 shadow-overlay">
             <h2 id="cancel-subscription-title" className="font-bold text-ink">تأكيد الإلغاء؟</h2>
-            <p className="mt-2 text-sm text-ink-mute">هتقدر تكمل تستخدم بلس لحد {sub.subscription?.currentPeriodEnd ? new Date(sub.subscription.currentPeriodEnd).toLocaleDateString("ar-EG") : "نهاية الفترة"}.</p>
-            <div className="mt-4 flex gap-2">
-              <button onClick={() => setConfirming(false)} className="flex-1 rounded-lg border border-line py-2.5 font-bold text-ink">
-                تراجع
-              </button>
-              <button
-                onClick={() => cancel(false)}
-                disabled={canceling}
-                className="flex-1 rounded-lg border border-danger-line bg-surface py-2.5 font-bold text-bad disabled:opacity-50"
-              >
-                {canceling ? "جارٍ…" : "تأكيد الإلغاء في نهاية الفترة"}
-              </button>
-              <button
-                onClick={() => cancel(true)}
-                disabled={canceling}
-                className="flex-1 rounded-lg bg-danger-solid py-2.5 font-bold text-white disabled:opacity-50"
-              >
+            <p className="mt-2 text-sm text-ink-mute">
+              تقدر تكمل بلس لحد {endLabel}.
+            </p>
+            <div className="mt-4 flex flex-col gap-2">
+              <Button onClick={() => cancel(true)} disabled={canceling} variant="danger" className="w-full">
                 {canceling ? "جارٍ…" : "تأكيد الإلغاء الفوري"}
-              </button>
+              </Button>
+              <Button onClick={() => cancel(false)} disabled={canceling} variant="secondary" className="w-full">
+                {canceling ? "جارٍ…" : "إلغاء في نهاية الفترة"}
+              </Button>
+              <Button onClick={() => setConfirming(false)} variant="ghost" className="w-full">
+                تراجع
+              </Button>
             </div>
           </div>
         </div>

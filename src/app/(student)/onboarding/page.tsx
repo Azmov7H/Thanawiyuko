@@ -2,6 +2,8 @@
 
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { Icon } from "@/components/ui/Icon";
+import { Button } from "@/components/ui/Button";
 
 const GRADES = [
   { value: "sec1", label: "الصف الأول الثانوي" },
@@ -51,13 +53,20 @@ export default function OnboardingPage() {
 
   return (
     <div className="mx-auto w-full max-w-lg">
-      <h1 className="text-2xl font-bold text-ink">ظبط ملفك الدراسي</h1>
-      <p className="mt-1 text-sm text-ink-mute">
-        عشان نجهزلك الخطة والمحتوى المناسبين ليك.
-      </p>
+      <div className="flex items-center gap-3">
+        <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-brand-tint text-brand-strong">
+          <Icon name="sparkle" size={22} />
+        </span>
+        <div>
+          <h1 className="text-2xl font-bold text-ink">ظبط ملفك الدراسي</h1>
+          <p className="mt-0.5 text-sm text-ink-mute">
+            عشان نجهزلك الخطة والمحتوى المناسبين ليك.
+          </p>
+        </div>
+      </div>
 
       <section className="mt-6 rounded-2xl border border-line bg-surface p-5">
-        <h2 className="font-bold text-ink">1. الصف الدراسي</h2>
+        <h2 className="text-sm font-bold text-ink">1. الصف الدراسي</h2>
         <div className="mt-3 grid gap-2">
           {GRADES.map((g) => (
             <button
@@ -79,7 +88,7 @@ export default function OnboardingPage() {
 
       {grade === "sec3" && (
         <section className="mt-4 rounded-2xl border border-line bg-surface p-5">
-          <h2 className="font-bold text-ink">2. الشعبة</h2>
+          <h2 className="text-sm font-bold text-ink">2. الشعبة</h2>
           <div className="mt-3 grid gap-2">
             {TRACKS.filter((t) => t.value !== "general").map((t) => (
               <button
@@ -101,7 +110,7 @@ export default function OnboardingPage() {
       )}
 
       <section className="mt-4 rounded-2xl border border-line bg-surface p-5">
-        <h2 className="font-bold text-ink">
+        <h2 className="text-sm font-bold text-ink">
           {grade === "sec3" ? "3" : "2"}. هدفك اليومي للمذاكرة
         </h2>
         <div className="mt-3 flex items-center gap-3">
@@ -128,14 +137,9 @@ export default function OnboardingPage() {
           {error}
         </p>
       )}
-      <button
-        type="button"
-        onClick={finish}
-        disabled={busy}
-        className="mt-6 w-full rounded-lg bg-brand-600 py-3 font-bold text-white disabled:opacity-60"
-      >
+      <Button onClick={finish} disabled={busy} size="lg" icon="sparkle" className="mt-6 w-full">
         {busy ? "جارٍ الحفظ…" : "ادخل على لوحتك"}
-      </button>
+      </Button>
     </div>
   );
 }

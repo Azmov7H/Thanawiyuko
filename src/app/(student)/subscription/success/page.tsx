@@ -1,8 +1,9 @@
 "use client";
 
 import { useEffect } from "react";
-import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { Button } from "@/components/ui/Button";
+import { Icon } from "@/components/ui/Icon";
 
 /** Success page after Paymob redirect. */
 export default function SubscriptionSuccessPage() {
@@ -24,13 +25,17 @@ export default function SubscriptionSuccessPage() {
   }, [router]);
 
   return (
-    <div className="flex min-h-full w-full max-w-md mx-auto flex-col items-center justify-center px-4 py-12">
-      <svg aria-hidden="true" className="w-16 h-16 text-ok" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-      <h1 className="mt-4 text-xl font-bold text-ink">تم الدفع بنجاح!</h1>
-      <p className="mt-2 text-sm text-ink-mute">جاري تفعيل اشتراكك… هتنقل تلقائيًا لصفحة الاشتراك.</p>
-      <Link href="/subscription" className="mt-4 rounded-lg bg-brand-600 px-6 py-2.5 font-bold text-white">
+    <div className="mx-auto flex min-h-full w-full max-w-md flex-col items-center justify-center px-4 py-12 text-center">
+      <span className="flex h-16 w-16 items-center justify-center rounded-full bg-success-bg text-ok">
+        <Icon name="check" size={32} />
+      </span>
+      <h1 className="mt-4 text-2xl font-bold text-ink">تم الدفع بنجاح!</h1>
+      <p className="mt-2 text-sm text-ink-mute">
+        جارٍ تفعيل اشتراكك… هتنتقل تلقائيًا لصفحة الاشتراك.
+      </p>
+      <Button href="/subscription" icon="bolt" className="mt-4">
         اذهب لصفحة الاشتراك
-      </Link>
+      </Button>
     </div>
   );
 }

@@ -1,9 +1,12 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
-import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { use, useState } from "react";
+import { Button } from "@/components/ui/Button";
+import { Skeleton } from "@/components/ui/Skeleton";
+import { ErrorState } from "@/components/ui/ErrorState";
+import { Icon } from "@/components/ui/Icon";
 
 type Briefing = {
   exam: {
@@ -16,6 +19,13 @@ type Briefing = {
     attemptsLeft: number;
   };
 };
+
+const RULES = [
+  "المؤقت محسوب من السيرفر — إغلاق الصفحة لا يوقف الوقت.",
+  "إجاباتك تُحفظ تلقائيًا كل 20 ثانية.",
+  "لا يوجد تصحيح فوري أثناء الامتحان — النتيجة والشرح بعد التسليم.",
+  "عند انتهاء الوقت يُسلَّم الامتحان تلقائيًا بما أجبت.",
+];
 
 /** M4 pre-exam briefing: rules + honest attempt count, then start. */
 export default function ExamBriefingPage({ params }: { params: Promise<{ examId: string }> }) {
@@ -55,43 +65,56 @@ export default function ExamBriefingPage({ params }: { params: Promise<{ examId:
   const e = brief.data?.exam;
 
   return (
-    <div className="flex flex-col gap-4">
-      <Link href="/exams" className="text-sm text-ink-mute">
-        → كل الامتحانات
-      </Link>
-      {brief.isPending && <p className="text-sm text-ink-mute">جارٍ التحميل…</p>}
-      {brief.isError && (
-        <p role="alert" className="rounded-lg bg-danger-bg px-3 py-2 text-sm text-bad">
-          تعذر تحميل الامتحان.
-        </p>
+    <div className="mx-auto flex w-full max-w-2xl flex-col gap-5">
+      <Button href="/exams" variant="ghost" className="self-start" iconPosition="end">
+        كل الامتحانات
+      </Button>
+
+      {brief.isPending && (
+        <div className="flex flex-col gap-4" aria-busy="true">
+          <Skeleton className="h-10 w-2/3" />
+          <Skeleton className="h-48" />
+        </div>
       )}
+
+      {brief.isError && <ErrorState title="تعذر تحميل الامتحان." onRetry={() => brief.refetch()} />}
+
       {e && (
         <>
-          <section className="rounded-2xl border border-line bg-surface p-5">
-            <h1 className="text-xl font-bold text-ink">{e.titleAr}</h1>
-            <p className="tnum mt-2 text-sm text-ink-mute">
-              {e.totalQ} سؤال • {e.durationMin} دقيقة • المحاولات المتبقية: {e.attemptsLeft} من {e.attemptsAllowed}
-            </p>
-            <ul className="mt-4 flex flex-col gap-1.5 text-sm leading-relaxed text-ink-soft">
-              <li>• المؤقت محسوب من السيرفر — إغلاق الصفحة لا يوقف الوقت.</li>
-              <li>• إجاباتك تُحفظ تلقائيًا كل 20 ثانية.</li>
-              <li>• لا يوجد تصحيح فوري أثناء الامتحان — النتيجة والشرح بعد التسليم.</li>
-              <li>• عند انتهاء الوقت يُسلَّم الامتحان تلقائيًا بما أجبت.</li>
+          <section className="animate-rise rounded-2xl border border-line bg-surface p-6 md:p-7">
+            <h1 className="text-2xl font-bold text-ink">{e.titleAr}</h1>
+            {e.description && <p className="mt-1 text-sm text-ink-mute">{e.description}</p>}
+            <div className="mt-4 flex flex-wrap gap-2">
+              <span className="tnum inline-flex items-center gap-1.5 rounded-full bg-base px-3 py-1.5 text-xs font-bold text-ink-soft">
+                <Icon name="exams" size={14} /> {e.totalQ} سؤال
+              </span>
+              <span className="tnum inline-flex items-center gap-1.5 rounded-full bg-base px-3 py-1.5 text-xs font-bold text-ink-soft">
+                <Icon name="clock" size={14} /> {e.durationMin} دقيقة
+              </span>
+              <span className="tnum inline-flex items-center gap-1.5 rounded-full bg-base px-3 py-1.5 text-xs font-bold text-ink-soft">
+                <Icon name="star" size={14} /> محاولات: {e.attemptsLeft} من {e.attemptsAllowed}
+              </span>
+            </div>
+            <ul className="mt-5 flex flex-col gap-2 text-sm leading-relaxed text-ink-soft">
+              {RULES.map((r) => (
+                <li key={r} className="flex items-start gap-2">
+                  <Icon name="check" size={16} className="mt-0.5 shrink-0 text-brand-strong" />
+                  {r}
+                </li>
+              ))}
             </ul>
           </section>
+
           {error && (
             <p role="alert" className="rounded-lg bg-danger-bg px-3 py-2 text-sm text-bad">
               {error}
             </p>
           )}
+
           {e.attemptsLeft > 0 ? (
-            <button
-              onClick={start}
-              disabled={busy}
-              className="rounded-lg bg-brand-600 py-3 font-bold text-white disabled:opacity-60"
-            >
+            <Button onClick={start} disabled={busy} size="lg" icon="exams" className="w-full">
               {busy ? "جارٍ تجهيز الامتحان…" : "ابدأ الامتحان — يبدأ الوقت فورًا"}
-            </button>
+            </Button>
           ) : (
             <p className="rounded-lg bg-base py-3 text-center text-sm text-ink-mute">
               استنفدت محاولات هذا الامتحان

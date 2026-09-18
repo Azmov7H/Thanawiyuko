@@ -8,6 +8,7 @@ import { deletionPurgeAt } from "@/server/modules/account/service";
 import { getNotificationPreferences } from "@/server/modules/notifications/service";
 import { AccountActions } from "./AccountActions";
 import { NotificationPreferences } from "./NotificationPreferences";
+import { PageHeader } from "@/components/ui/PageHeader";
 
 export const dynamic = "force-dynamic";
 
@@ -51,15 +52,14 @@ export default async function SettingsPage() {
 
   return (
     <div className="flex flex-col gap-6">
-      <header>
-        <h1 className="text-2xl font-bold text-ink">حسابي</h1>
-        <p className="mt-1 text-sm text-ink-mute">
-          بيانات حسابك، تصدير بياناتك، وإدارة الحذف.
-        </p>
-      </header>
+      <PageHeader
+        eyebrow="حسابك"
+        title="حسابي"
+        description="بيانات حسابك، تصدير بياناتك، وإدارة الحذف."
+      />
 
-      <section aria-labelledby="account-info" className="rounded-xl border border-line bg-surface p-4">
-        <h2 id="account-info" className="text-lg font-bold text-ink">
+      <section aria-labelledby="account-info" className="rounded-2xl border border-line bg-surface p-5">
+        <h2 id="account-info" className="font-bold text-ink">
           البيانات الأساسية
         </h2>
         <dl className="mt-3 grid grid-cols-1 gap-3 text-sm sm:grid-cols-2">

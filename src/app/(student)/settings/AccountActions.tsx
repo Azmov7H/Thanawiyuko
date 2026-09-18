@@ -2,6 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { Button } from "@/components/ui/Button";
 
 type Props = {
   deletionPending: boolean;
@@ -50,27 +51,23 @@ export function AccountActions({ deletionPending, purgeAtLabel, exportHref }: Pr
 
   return (
     <div className="flex flex-col gap-6">
-      <section aria-labelledby="export-title" className="rounded-xl border border-line bg-surface p-4">
-        <h2 id="export-title" className="text-lg font-bold text-ink">
+      <section aria-labelledby="export-title" className="rounded-2xl border border-line bg-surface p-5">
+        <h2 id="export-title" className="font-bold text-ink">
           تصدير بياناتي
         </h2>
         <p className="mt-1 text-sm text-ink-soft">
           نزّل نسخة JSON من بياناتك (الملف الدراسي، المحاولات، الأخطاء، التقدم، والاشتراك).
         </p>
-        <a
-          href={exportHref}
-          download
-          className="mt-3 inline-flex min-h-11 items-center rounded-lg border border-brand-accent px-4 py-2 text-sm font-bold text-brand-strong hover:bg-brand-tint"
-        >
+        <Button href={exportHref} download icon="download" variant="brandSoft" className="mt-3">
           تنزيل ملف بياناتي
-        </a>
+        </Button>
       </section>
 
       <section
         aria-labelledby="delete-title"
-        className="rounded-xl border border-danger-line bg-danger-bg/40 p-4"
+        className="rounded-2xl border border-danger-line bg-danger-bg/40 p-5"
       >
-        <h2 id="delete-title" className="text-lg font-bold text-bad">
+        <h2 id="delete-title" className="font-bold text-bad">
           حذف الحساب
         </h2>
 
@@ -85,14 +82,13 @@ export function AccountActions({ deletionPending, purgeAtLabel, exportHref }: Pr
                 {error}
               </p>
             )}
-            <button
-              type="button"
+            <Button
               onClick={cancelDeletion}
               disabled={busy}
-              className="mt-3 inline-flex min-h-11 items-center rounded-lg bg-brand-600 px-4 py-2 text-sm font-bold text-white disabled:opacity-60"
+              className="mt-3"
             >
               {busy ? "جارٍ التراجع…" : "تراجع عن الحذف"}
-            </button>
+            </Button>
           </>
         ) : (
           <form onSubmit={requestDeletion} className="mt-1 flex flex-col gap-3">
@@ -126,13 +122,14 @@ export function AccountActions({ deletionPending, purgeAtLabel, exportHref }: Pr
                 {error}
               </p>
             )}
-            <button
+            <Button
               type="submit"
               disabled={busy || !ack}
-              className="inline-flex min-h-11 items-center justify-center rounded-lg bg-danger-solid px-4 py-2 text-sm font-bold text-white disabled:opacity-60"
+              variant="danger"
+              className="self-start"
             >
               {busy ? "جارٍ الإرسال…" : "طلب حذف الحساب"}
-            </button>
+            </Button>
           </form>
         )}
       </section>
