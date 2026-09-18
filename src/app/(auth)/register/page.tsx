@@ -99,18 +99,18 @@ export default function RegisterPage() {
           />
           <span>
             أقر بأنني أبلغت ولي أمري ووافق، وأوافق على{" "}
-            <Link href="/terms" className="font-bold text-brand-700 underline">
+            <Link href="/terms" className="font-bold text-brand-strong underline">
               شروط الاستخدام
             </Link>{" "}
             و
-            <Link href="/privacy" className="font-bold text-brand-700 underline">
+            <Link href="/privacy" className="font-bold text-brand-strong underline">
               سياسة الخصوصية
             </Link>
             .
           </span>
         </label>
         {error && (
-          <p role="alert" className="rounded-lg bg-red-50 px-3 py-2 text-sm text-bad">
+          <p role="alert" className="rounded-lg bg-danger-bg px-3 py-2 text-sm text-bad">
             {error}
           </p>
         )}
@@ -124,7 +124,7 @@ export default function RegisterPage() {
       </form>
       <p className="mt-4 text-center text-sm text-ink-mute">
         عندك حساب؟{" "}
-        <Link href="/login" className="font-bold text-brand-700">
+        <Link href="/login" className="font-bold text-brand-strong">
           سجّل الدخول
         </Link>
       </p>

@@ -35,7 +35,7 @@ export default function AdminHome() {
         مخزون المحتوى الحالي (جميع الحالات: مسودة/مراجعة/منشور/مؤرشف).
       </p>
       {isError && (
-        <p role="alert" className="mt-3 rounded-lg bg-red-50 px-3 py-2 text-sm text-bad">
+        <p role="alert" className="mt-3 rounded-lg bg-danger-bg px-3 py-2 text-sm text-bad">
           تعذر تحميل الإحصاءات.
         </p>
       )}

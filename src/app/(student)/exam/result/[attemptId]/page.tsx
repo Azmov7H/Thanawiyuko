@@ -84,7 +84,7 @@ export default function ExamResultPage({ params }: { params: Promise<{ attemptId
 
   if (error) {
     return (
-      <p role="alert" className="rounded-lg bg-red-50 px-3 py-2 text-sm text-bad">
+      <p role="alert" className="rounded-lg bg-danger-bg px-3 py-2 text-sm text-bad">
         {error}
       </p>
     );
@@ -101,14 +101,14 @@ export default function ExamResultPage({ params }: { params: Promise<{ attemptId
         <a
           href={`/api/export/exam/${attemptId}`}
           download
-          className="mt-1 inline-flex min-h-9 items-center rounded-lg border border-brand-600 px-3 py-1 text-sm font-bold text-brand-700 hover:bg-brand-50"
+          className="mt-1 inline-flex min-h-9 items-center rounded-lg border border-brand-accent px-3 py-1 text-sm font-bold text-brand-strong hover:bg-brand-tint"
         >
           تصدير PDF
         </a>
         <p className="tnum mt-1 text-3xl font-bold text-ink">
           {a.score} / {a.total}
         </p>
-        <p className="tnum mt-1 text-sm font-bold text-brand-700">الدقة {a.accuracy}%</p>
+        <p className="tnum mt-1 text-sm font-bold text-brand-strong">الدقة {a.accuracy}%</p>
         {data.lateSubmit && (
           <p className="mt-1 text-xs text-ink-mute">سُلِّم بعد انتهاء الوقت — احتُسب ما أُجيب.</p>
         )}
@@ -121,7 +121,7 @@ export default function ExamResultPage({ params }: { params: Promise<{ attemptId
             <li key={t.topicId} className="rounded-xl bg-base p-3">
               <div className="flex items-center justify-between text-sm">
                 <span className="font-medium text-ink">{a.topicTitles[t.topicId] ?? "موضوع"}</span>
-                <span className={`tnum font-bold ${t.accuracy < 50 ? "text-bad" : t.accuracy < 70 ? "text-gold-600" : "text-ok"}`}>
+                <span className={`tnum font-bold ${t.accuracy < 50 ? "text-bad" : t.accuracy < 70 ? "text-gold-accent" : "text-ok"}`}>
                   {t.accuracy}%
                 </span>
               </div>
@@ -148,7 +148,7 @@ export default function ExamResultPage({ params }: { params: Promise<{ attemptId
           <h2 className="text-sm font-bold text-ink">أشهر الأفكار اللي وقعت فيها</h2>
           <div className="mt-2 flex flex-wrap gap-1.5">
             {a.misconceptions.map((m) => (
-              <span key={m.tag} className="tnum rounded-full bg-red-50 px-3 py-1 text-xs font-medium text-bad">
+              <span key={m.tag} className="tnum rounded-full bg-danger-bg px-3 py-1 text-xs font-medium text-bad">
                 {m.tag} ×{m.misses}
               </span>
             ))}
@@ -156,8 +156,8 @@ export default function ExamResultPage({ params }: { params: Promise<{ attemptId
         </section>
       )}
 
-      <section className="rounded-2xl border border-brand-600 bg-brand-50 p-4">
-        <h2 className="text-sm font-bold text-brand-700">خطوتك الجاية</h2>
+      <section className="rounded-2xl border border-brand-accent bg-brand-tint p-4">
+        <h2 className="text-sm font-bold text-brand-strong">خطوتك الجاية</h2>
         <div className="mt-2 flex flex-col gap-2">
           {a.nextTopics.length > 0 ? (
             <button
@@ -168,9 +168,9 @@ export default function ExamResultPage({ params }: { params: Promise<{ attemptId
               {practicing ? "جارٍ التجهيز…" : `تدرب على أضعف نقطة: ${a.topicTitles[a.nextTopics[0]] ?? ""} (10 أسئلة)`}
             </button>
           ) : (
-            <p className="text-sm text-brand-700">أداء مثالي — حافظ على المستوى بمراجعة دورية.</p>
+            <p className="text-sm text-brand-strong">أداء مثالي — حافظ على المستوى بمراجعة دورية.</p>
           )}
-          <Link href="/exams" className="rounded-lg border border-brand-600 py-2.5 text-center text-sm font-bold text-brand-700">
+          <Link href="/exams" className="rounded-lg border border-brand-accent py-2.5 text-center text-sm font-bold text-brand-strong">
             امتحان آخر
           </Link>
         </div>
@@ -193,15 +193,15 @@ export default function ExamResultPage({ params }: { params: Promise<{ attemptId
                     key={o.key}
                     className={`rounded-lg border px-3 py-2 text-sm ${
                       right
-                        ? "border-ok bg-green-50 font-bold text-ink"
+                        ? "border-ok bg-success-bg font-bold text-ink"
                         : mine
-                          ? "border-bad bg-red-50 text-ink"
+                          ? "border-bad bg-danger-bg text-ink"
                           : "border-line text-ink-mute"
                     }`}
                   >
                     {o.text}
-                    {right && <span className="ms-2 text-xs font-bold text-green-700">✓ الصحيحة</span>}
-                    {mine && !right && <span className="ms-2 text-xs font-bold text-red-700">✗ اختيارك</span>}
+                    {right && <span className="ms-2 text-xs font-bold text-ok">✓ الصحيحة</span>}
+                    {mine && !right && <span className="ms-2 text-xs font-bold text-bad">✗ اختيارك</span>}
                   </li>
                 );
               })}

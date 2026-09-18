@@ -34,7 +34,7 @@ export default function ExamsPage() {
       </p>
       {list.isPending && <p className="text-sm text-ink-mute">جارٍ التحميل…</p>}
       {list.isError && (
-        <p role="alert" className="rounded-lg bg-red-50 px-3 py-2 text-sm text-bad">
+        <p role="alert" className="rounded-lg bg-danger-bg px-3 py-2 text-sm text-bad">
           تعذر تحميل الامتحانات.
         </p>
       )}

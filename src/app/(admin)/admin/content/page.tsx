@@ -89,7 +89,7 @@ export default function AdminContentPage() {
             aria-pressed={type === t.value}
             className={`rounded-lg border px-3 py-1.5 text-sm font-medium ${
               type === t.value
-                ? "border-brand-600 bg-brand-50 text-brand-700"
+                ? "border-brand-accent bg-brand-tint text-brand-strong"
                 : "border-line text-ink-soft"
             }`}
           >
@@ -104,7 +104,7 @@ export default function AdminContentPage() {
             aria-pressed={status === s.value}
             className={`rounded-lg border px-3 py-1.5 text-sm ${
               status === s.value
-                ? "border-brand-600 bg-brand-50 text-brand-700"
+                ? "border-brand-accent bg-brand-tint text-brand-strong"
                 : "border-line text-ink-mute"
             }`}
           >
@@ -117,7 +117,7 @@ export default function AdminContentPage() {
         الإجمالي: <span className="tnum">{list.data?.total ?? "…"}</span>
       </p>
       {(error || list.isError) && (
-        <p role="alert" className="mt-3 rounded-lg bg-red-50 px-3 py-2 text-sm text-bad">
+        <p role="alert" className="mt-3 rounded-lg bg-danger-bg px-3 py-2 text-sm text-bad">
           {error || "تعذر التحميل."}
         </p>
       )}

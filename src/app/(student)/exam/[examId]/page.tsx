@@ -61,7 +61,7 @@ export default function ExamBriefingPage({ params }: { params: Promise<{ examId:
       </Link>
       {brief.isPending && <p className="text-sm text-ink-mute">جارٍ التحميل…</p>}
       {brief.isError && (
-        <p role="alert" className="rounded-lg bg-red-50 px-3 py-2 text-sm text-bad">
+        <p role="alert" className="rounded-lg bg-danger-bg px-3 py-2 text-sm text-bad">
           تعذر تحميل الامتحان.
         </p>
       )}
@@ -80,7 +80,7 @@ export default function ExamBriefingPage({ params }: { params: Promise<{ examId:
             </ul>
           </section>
           {error && (
-            <p role="alert" className="rounded-lg bg-red-50 px-3 py-2 text-sm text-bad">
+            <p role="alert" className="rounded-lg bg-danger-bg px-3 py-2 text-sm text-bad">
               {error}
             </p>
           )}

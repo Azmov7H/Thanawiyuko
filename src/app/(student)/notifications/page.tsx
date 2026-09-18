@@ -92,7 +92,7 @@ export default function NotificationsPage() {
               setUnread(0);
               setItems((prev) => prev.map((x) => ({ ...x, readAt: new Date().toISOString() })));
             }}
-            className="text-sm font-medium text-brand-700 hover:underline"
+            className="text-sm font-medium text-brand-strong hover:underline"
           >
             تحديد الكل كمقروء
           </button>
@@ -127,7 +127,7 @@ export default function NotificationsPage() {
               </span>
               <span className="mt-1 block text-sm leading-relaxed text-ink-mute">{n.bodyAr}</span>
               {n.emailStatus === "failed" && (
-                <span className="mt-2 inline-block rounded-full bg-red-50 px-2 py-0.5 text-xs text-bad">
+                <span className="mt-2 inline-block rounded-full bg-danger-bg px-2 py-0.5 text-xs text-bad">
                   فشل إرسال نسخة البريد
                 </span>
               )}

@@ -23,6 +23,10 @@ export const ar = {
       banner: "حسابك قيد الحذف — سيتم الحذف النهائي في {date}.",
       undo: "تراجع",
     },
+    theme: {
+      toggleLightLabel: "تغيير إلى الوضع الفاتح",
+      toggleDarkLabel: "تغيير إلى الوضع الداكن",
+    },
   },
   landing: {
     nav: {

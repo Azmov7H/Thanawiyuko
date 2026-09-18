@@ -29,7 +29,7 @@ export function BottomNav() {
       <ul className="grid grid-cols-5">
         {NAV_LINKS.map((item) => {
           const active = pathname === item.href;
-          const cls = active ? "text-brand-700 font-bold" : "text-ink-mute";
+          const cls = active ? "text-brand-strong font-bold" : "text-ink-mute";
           return (
             <li key={item.href}>
               <Link
@@ -62,7 +62,7 @@ export function SideNav() {
           aria-current={pathname === item.href ? "page" : undefined}
           className={`rounded-lg px-4 py-2.5 text-sm ${
             pathname === item.href
-              ? "bg-brand-50 font-bold text-brand-700"
+              ? "bg-brand-tint font-bold text-brand-strong"
               : "text-ink-soft hover:bg-base"
           }`}
         >
@@ -74,6 +74,7 @@ export function SideNav() {
 }
 
 import { AiPanel } from "@/components/AiPanel";
+import { ThemeToggle } from "@/components/theme/ThemeToggle";
 import { SkipLink } from "@/components/SkipLink";
 import { NotificationBell } from "@/components/NotificationBell";
 
@@ -91,15 +92,16 @@ export function AppShell({
       <header className="border-b border-line bg-surface">
         <div className="mx-auto flex h-14 w-full max-w-5xl items-center justify-between px-4">
           <Link href="/dashboard" className="text-lg font-bold text-ink">
-            {t("common.brandName")} <span className="text-brand-600">.</span>
+            {t("common.brandName")} <span className="text-brand-accent">.</span>
           </Link>
           <div className="flex items-center gap-2">
+            <ThemeToggle />
             <NotificationBell />
           </div>
         </div>
       </header>
       {deletionPurgeAt && (
-        <div role="status" className="border-b border-red-200 bg-red-50 px-4 py-2 text-sm text-bad">
+        <div role="status" className="border-b border-danger-line bg-danger-bg px-4 py-2 text-sm text-bad">
           <div className="mx-auto flex w-full max-w-5xl flex-wrap items-center justify-between gap-2">
             <span>{t("common.deletion.banner", { date: deletionPurgeAt })}</span>
             <Link href="/settings" className="font-bold underline">

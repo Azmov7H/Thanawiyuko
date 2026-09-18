@@ -30,7 +30,7 @@ export function XpProgress() {
       <div className="flex items-center justify-between">
         <div>
           <p className="text-sm font-bold text-ink">XP الكلي</p>
-          <p className="tnum mt-0.5 text-2xl font-bold text-brand-700">{xp.total}</p>
+          <p className="tnum mt-0.5 text-2xl font-bold text-brand-strong">{xp.total}</p>
         </div>
         <div className="text-center">
           <p className="text-sm font-bold text-ink">مستوى {xp.level}</p>

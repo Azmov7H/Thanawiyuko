@@ -45,7 +45,7 @@ export default function StudyPlanPage() {
   if (planQuery.isPending) return <p className="py-10 text-center text-sm text-ink-mute">جارٍ تحميل خطتك…</p>;
   if (planQuery.isError) {
     return (
-      <p role="alert" className="rounded-lg bg-red-50 px-3 py-2 text-sm text-bad">
+      <p role="alert" className="rounded-lg bg-danger-bg px-3 py-2 text-sm text-bad">
         تعذر تحميل الخطة.
       </p>
     );
@@ -67,7 +67,7 @@ export default function StudyPlanPage() {
       </div>
 
       {generate.isError && (
-        <p role="alert" className="rounded-lg bg-red-50 px-3 py-2 text-sm text-bad">
+        <p role="alert" className="rounded-lg bg-danger-bg px-3 py-2 text-sm text-bad">
           تعذر توليد الخطة.
         </p>
       )}
@@ -89,7 +89,7 @@ export default function StudyPlanPage() {
                 </span>
                 <p className="mt-0.5 text-xs text-ink-mute">{p.reason}</p>
               </div>
-              <span className="tnum shrink-0 text-xs text-brand-700">{p.qCount ?? "?"} سؤال</span>
+              <span className="tnum shrink-0 text-xs text-brand-strong">{p.qCount ?? "?"} سؤال</span>
             </li>
           ))}
         </ul>

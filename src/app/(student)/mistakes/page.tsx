@@ -55,7 +55,7 @@ export default function MistakesPage() {
           <a
             href="/api/export/mistakes"
             download
-            className="min-h-11 rounded-lg border border-brand-600 px-3 py-1.5 text-sm font-bold text-brand-700 hover:bg-brand-50"
+            className="min-h-11 rounded-lg border border-brand-accent px-3 py-1.5 text-sm font-bold text-brand-strong hover:bg-brand-tint"
           >
             تصدير PDF
           </a>
@@ -70,14 +70,14 @@ export default function MistakesPage() {
       </div>
 
       {start.isError && (
-        <p role="alert" className="rounded-lg bg-red-50 px-3 py-2 text-sm text-bad">
+        <p role="alert" className="rounded-lg bg-danger-bg px-3 py-2 text-sm text-bad">
           {start.error instanceof Error ? start.error.message : "تعذر بدء التدريب."}
         </p>
       )}
 
       {list.isPending && <p className="text-sm text-ink-mute">جارٍ التحميل…</p>}
       {list.isError && (
-        <p role="alert" className="rounded-lg bg-red-50 px-3 py-2 text-sm text-bad">
+        <p role="alert" className="rounded-lg bg-danger-bg px-3 py-2 text-sm text-bad">
           تعذر تحميل الأخطاء.
         </p>
       )}
@@ -104,9 +104,9 @@ export default function MistakesPage() {
                   key={o.key}
                   className={`flex min-h-10 items-center gap-3 rounded-lg border px-3 py-2 text-sm ${
                     isRight
-                      ? "border-ok bg-green-50 font-bold text-ink"
+                      ? "border-ok bg-success-bg font-bold text-ink"
                       : isWrongChosen
-                        ? "border-bad bg-red-50 text-ink"
+                        ? "border-bad bg-danger-bg text-ink"
                         : "border-line text-ink-soft"
                   }`}
                 >
@@ -114,14 +114,14 @@ export default function MistakesPage() {
                     {i + 1}
                   </span>
                   <span>{o.text}</span>
-                  {isRight && <span className="ms-auto text-xs font-bold text-green-700">✓ الصحيحة</span>}
-                  {isWrongChosen && <span className="ms-auto text-xs font-bold text-red-700">✗ اختيارك</span>}
+                  {isRight && <span className="ms-auto text-xs font-bold text-ok">✓ الصحيحة</span>}
+                  {isWrongChosen && <span className="ms-auto text-xs font-bold text-bad">✗ اختيارك</span>}
                 </div>
               );
             })}
           </div>
           {m.explanationMD && (
-            <p className="mt-3 rounded-xl bg-green-50 p-3 text-sm leading-relaxed text-ink">
+            <p className="mt-3 rounded-xl bg-success-bg p-3 text-sm leading-relaxed text-ink">
               {m.explanationMD}
             </p>
           )}

@@ -41,10 +41,10 @@ export function AchievementGallery() {
             <div
               key={a.code}
               aria-label={`${a.titleAr}: ${got ? "مفتوح" : "مقفل"} — ${a.descriptionAr}`}
-              className={`rounded-xl p-3 text-center ${got ? "bg-brand-50 border-brand-200" : "bg-base border-dashed border-line"}`}
+              className={`rounded-xl p-3 text-center ${got ? "bg-brand-tint border-brand-soft" : "bg-base border-dashed border-line"}`}
             >
               <div aria-hidden="true" className="text-3xl">{a.icon}</div>
-              <p className={`mt-1 text-xs font-medium ${got ? "text-brand-700" : "text-ink-mute"}`}>
+              <p className={`mt-1 text-xs font-medium ${got ? "text-brand-strong" : "text-ink-mute"}`}>
                 <span className="sr-only">{got ? "مفتوح: " : "مقفل: "}</span>
                 {a.titleAr}
               </p>

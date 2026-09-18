@@ -67,7 +67,7 @@ export default function OnboardingPage() {
               aria-pressed={grade === g.value}
               className={`rounded-lg border px-4 py-2.5 text-start text-sm font-medium ${
                 grade === g.value
-                  ? "border-brand-600 bg-brand-50 text-brand-700"
+                  ? "border-brand-accent bg-brand-tint text-brand-strong"
                   : "border-line text-ink-soft"
               }`}
             >
@@ -89,7 +89,7 @@ export default function OnboardingPage() {
                 aria-pressed={track === t.value}
                 className={`rounded-lg border px-4 py-2.5 text-start text-sm font-medium ${
                   track === t.value
-                    ? "border-brand-600 bg-brand-50 text-brand-700"
+                    ? "border-brand-accent bg-brand-tint text-brand-strong"
                     : "border-line text-ink-soft"
                 }`}
               >
@@ -113,7 +113,7 @@ export default function OnboardingPage() {
               aria-pressed={dailyMinutes === m}
               className={`tnum min-h-11 rounded-lg border px-4 py-2 text-sm font-bold ${
                 dailyMinutes === m
-                  ? "border-brand-600 bg-brand-50 text-brand-700"
+                  ? "border-brand-accent bg-brand-tint text-brand-strong"
                   : "border-line text-ink-soft"
               }`}
             >
@@ -124,7 +124,7 @@ export default function OnboardingPage() {
       </section>
 
       {error && (
-        <p role="alert" className="mt-4 rounded-lg bg-red-50 px-3 py-2 text-sm text-bad">
+        <p role="alert" className="mt-4 rounded-lg bg-danger-bg px-3 py-2 text-sm text-bad">
           {error}
         </p>
       )}

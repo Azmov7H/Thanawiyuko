@@ -232,7 +232,7 @@ export default function ExamTakePage({ params }: { params: Promise<{ attemptId: 
   }
   if (!q) {
     return (
-      <p role="alert" className="rounded-lg bg-red-50 px-3 py-2 text-sm text-bad">
+      <p role="alert" className="rounded-lg bg-danger-bg px-3 py-2 text-sm text-bad">
         {error}
       </p>
     );
@@ -244,7 +244,7 @@ export default function ExamTakePage({ params }: { params: Promise<{ attemptId: 
     <div className="flex flex-col gap-3">
       <div className="sticky top-0 z-10 -mx-4 border-b border-line bg-base px-4 py-2">
         <div className="mx-auto flex w-full max-w-5xl items-center justify-between">
-          <span className={`tnum rounded-lg px-3 py-1.5 text-lg font-bold ${urgent ? "bg-red-50 text-bad" : "bg-surface text-ink"}`} role="timer" aria-live="off">
+          <span className={`tnum rounded-lg px-3 py-1.5 text-lg font-bold ${urgent ? "bg-danger-bg text-bad" : "bg-surface text-ink"}`} role="timer" aria-live="off">
             {remaining == null ? "--:--" : fmt(remaining)}
           </span>
           <span className="tnum text-xs text-ink-mute">
@@ -269,9 +269,9 @@ export default function ExamTakePage({ params }: { params: Promise<{ attemptId: 
                   aria-label={`سؤال ${i + 1}${ans ? " (مجاب)" : ""}${fl ? " (معلَّم)" : ""}`}
                   className={`tnum flex aspect-square min-h-11 min-w-11 items-center justify-center rounded-lg border text-sm font-bold ${
                     i === idx
-                      ? "border-brand-600 bg-brand-600 text-white"
+                      ? "border-brand-accent bg-brand-600 text-white"
                       : ans
-                        ? "border-brand-600 bg-brand-50 text-brand-700"
+                        ? "border-brand-accent bg-brand-tint text-brand-strong"
                         : "border-line bg-surface text-ink-mute"
                   }`}
                 >
@@ -293,7 +293,7 @@ export default function ExamTakePage({ params }: { params: Promise<{ attemptId: 
           <button
             onClick={() => toggleFlag(q.qId)}
             aria-pressed={flags.includes(q.qId)}
-            className={`shrink-0 rounded-lg border px-2.5 py-1 text-xs ${flags.includes(q.qId) ? "border-gold-600 bg-yellow-50 font-bold text-gold-600" : "border-line text-ink-mute"}`}
+            className={`shrink-0 rounded-lg border px-2.5 py-1 text-xs ${flags.includes(q.qId) ? "border-gold-600 bg-warn-bg font-bold text-gold-accent" : "border-line text-ink-mute"}`}
           >
             {flags.includes(q.qId) ? "معلَّم ★" : "علِّم للمراجعة"}
           </button>
@@ -309,7 +309,7 @@ export default function ExamTakePage({ params }: { params: Promise<{ attemptId: 
                   aria-pressed={isSel}
                   className={`flex min-h-12 items-center gap-3 rounded-lg border px-3 py-2.5 text-start text-sm ${
                     isSel
-                      ? "border-brand-600 bg-brand-50 font-bold text-brand-700"
+                      ? "border-brand-accent bg-brand-tint font-bold text-brand-strong"
                       : "border-line text-ink-soft"
                   }`}
                 >
@@ -324,7 +324,7 @@ export default function ExamTakePage({ params }: { params: Promise<{ attemptId: 
       </article>
 
       {error && (
-        <p role="alert" className="rounded-lg bg-red-50 px-3 py-2 text-sm text-bad">
+        <p role="alert" className="rounded-lg bg-danger-bg px-3 py-2 text-sm text-bad">
           {error}
         </p>
       )}
@@ -344,7 +344,7 @@ export default function ExamTakePage({ params }: { params: Promise<{ attemptId: 
         ) : (
           <button
             onClick={() => setConfirming(true)}
-            className="rounded-lg bg-ink px-6 py-2.5 text-sm font-bold text-base text-white"
+            className="rounded-lg bg-ink-solid px-6 py-2.5 text-sm font-bold text-base text-white"
           >
             تسليم الامتحان
           </button>
@@ -370,7 +370,7 @@ export default function ExamTakePage({ params }: { params: Promise<{ attemptId: 
               <button
                 onClick={() => submit(false)}
                 disabled={submitting}
-                className="flex-1 rounded-lg bg-ink py-2.5 text-sm font-bold text-base text-white disabled:opacity-50"
+                className="flex-1 rounded-lg bg-ink-solid py-2.5 text-sm font-bold text-base text-white disabled:opacity-50"
               >
                 {submitting ? "جارٍ التسليم…" : "تأكيد التسليم"}
               </button>

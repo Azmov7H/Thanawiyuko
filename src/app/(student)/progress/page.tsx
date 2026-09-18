@@ -30,7 +30,7 @@ export default function ProgressPage() {
   if (progress.isPending) return <p className="py-10 text-center text-sm text-ink-mute">جارٍ تحميل تقدمك…</p>;
   if (progress.isError) {
     return (
-      <p role="alert" className="rounded-lg bg-red-50 px-3 py-2 text-sm text-bad">
+      <p role="alert" className="rounded-lg bg-danger-bg px-3 py-2 text-sm text-bad">
         تعذر تحميل التقدم.
       </p>
     );
@@ -44,7 +44,7 @@ export default function ProgressPage() {
         <a
           href="/api/export/progress"
           download
-          className="inline-flex min-h-9 items-center rounded-lg border border-brand-600 px-3 py-1 text-sm font-bold text-brand-700 hover:bg-brand-50"
+          className="inline-flex min-h-9 items-center rounded-lg border border-brand-accent px-3 py-1 text-sm font-bold text-brand-strong hover:bg-brand-tint"
         >
           تصدير PDF
         </a>
@@ -88,7 +88,7 @@ export default function ProgressPage() {
       )}
 
       {d.weakTopics.length > 0 && (
-        <section className="rounded-2xl border border-bad/20 bg-red-50 p-4">
+        <section className="rounded-2xl border border-bad/20 bg-danger-bg p-4">
           <h2 className="font-bold text-bad">نقاط تحتاج تركيز</h2>
           <ul className="mt-2 flex flex-col gap-1.5">
             {d.weakTopics.map((w) => (
@@ -102,8 +102,8 @@ export default function ProgressPage() {
       )}
 
       {d.mistakesDue > 0 && (
-        <section className="rounded-2xl border border-gold-200 bg-yellow-50 p-3">
-          <p className="font-bold text-gold-600">لديك {d.mistakesDue} مراجعة مستحقة.</p>
+        <section className="rounded-2xl border border-warn-line bg-warn-bg p-3">
+          <p className="font-bold text-gold-accent">لديك {d.mistakesDue} مراجعة مستحقة.</p>
           <Link
             href="/mistakes"
             className="mt-1 inline-block rounded-lg bg-gold-600 px-3 py-1.5 text-sm font-bold text-white"

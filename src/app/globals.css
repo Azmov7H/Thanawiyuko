@@ -4,21 +4,65 @@
 
 /* Semantic surface tokens: light default, .dark override (see §9). */
 :root {
+  color-scheme: light;
   --base: #f7f8fa;
   --surface: #ffffff;
   --ink: #0b1b2b;
   --ink-soft: #3c4f63;
   --ink-mute: #5b6b7f;
   --line: #e2e8f0;
+
+  /* Brand: tint/soft/accent/strong adapt; -500/-600/-700 stay solid (white-text CTAs). */
+  --brand-tint: #effaf9;
+  --brand-soft: #aee5e2;
+  --brand-accent: #0a7a75;
+  --brand-strong: #0a6b68;
+
+  /* Status accents (text/borders/fills). */
+  --ok: #15803d;
+  --bad: #b91c1c;
+  --gold-accent: #b45309;
+
+  /* Status surfaces + solid fills (keep readable under both themes). */
+  --danger-bg: #fef2f2;
+  --danger-line: #fecaca;
+  --danger-solid: #dc2626;
+  --success-bg: #f0fdf4;
+  --success-line: #bbf7d0;
+  --warn-bg: #fffbeb;
+  --warn-line: #fde68a;
+
+  /* Solid "dark" secondary button surface (bg-ink would clash with ink text). */
+  --ink-solid: #14222e;
 }
 
 .dark {
+  color-scheme: dark;
   --base: #0e1216;
   --surface: #161c22;
   --ink: #eaf2f2;
   --ink-soft: #c3d0da;
   --ink-mute: #94a3b8;
   --line: #26313b;
+
+  --brand-tint: #0d2322;
+  --brand-soft: #1d423f;
+  --brand-accent: #2dd4bf;
+  --brand-strong: #5eead4;
+
+  --ok: #22c55e;
+  --bad: #f87171;
+  --gold-accent: #fbbf24;
+
+  --danger-bg: #2a1215;
+  --danger-line: #4a252b;
+  --danger-solid: #dc2626;
+  --success-bg: #0f1f15;
+  --success-line: #1f3d2b;
+  --warn-bg: #241d0d;
+  --warn-line: #4a3a14;
+
+  --ink-solid: #223141;
 }
 
 @theme inline {
@@ -28,6 +72,7 @@
   --color-ink-soft: var(--ink-soft);
   --color-ink-mute: var(--ink-mute);
   --color-line: var(--line);
+  --color-ink-solid: var(--ink-solid);
 
   --color-brand-50: #effaf9;
   --color-brand-100: #d7f2f0;
@@ -36,11 +81,25 @@
   --color-brand-600: #0a7a75;
   --color-brand-700: #0a6b68;
 
+  --color-brand-tint: var(--brand-tint);
+  --color-brand-soft: var(--brand-soft);
+  --color-brand-accent: var(--brand-accent);
+  --color-brand-strong: var(--brand-strong);
+
   --color-gold-500: #f59e0b;
   --color-gold-600: #b45309;
+  --color-gold-accent: var(--gold-accent);
 
-  --color-ok: #15803d;
-  --color-bad: #b91c1c;
+  --color-ok: var(--ok);
+  --color-bad: var(--bad);
+
+  --color-danger-bg: var(--danger-bg);
+  --color-danger-line: var(--danger-line);
+  --color-danger-solid: var(--danger-solid);
+  --color-success-bg: var(--success-bg);
+  --color-success-line: var(--success-line);
+  --color-warn-bg: var(--warn-bg);
+  --color-warn-line: var(--warn-line);
 
   --font-ar: var(--font-plex-ar), "IBM Plex Sans Arabic", Cairo, Tajawal,
     system-ui, sans-serif;

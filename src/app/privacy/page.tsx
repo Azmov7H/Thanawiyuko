@@ -56,7 +56,7 @@ export default function PrivacyPage() {
           <h2 className="text-lg font-bold text-ink">4. حقوقك</h2>
           <p>
             يمكنك تصدير بياناتك (JSON) من صفحة{" "}
-            <Link href="/settings" className="font-bold text-brand-700 underline">
+            <Link href="/settings" className="font-bold text-brand-strong underline">
               حسابي
             </Link>{" "}
             وطلب حذف حسابك. للحذف مهلة 30 يومًا للتراجع، ثم تُخفى هويتك وتُحذف بياناتك المرتبطة.
@@ -74,7 +74,7 @@ export default function PrivacyPage() {
       </div>
 
       <p className="mt-10 text-center text-sm">
-        <Link href="/register" className="font-bold text-brand-700">
+        <Link href="/register" className="font-bold text-brand-strong">
           العودة للتسجيل
         </Link>
       </p>

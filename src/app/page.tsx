@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { SkipLink } from "@/components/SkipLink";
+import { ThemeToggle } from "@/components/theme/ThemeToggle";
 import { DEFAULT_LOCALE, getDictionary } from "@/lib/i18n";
 
 const dict = getDictionary(DEFAULT_LOCALE);
@@ -22,7 +23,7 @@ export default function LandingPage() {
       <header className="sticky top-0 z-10 border-b border-line bg-surface/90 backdrop-blur">
         <div className="mx-auto flex h-16 w-full max-w-5xl items-center justify-between px-4">
           <Link href="/" className="text-xl font-bold text-ink">
-            {common.brandName} <span className="text-brand-600">.</span>
+            {common.brandName} <span className="text-brand-accent">.</span>
           </Link>
           <nav aria-label={landing.nav.mainAria} className="hidden items-center gap-1 md:flex">
             <a href="#features" className="rounded-md px-3 py-2 text-sm text-ink-soft hover:text-ink">
@@ -39,6 +40,7 @@ export default function LandingPage() {
             </a>
           </nav>
           <div className="flex items-center gap-2">
+            <ThemeToggle />
             <Link href="/login" className="rounded-md px-3 py-2 text-sm font-medium text-ink-soft hover:text-ink">
               {common.auth.login}
             </Link>
@@ -54,7 +56,7 @@ export default function LandingPage() {
 
       <main className="mx-auto flex w-full max-w-5xl flex-1 flex-col px-4" id="main" tabIndex={-1}>
         <section className="py-16 text-center md:py-24" aria-labelledby="hero-title">
-          <p className="mx-auto mb-4 inline-block rounded-full bg-brand-50 px-3 py-1 text-xs font-medium text-brand-700">
+          <p className="mx-auto mb-4 inline-block rounded-full bg-brand-tint px-3 py-1 text-xs font-medium text-brand-strong">
             {landing.hero.badge}
           </p>
           <h1 id="hero-title" className="text-3xl font-bold leading-snug text-ink md:text-5xl">
@@ -84,7 +86,7 @@ export default function LandingPage() {
           <ul className="grid gap-4 text-center text-sm text-ink-soft sm:grid-cols-2 md:grid-cols-4">
             {landing.trust.items.map((t) => (
               <li key={t} className="flex items-center justify-center gap-2">
-                <span aria-hidden className="text-brand-600">
+                <span aria-hidden className="text-brand-accent">
                   ✓
                 </span>
                 {t}
@@ -141,7 +143,7 @@ export default function LandingPage() {
               <ul className="mt-4 flex flex-col gap-2 text-sm text-ink-soft">
                 {landing.plans.free.features.map((f) => (
                   <li key={f} className="flex items-start gap-2">
-                    <span aria-hidden className="text-brand-600">
+                    <span aria-hidden className="text-brand-accent">
                       ✓
                     </span>
                     {f}
@@ -156,7 +158,7 @@ export default function LandingPage() {
               </Link>
             </article>
 
-            <article className="relative rounded-2xl border-2 border-brand-600 bg-surface p-6">
+            <article className="relative rounded-2xl border-2 border-brand-accent bg-surface p-6">
               <span className="absolute -top-3 start-6 rounded-full bg-brand-600 px-3 py-1 text-xs font-bold text-white">
                 {landing.plans.plus.badge}
               </span>
@@ -165,7 +167,7 @@ export default function LandingPage() {
               <ul className="mt-4 flex flex-col gap-2 text-sm text-ink-soft">
                 {landing.plans.plus.features.map((f) => (
                   <li key={f} className="flex items-start gap-2">
-                    <span aria-hidden className="text-brand-600">
+                    <span aria-hidden className="text-brand-accent">
                       ✓
                     </span>
                     {f}
@@ -208,7 +210,7 @@ export default function LandingPage() {
           <p className="mx-auto mt-2 max-w-md text-sm text-brand-50">{landing.finalCta.body}</p>
           <Link
             href="/register"
-            className="mt-6 inline-block rounded-lg bg-white px-6 py-3 font-bold text-brand-700 hover:bg-brand-50"
+            className="mt-6 inline-block rounded-lg bg-white px-6 py-3 font-bold text-brand-onlight hover:bg-brand-onlight/10"
           >
             {landing.finalCta.button}
           </Link>

@@ -80,7 +80,7 @@ export default function PracticePickerPage() {
               aria-pressed={subjectId === s.id}
               className={`rounded-lg border px-4 py-2.5 text-start text-sm font-medium ${
                 subjectId === s.id
-                  ? "border-brand-600 bg-brand-50 text-brand-700"
+                  ? "border-brand-accent bg-brand-tint text-brand-strong"
                   : "border-line text-ink-soft"
               }`}
             >
@@ -103,7 +103,7 @@ export default function PracticePickerPage() {
               aria-pressed={topicId === null}
               className={`rounded-lg border px-4 py-2.5 text-start text-sm font-medium ${
                 topicId === null
-                  ? "border-brand-600 bg-brand-50 text-brand-700"
+                  ? "border-brand-accent bg-brand-tint text-brand-strong"
                   : "border-line text-ink-soft"
               }`}
             >
@@ -121,7 +121,7 @@ export default function PracticePickerPage() {
                       aria-pressed={topicId === t.id}
                       className={`flex items-center justify-between rounded-lg border px-4 py-2 text-start text-sm ${
                         topicId === t.id
-                          ? "border-brand-600 bg-brand-50 font-bold text-brand-700"
+                          ? "border-brand-accent bg-brand-tint font-bold text-brand-strong"
                           : "border-line text-ink-soft disabled:opacity-50"
                       }`}
                     >
@@ -147,7 +147,7 @@ export default function PracticePickerPage() {
                 aria-pressed={count === n}
                 className={`tnum flex-1 rounded-lg border py-2 text-sm font-bold ${
                   count === n
-                    ? "border-brand-600 bg-brand-50 text-brand-700"
+                    ? "border-brand-accent bg-brand-tint text-brand-strong"
                     : "border-line text-ink-soft"
                 }`}
               >
@@ -159,7 +159,7 @@ export default function PracticePickerPage() {
       )}
 
       {error && (
-        <p role="alert" className="rounded-lg bg-red-50 px-3 py-2 text-sm text-bad">
+        <p role="alert" className="rounded-lg bg-danger-bg px-3 py-2 text-sm text-bad">
           {error}
         </p>
       )}

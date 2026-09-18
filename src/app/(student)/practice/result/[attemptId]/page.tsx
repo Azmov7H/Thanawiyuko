@@ -44,7 +44,7 @@ export default function ResultPage({ params }: { params: Promise<{ attemptId: st
 
   if (error) {
     return (
-      <p role="alert" className="rounded-lg bg-red-50 px-3 py-2 text-sm text-bad">
+      <p role="alert" className="rounded-lg bg-danger-bg px-3 py-2 text-sm text-bad">
         {error}
       </p>
     );
@@ -60,7 +60,7 @@ export default function ResultPage({ params }: { params: Promise<{ attemptId: st
         <p className="tnum mt-1 text-3xl font-bold text-ink">
           {data.score} / {data.total}
         </p>
-        <p className="tnum mt-1 text-sm font-bold text-brand-700">الدقة {data.accuracy}%</p>
+        <p className="tnum mt-1 text-sm font-bold text-brand-strong">الدقة {data.accuracy}%</p>
         <div className="mt-4 flex gap-2">
           <Link href="/practice" className="flex-1 rounded-lg bg-brand-600 py-2.5 text-center text-sm font-bold text-white">
             جلسة جديدة
@@ -86,15 +86,15 @@ export default function ResultPage({ params }: { params: Promise<{ attemptId: st
                   key={o.key}
                   className={`rounded-lg border px-3 py-2 text-sm ${
                     right
-                      ? "border-ok bg-green-50 font-bold text-ink"
+                      ? "border-ok bg-success-bg font-bold text-ink"
                       : mine
-                        ? "border-bad bg-red-50 text-ink"
+                        ? "border-bad bg-danger-bg text-ink"
                         : "border-line text-ink-mute"
                   }`}
                 >
                   {o.text}
-                  {right && <span className="ms-2 text-xs font-bold text-green-700">✓ الصحيحة</span>}
-                  {mine && !right && <span className="ms-2 text-xs font-bold text-red-700">✗ اختيارك</span>}
+                  {right && <span className="ms-2 text-xs font-bold text-ok">✓ الصحيحة</span>}
+                  {mine && !right && <span className="ms-2 text-xs font-bold text-bad">✗ اختيارك</span>}
                 </li>
               );
             })}

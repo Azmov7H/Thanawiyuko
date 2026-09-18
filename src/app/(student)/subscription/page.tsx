@@ -45,13 +45,13 @@ export default function SubscriptionPage() {
       <p className="text-sm text-ink-mute">اختر الخطة اللي تناسبك — كل الخطط بتديك الوصول الكامل.</p>
 
       {error && (
-        <p role="alert" className="rounded-lg bg-red-50 px-3 py-2 text-sm text-bad">
+        <p role="alert" className="rounded-lg bg-danger-bg px-3 py-2 text-sm text-bad">
           {error}
         </p>
       )}
 
       {plans?.map((p) => (
-        <article key={p.id} className={`rounded-2xl border p-5 ${p.popular ? "border-brand-600 bg-brand-50" : "border-line bg-surface"}`}>
+        <article key={p.id} className={`rounded-2xl border p-5 ${p.popular ? "border-brand-accent bg-brand-tint" : "border-line bg-surface"}`}>
           {p.popular && <span className="mb-2 inline-block rounded-full bg-brand-600 px-2 py-0.5 text-xs font-bold text-white">الأكثر شيوعًا</span>}
           <div className="flex items-baseline justify-between gap-4">
             <div>

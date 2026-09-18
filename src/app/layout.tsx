@@ -53,7 +53,14 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang={lang} dir={dir} className={`${plexAr.variable} ${plexMono.variable} h-full`}>
+    <html lang={lang} dir={dir} className={`${plexAr.variable} ${plexMono.variable} h-full`} suppressHydrationWarning>
+      <head>
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `(function(){try{var k="thanawico.theme";var s=localStorage.getItem(k);var d=s? s==="dark" : window.matchMedia("(prefers-color-scheme: dark)").matches;var r=document.documentElement;r.classList.toggle("dark",d);r.style.colorScheme=d?"dark":"light";}catch(e){}})();`,
+          }}
+        />
+      </head>
       <body className="min-h-full antialiased">
         <Providers>{children}</Providers>
       </body>

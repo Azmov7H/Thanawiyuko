@@ -111,7 +111,7 @@ export default function AdminUsersPage() {
         الإجمالي: <span className="tnum">{list.data?.total ?? "…"}</span>
       </p>
       {(error || list.isError) && (
-        <p role="alert" className="mt-3 rounded-lg bg-red-50 px-3 py-2 text-sm text-bad">
+        <p role="alert" className="mt-3 rounded-lg bg-danger-bg px-3 py-2 text-sm text-bad">
           {error || "تعذر التحميل."}
         </p>
       )}
@@ -148,7 +148,7 @@ export default function AdminUsersPage() {
                       mutate.mutate({ userId: u.id, action: u.status === "active" ? "suspend" : "activate" })
                     }
                     className={`min-h-11 rounded-md px-2.5 py-1.5 text-xs font-bold text-white disabled:opacity-50 ${
-                      u.status === "active" ? "bg-bad" : "bg-brand-600"
+                      u.status === "active" ? "bg-danger-solid" : "bg-brand-600"
                     }`}
                   >
                     {u.status === "active" ? "إيقاف" : "تفعيل"}

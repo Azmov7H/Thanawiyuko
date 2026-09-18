@@ -36,7 +36,7 @@ export default function DashboardPage() {
   }, []);
 
   if (progress.isPending) return <p className="py-10 text-center text-sm text-ink-mute">جارٍ تحميل لوحتك…</p>;
-  if (progress.isError) return <p className="rounded-lg bg-red-50 px-3 py-2 text-sm text-bad">تعذر تحميل اللوحة.</p>;
+  if (progress.isError) return <p className="rounded-lg bg-danger-bg px-3 py-2 text-sm text-bad">تعذر تحميل اللوحة.</p>;
   const d = progress.data!;
 
   return (
@@ -67,7 +67,7 @@ export default function DashboardPage() {
                   className="flex items-center justify-between gap-3 rounded-lg border border-line bg-base p-3 text-sm"
                 >
                   <span className="text-ink-soft">{r.reason}</span>
-                  {r.qCount && <span className="tnum shrink-0 text-xs text-brand-700">{r.qCount} سؤال</span>}
+                  {r.qCount && <span className="tnum shrink-0 text-xs text-brand-strong">{r.qCount} سؤال</span>}
                 </Link>
               </li>
             ))}
@@ -76,16 +76,16 @@ export default function DashboardPage() {
       )}
 
       {d.plan.length > 0 && (
-        <section className="rounded-2xl border border-brand-200 bg-brand-50 p-4">
-          <h2 className="font-bold text-brand-700">خطتك اليوم</h2>
+        <section className="rounded-2xl border border-brand-soft bg-brand-tint p-4">
+          <h2 className="font-bold text-brand-strong">خطتك اليوم</h2>
           <ul className="mt-2 flex flex-col gap-2">
             {d.plan.slice(0, 4).map((p, i) => (
-              <Link key={`${i}-${p.topicId}`} href={`/subjects/${p.subjectId}`} className="flex items-center justify-between rounded-lg border border-brand-200 bg-surface p-3 text-sm">
+              <Link key={`${i}-${p.topicId}`} href={`/subjects/${p.subjectId}`} className="flex items-center justify-between rounded-lg border border-brand-soft bg-surface p-3 text-sm">
                 <div>
                   <span className="font-medium text-ink">{p.action === "review" ? "مراجعة" : p.action === "lesson" ? "درس" : "تدريب"} — {p.minutes} د</span>
                   <p className="mt-0.5 text-xs text-ink-mute">{p.reason}</p>
                 </div>
-                <span className="tnum text-xs text-brand-700">{p.qCount ?? "?"} سؤال</span>
+                <span className="tnum text-xs text-brand-strong">{p.qCount ?? "?"} سؤال</span>
               </Link>
             ))}
           </ul>
@@ -103,7 +103,7 @@ export default function DashboardPage() {
                   <p className="tnum text-xs text-ink-mute">{s.topics} موضوع</p>
                 </div>
                 <div className="text-end">
-                  <div className={`tnum text-lg font-bold ${s.mastery < 50 ? "text-bad" : s.mastery < 70 ? "text-gold-600" : "text-ok"}`}>{s.mastery}%</div>
+                  <div className={`tnum text-lg font-bold ${s.mastery < 50 ? "text-bad" : s.mastery < 70 ? "text-gold-accent" : "text-ok"}`}>{s.mastery}%</div>
                   <div className="text-xs text-ink-mute">إتقان</div>
                 </div>
               </li>
@@ -117,7 +117,7 @@ export default function DashboardPage() {
           <h2 className="font-bold text-ink">نقاط تحتاج تركيز</h2>
           <ul className="mt-2 flex flex-col gap-1.5">
             {d.weakTopics.slice(0, 3).map((w) => (
-              <li key={w.topicId} className="flex items-center justify-between rounded-lg border border-bad/20 bg-red-50 p-2 text-sm">
+              <li key={w.topicId} className="flex items-center justify-between rounded-lg border border-bad/20 bg-danger-bg p-2 text-sm">
                 <span className="tnum font-bold text-bad">{w.masteryScore}%</span>
                 <span className="text-ink-mute">موضوع</span>
               </li>
@@ -128,8 +128,8 @@ export default function DashboardPage() {
       )}
 
       {d.mistakesDue > 0 && (
-        <section className="rounded-2xl border border-gold-200 bg-yellow-50 p-3">
-          <p className="font-bold text-gold-600">لديك {d.mistakesDue} مراجعة مستحقة — لا تدعها تتراكم.</p>
+        <section className="rounded-2xl border border-warn-line bg-warn-bg p-3">
+          <p className="font-bold text-gold-accent">لديك {d.mistakesDue} مراجعة مستحقة — لا تدعها تتراكم.</p>
           <Link href="/mistakes" className="mt-1 inline-block rounded-lg bg-gold-600 px-3 py-1.5 text-sm font-bold text-white">
             ابدأ المراجعة
           </Link>

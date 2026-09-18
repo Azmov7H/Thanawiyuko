@@ -155,7 +155,7 @@ export function AiPanel({ topicId }: { topicId?: string }) {
               <div ref={endRef} />
             </div>
 
-            {error && <div role="alert" className="mx-4 mb-2 rounded-lg bg-red-50 px-3 py-2 text-sm text-bad">{error}</div>}
+            {error && <div role="alert" className="mx-4 mb-2 rounded-lg bg-danger-bg px-3 py-2 text-sm text-bad">{error}</div>}
             <div className="border-t border-line p-3">
               <form onSubmit={(e) => { e.preventDefault(); send(); }} className="flex gap-2">
                 <input

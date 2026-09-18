@@ -111,7 +111,7 @@ export function ProfileEditor({ initial }: { initial: Profile }) {
         <p
           role="status"
           className={`rounded-lg px-3 py-2 text-sm ${
-            status === "error" ? "bg-red-50 text-bad" : "bg-green-50 text-brand-700"
+            status === "error" ? "bg-danger-bg text-bad" : "bg-success-bg text-brand-strong"
           }`}
         >
           {message}

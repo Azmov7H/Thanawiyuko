@@ -60,7 +60,7 @@ export function AccountActions({ deletionPending, purgeAtLabel, exportHref }: Pr
         <a
           href={exportHref}
           download
-          className="mt-3 inline-flex min-h-11 items-center rounded-lg border border-brand-600 px-4 py-2 text-sm font-bold text-brand-700 hover:bg-brand-50"
+          className="mt-3 inline-flex min-h-11 items-center rounded-lg border border-brand-accent px-4 py-2 text-sm font-bold text-brand-strong hover:bg-brand-tint"
         >
           تنزيل ملف بياناتي
         </a>
@@ -68,7 +68,7 @@ export function AccountActions({ deletionPending, purgeAtLabel, exportHref }: Pr
 
       <section
         aria-labelledby="delete-title"
-        className="rounded-xl border border-red-200 bg-red-50/40 p-4"
+        className="rounded-xl border border-danger-line bg-danger-bg/40 p-4"
       >
         <h2 id="delete-title" className="text-lg font-bold text-bad">
           حذف الحساب
@@ -129,7 +129,7 @@ export function AccountActions({ deletionPending, purgeAtLabel, exportHref }: Pr
             <button
               type="submit"
               disabled={busy || !ack}
-              className="inline-flex min-h-11 items-center justify-center rounded-lg bg-bad px-4 py-2 text-sm font-bold text-white disabled:opacity-60"
+              className="inline-flex min-h-11 items-center justify-center rounded-lg bg-danger-solid px-4 py-2 text-sm font-bold text-white disabled:opacity-60"
             >
               {busy ? "جارٍ الإرسال…" : "طلب حذف الحساب"}
             </button>

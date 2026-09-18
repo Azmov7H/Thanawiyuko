@@ -112,7 +112,7 @@ export default function AdminExamsPage() {
     <div className="flex flex-col gap-6">
       <h1 className="text-xl font-bold text-ink">الامتحانات التجريبية</h1>
       {(error || exams.isError) && (
-        <p role="alert" className="rounded-lg bg-red-50 px-3 py-2 text-sm text-bad">
+        <p role="alert" className="rounded-lg bg-danger-bg px-3 py-2 text-sm text-bad">
           {error || "تعذر التحميل."}
         </p>
       )}

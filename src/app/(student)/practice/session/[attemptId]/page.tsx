@@ -137,7 +137,7 @@ export default function QuizSessionPage({ params }: { params: Promise<{ attemptI
   }
   if (attempt.isError || !q) {
     return (
-      <p role="alert" className="rounded-lg bg-red-50 px-3 py-2 text-sm text-bad">
+      <p role="alert" className="rounded-lg bg-danger-bg px-3 py-2 text-sm text-bad">
         {error || "تعذر تحميل الجلسة."}
       </p>
     );
@@ -175,11 +175,11 @@ export default function QuizSessionPage({ params }: { params: Promise<{ attemptI
                 aria-pressed={isSel}
                 className={`flex min-h-12 items-center gap-3 rounded-lg border px-3 py-2.5 text-start text-sm ${
                   isRight
-                    ? "border-ok bg-green-50 font-bold text-ink"
+                    ? "border-ok bg-success-bg font-bold text-ink"
                     : isWrongSel
-                      ? "border-bad bg-red-50 text-ink"
+                      ? "border-bad bg-danger-bg text-ink"
                       : isSel
-                        ? "border-brand-600 bg-brand-50 font-bold text-brand-700"
+                        ? "border-brand-accent bg-brand-tint font-bold text-brand-strong"
                         : "border-line text-ink-soft"
                 }`}
               >
@@ -193,7 +193,7 @@ export default function QuizSessionPage({ params }: { params: Promise<{ attemptI
         </div>
 
         {result && result.explanationMD && (
-          <div className={`mt-3 rounded-xl p-3 text-sm leading-relaxed ${result.correct ? "bg-green-50 text-ink" : "bg-red-50 text-ink"}`}>
+          <div className={`mt-3 rounded-xl p-3 text-sm leading-relaxed ${result.correct ? "bg-success-bg text-ink" : "bg-danger-bg text-ink"}`}>
             <p className="font-bold">{result.correct ? "إجابة صحيحة، عاش!" : "إجابة غير صحيحة — شوف الشرح:"}</p>
             <p className="mt-1">{result.explanationMD}</p>
           </div>
@@ -201,7 +201,7 @@ export default function QuizSessionPage({ params }: { params: Promise<{ attemptI
       </article>
 
       {error && (
-        <p role="alert" className="rounded-lg bg-red-50 px-3 py-2 text-sm text-bad">
+        <p role="alert" className="rounded-lg bg-danger-bg px-3 py-2 text-sm text-bad">
           {error}
         </p>
       )}
@@ -223,7 +223,7 @@ export default function QuizSessionPage({ params }: { params: Promise<{ attemptI
           <button
             onClick={submit}
             disabled={busy === "submit"}
-            className="flex-1 rounded-lg bg-ink py-3 font-bold text-base text-white disabled:opacity-50"
+            className="flex-1 rounded-lg bg-ink-solid py-3 font-bold text-base text-white disabled:opacity-50"
           >
             {busy === "submit" ? "جارٍ التسليم…" : "تسليم الجلسة وعرض النتيجة"}
           </button>

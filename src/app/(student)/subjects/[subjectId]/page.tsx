@@ -51,7 +51,7 @@ export default function SubjectPage() {
   if (tree.isPending) return <p className="py-10 text-center text-sm text-ink-mute">جارٍ تحميل المادة…</p>;
   if (tree.isError) {
     return (
-      <p role="alert" className="rounded-lg bg-red-50 px-3 py-2 text-sm text-bad">
+      <p role="alert" className="rounded-lg bg-danger-bg px-3 py-2 text-sm text-bad">
         تعذر تحميل المادة.
       </p>
     );
@@ -63,7 +63,7 @@ export default function SubjectPage() {
       <h1 className="text-xl font-bold text-ink">{subject.nameAr}</h1>
 
       {start.isError && (
-        <p role="alert" className="rounded-lg bg-red-50 px-3 py-2 text-sm text-bad">
+        <p role="alert" className="rounded-lg bg-danger-bg px-3 py-2 text-sm text-bad">
           {start.error instanceof Error ? start.error.message : "تعذر بدء التدريب."}
         </p>
       )}
@@ -100,7 +100,7 @@ export default function SubjectPage() {
                       <li key={l.id}>
                         <Link
                           href={`/lessons/${l.id}`}
-                          className="flex items-center justify-between rounded-md px-2 py-1.5 text-xs text-brand-700 hover:bg-surface"
+                          className="flex items-center justify-between rounded-md px-2 py-1.5 text-xs text-brand-strong hover:bg-surface"
                         >
                           <span>اقرأ: {l.titleAr}</span>
                           <span className="tnum text-ink-mute">{l.readingMinutes} د</span>

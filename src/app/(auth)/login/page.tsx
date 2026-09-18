@@ -60,7 +60,7 @@ export default function LoginPage() {
           />
         </label>
         {error && (
-          <p role="alert" className="rounded-lg bg-red-50 px-3 py-2 text-sm text-bad">
+          <p role="alert" className="rounded-lg bg-danger-bg px-3 py-2 text-sm text-bad">
             {error}
           </p>
         )}
@@ -74,7 +74,7 @@ export default function LoginPage() {
       </form>
       <p className="mt-4 text-center text-sm text-ink-mute">
         معندكش حساب؟{" "}
-        <Link href="/register" className="font-bold text-brand-700">
+        <Link href="/register" className="font-bold text-brand-strong">
           أنشئ حسابًا
         </Link>
       </p>

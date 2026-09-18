@@ -64,7 +64,7 @@ export default function TermsPage() {
       </div>
 
       <p className="mt-10 text-center text-sm">
-        <Link href="/register" className="font-bold text-brand-700">
+        <Link href="/register" className="font-bold text-brand-strong">
           العودة للتسجيل
         </Link>
       </p>

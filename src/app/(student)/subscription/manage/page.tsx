@@ -70,7 +70,7 @@ export default function SubscriptionManagePage() {
       <h1 className="text-2xl font-bold text-ink">إدارة الاشتراك</h1>
 
       {error && (
-        <p role="alert" className="rounded-lg bg-red-50 px-3 py-2 text-sm text-bad">
+        <p role="alert" className="rounded-lg bg-danger-bg px-3 py-2 text-sm text-bad">
           {error}
         </p>
       )}
@@ -81,12 +81,12 @@ export default function SubscriptionManagePage() {
             <h2 className="font-bold text-ink">خطتك الحالية</h2>
             <p className="tnum text-sm text-ink-mute">تنتهي في {sub.subscription?.currentPeriodEnd ? new Date(sub.subscription.currentPeriodEnd).toLocaleDateString("ar-EG") : "—"}</p>
           </div>
-          <span className={`rounded-full px-3 py-1 text-xs font-bold ${sub.hasPlusAccess ? "bg-green-50 text-ok" : "bg-red-50 text-bad"}`}>
+          <span className={`rounded-full px-3 py-1 text-xs font-bold ${sub.hasPlusAccess ? "bg-success-bg text-ok" : "bg-danger-bg text-bad"}`}>
             {sub.hasPlusAccess ? "بلس نشط" : "مجاني"}
           </span>
         </div>
         {sub.subscription?.cancelAtPeriodEnd && (
-          <p className="mt-2 text-sm text-gold-600">الاشتراك ملغي — هينتهي في نهاية الفترة.</p>
+          <p className="mt-2 text-sm text-gold-accent">الاشتراك ملغي — هينتهي في نهاية الفترة.</p>
         )}
       </section>
 
@@ -99,7 +99,7 @@ export default function SubscriptionManagePage() {
                 <div>
                   <span className="font-medium text-ink">{inv.amountEGP} ج.م</span>
                   <span className="mx-2 text-ink-mute">•</span>
-                  <span className={`tnum ${inv.status === "succeeded" ? "text-ok" : inv.status === "refunded" ? "text-gold-600" : "text-bad"}`}>{inv.status}</span>
+                  <span className={`tnum ${inv.status === "succeeded" ? "text-ok" : inv.status === "refunded" ? "text-gold-accent" : "text-bad"}`}>{inv.status}</span>
                 </div>
                 <span className="tnum text-xs text-ink-mute">{new Date(inv.createdAt).toLocaleDateString("ar-EG")}</span>
               </li>
@@ -110,19 +110,19 @@ export default function SubscriptionManagePage() {
         )}
       </section>
 
-      <section className="rounded-2xl border border-red-200 bg-red-50 p-5">
+      <section className="rounded-2xl border border-danger-line bg-danger-bg p-5">
         <h2 className="font-bold text-bad">إلغاء الاشتراك</h2>
         <p className="mt-1 text-sm text-ink-mute">هتقدر تكمل تستخدم بلس لحد نهاية الفترة المدفوعة. لو عايز تلغي فورًا (بدون استرداد)، اختر الخيار التاني.</p>
         <div className="mt-3 flex gap-2">
           <button
             onClick={() => setConfirming(true)}
-            className="flex-1 rounded-lg border border-red-600 bg-white py-2.5 font-bold text-red-600"
+            className="flex-1 rounded-lg border border-danger-line bg-surface py-2.5 font-bold text-bad"
           >
             إلغاء في نهاية الفترة
           </button>
           <button
             onClick={() => { setConfirming(true); /* immediate handled in confirm */ }}
-            className="flex-1 rounded-lg bg-red-600 py-2.5 font-bold text-white"
+            className="flex-1 rounded-lg bg-danger-solid py-2.5 font-bold text-white"
           >
             إلغاء فوري (بدون استرداد)
           </button>
@@ -148,14 +148,14 @@ export default function SubscriptionManagePage() {
               <button
                 onClick={() => cancel(false)}
                 disabled={canceling}
-                className="flex-1 rounded-lg border border-red-600 bg-white py-2.5 font-bold text-red-600 disabled:opacity-50"
+                className="flex-1 rounded-lg border border-danger-line bg-surface py-2.5 font-bold text-bad disabled:opacity-50"
               >
                 {canceling ? "جارٍ…" : "تأكيد الإلغاء في نهاية الفترة"}
               </button>
               <button
                 onClick={() => cancel(true)}
                 disabled={canceling}
-                className="flex-1 rounded-lg bg-red-600 py-2.5 font-bold text-white disabled:opacity-50"
+                className="flex-1 rounded-lg bg-danger-solid py-2.5 font-bold text-white disabled:opacity-50"
               >
                 {canceling ? "جارٍ…" : "تأكيد الإلغاء الفوري"}
               </button>

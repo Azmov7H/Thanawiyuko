@@ -63,7 +63,7 @@ export default function LessonPage({ params }: { params: Promise<{ lessonId: str
   if (lesson.isPending) return <p className="py-10 text-center text-sm text-ink-mute">جارٍ تحميل الدرس…</p>;
   if (lesson.isError) {
     return (
-      <p role="alert" className="rounded-lg bg-red-50 px-3 py-2 text-sm text-bad">
+      <p role="alert" className="rounded-lg bg-danger-bg px-3 py-2 text-sm text-bad">
         تعذر تحميل الدرس.
       </p>
     );
@@ -101,7 +101,7 @@ export default function LessonPage({ params }: { params: Promise<{ lessonId: str
             href={l.videoUrl}
             target="_blank"
             rel="noreferrer"
-            className="mt-4 inline-block rounded-lg border border-brand-600 px-4 py-2 text-sm font-bold text-brand-700"
+            className="mt-4 inline-block rounded-lg border border-brand-accent px-4 py-2 text-sm font-bold text-brand-strong"
           >
             شاهد الفيديو التوضيحي
           </a>
@@ -109,7 +109,7 @@ export default function LessonPage({ params }: { params: Promise<{ lessonId: str
       </article>
 
       {complete.isError && (
-        <p role="alert" className="rounded-lg bg-red-50 px-3 py-2 text-sm text-bad">
+        <p role="alert" className="rounded-lg bg-danger-bg px-3 py-2 text-sm text-bad">
           تعذر تسجيل إتمام الدرس.
         </p>
       )}
@@ -126,7 +126,7 @@ export default function LessonPage({ params }: { params: Promise<{ lessonId: str
       {topic && subject && (
         <Link
           href={`/subjects/${subject.id}`}
-          className="text-center text-sm text-brand-700"
+          className="text-center text-sm text-brand-strong"
         >
           تدرب على أسئلة «{topic.titleAr}»
         </Link>
@@ -134,14 +134,14 @@ export default function LessonPage({ params }: { params: Promise<{ lessonId: str
 
       <div className="flex items-center justify-between gap-2 text-sm">
         {prev ? (
-          <Link href={`/lessons/${prev.id}`} className="text-brand-700">
+          <Link href={`/lessons/${prev.id}`} className="text-brand-strong">
             ← {prev.titleAr}
           </Link>
         ) : (
           <span />
         )}
         {next ? (
-          <Link href={`/lessons/${next.id}`} className="text-brand-700">
+          <Link href={`/lessons/${next.id}`} className="text-brand-strong">
             {next.titleAr} →
           </Link>
         ) : (

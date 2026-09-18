@@ -100,7 +100,7 @@ export function NotificationBell() {
       >
         <span aria-hidden className="text-lg leading-none">&#128276;</span>
         {unread > 0 && (
-          <span className="tnum absolute -top-1 -left-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-bad px-1 text-[10px] font-bold text-white">
+          <span className="tnum absolute -top-1 -left-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-danger-solid px-1 text-[10px] font-bold text-white">
             {unread > 99 ? "99+" : unread}
           </span>
         )}
@@ -112,7 +112,7 @@ export function NotificationBell() {
             <span className="text-sm font-bold text-ink">الإشعارات</span>
             <button
               type="button"
-              className="text-xs font-medium text-brand-700 hover:underline"
+              className="text-xs font-medium text-brand-strong hover:underline"
               onClick={async () => {
                 await fetch("/api/notifications/read-all", { method: "POST" }).catch(() => {});
                 setUnread(0);
@@ -132,13 +132,13 @@ export function NotificationBell() {
                   type="button"
                   onClick={() => openItem(n)}
                   className={`block w-full border-b border-line px-3 py-2.5 text-start last:border-b-0 hover:bg-base ${
-                    n.readAt ? "" : "bg-brand-50/50"
+                    n.readAt ? "" : "bg-brand-tint/50"
                   }`}
                 >
                   <span className="block truncate text-sm font-bold text-ink">{n.titleAr}</span>
                   <span className="mt-0.5 block text-xs text-ink-mute">
                     {timeAgoAr(n.createdAt)}
-                    {!n.readAt && <span className="me-1 ms-1 text-brand-700">• جديد</span>}
+                    {!n.readAt && <span className="me-1 ms-1 text-brand-strong">• جديد</span>}
                   </span>
                 </button>
               </li>
@@ -147,7 +147,7 @@ export function NotificationBell() {
           <Link
             href="/notifications"
             onClick={() => setOpen(false)}
-            className="block border-t border-line px-3 py-2 text-center text-xs font-bold text-brand-700 hover:bg-base"
+            className="block border-t border-line px-3 py-2 text-center text-xs font-bold text-brand-strong hover:bg-base"
           >
             عرض كل الإشعارات
           </Link>
