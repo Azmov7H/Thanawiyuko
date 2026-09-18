@@ -4,12 +4,13 @@ import { dbConnect } from "@/server/db/client";
 import { AdminForbidden, requireAdminUser } from "@/server/modules/admin/guard";
 import { AuditLogModel } from "@/server/modules/admin/audit-log.model";
 import { UserModel } from "@/server/modules/auth/user.model";
+import { TeacherProfileModel } from "@/server/modules/academic/teacher-profile.model";
 import { canAssignRole, canManageUser } from "@/lib/admin";
 import type { AdminActorRole, TargetUserRole } from "@/lib/admin";
 
 const listQuery = z.object({
   q: z.string().max(80).optional(),
-  role: z.enum(["student", "admin", "super"]).optional(),
+  role: z.enum(["student", "teacher", "admin", "super"]).optional(),
   status: z.enum(["active", "suspended", "deleted"]).optional(),
   page: z.coerce.number().int().min(1).default(1),
 });
@@ -18,7 +19,7 @@ const patchBody = z
   .object({
     userId: z.string().min(1),
     action: z.enum(["suspend", "activate", "set-role"]),
-    role: z.enum(["student", "admin"]).optional(),
+    role: z.enum(["student", "teacher", "admin"]).optional(),
     reason: z.string().max(300).nullable().optional(),
   })
   .refine((v) => v.action !== "set-role" || Boolean(v.role), { message: "حدد الدور." });
@@ -136,6 +137,11 @@ export async function PATCH(req: Request) {
     action = parsed.data.action === "suspend" ? "user.suspend" : "user.activate";
   }
   await target.save();
+
+  if (parsed.data.action === "set-role" && parsed.data.role === "teacher") {
+    const existing = await TeacherProfileModel.exists({ userId: target._id });
+    if (!existing) await TeacherProfileModel.create({ userId: target._id });
+  }
 
   await AuditLogModel.create({
     actorId: actor.id,

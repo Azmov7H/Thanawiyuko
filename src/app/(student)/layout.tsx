@@ -14,11 +14,11 @@ export const metadata: Metadata = {
   robots: { index: false, follow: false },
 };
 
-async function currentUserId(): Promise<string | null> {
+async function currentUserId(): Promise<{ id: string; role?: string } | null> {
   try {
     const session = await auth();
-    const id = session?.user && (session.user as { id?: string }).id;
-    return id ?? null;
+    const user = session?.user as { id?: string; role?: string } | undefined;
+    return user?.id ? { id: user.id, role: user.role } : null;
   } catch {
     return null;
   }
@@ -47,21 +47,22 @@ export default async function StudentLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const id = await currentUserId();
-  if (!id) redirect("/login");
+  const who = await currentUserId();
+  if (!who) redirect("/login");
+  if (who.role === "teacher") redirect("/teacher");
 
-  const purgeLabel = await deletionLabel(id);
+  const purgeLabel = await deletionLabel(who.id);
 
   return <AppShell deletionPurgeAt={purgeLabel}>{children}</AppShell>;
 }
 
 export async function requireProfile() {
-  const id = await currentUserId();
-  if (!id) redirect("/login");
+  const who = await currentUserId();
+  if (!who) redirect("/login");
   let profile;
   try {
     await dbConnect();
-    profile = await StudentProfileModel.findOne({ userId: id }).lean();
+    profile = await StudentProfileModel.findOne({ userId: who.id }).lean();
   } catch {
     redirect("/login");
   }

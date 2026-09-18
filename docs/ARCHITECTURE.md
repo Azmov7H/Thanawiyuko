@@ -85,7 +85,7 @@ AI:
 
 Infra/ops:
 - `AuditLog` (actorId, action, entity, entityId, before/after, reason)
-- `User` (name, email unique, passwordHash `select:false`, role student|admin|super, status)
+- `User` (name, email unique, passwordHash `select:false`, role student|teacher|admin|super, status)
 
 ### Identity convention (IMPORTANT)
 `studentOfSession()` returns `{ userId, profile }` where `userId` is `User._id`. The de-facto

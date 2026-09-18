@@ -28,7 +28,7 @@
 | T-J1 | P2 | J | i18n foundation | DONE |
 | T-K1 | P2 | K | PDF export architecture | DONE |
 | T-L1 | P2 | L | Transactional notifications | DONE |
-| T-M1 | P3 | M | Teacher role + profile stub | TODO |
+| T-M1 | P3 | M | Teacher role + profile stub | DONE |
 | T-N1 | P1 | N | Restore ops docs + backup/restore drill | DONE |
 | T-N2 | P1 | N | Account deletion/export + privacy pages + guardian consent | DONE |
 | T-N3 | P2 | N | Error monitoring + distributed limits + enforce kill switches | DONE |
@@ -314,7 +314,19 @@
   emails, streak-milestone push, and an inbox/bell UI bound to the existing `/api/notifications`.
 
 ## Phase M — Teacher Dimension (P3, V2)
-- T-M1 Teacher role + profile stub — TODO
+- T-M1 Teacher role + profile stub — DONE:
+  - `UserRole` gains `teacher`; role is **invite-only**: only `super` assigns it
+    (`canAssignRole` now allows student/teacher/admin, never to/from `super`); admins
+    manage teachers like students (`canManageUser`).
+  - New `TeacherProfile` stub (`userId` unique ref, `headline`, `bio`, `subjectAreas`,
+    `isPublic` for the V2 public marketplace) — auto-created when super promotes a user;
+    kept on demotion (non-destructive).
+  - `GET/PATCH /api/teacher/profile` (own stub only, `requireTeacherUser` guard);
+    `/teacher` shell + overview + profile editor pages; student shell redirects teachers
+    to `/teacher`.
+  - Admin users UI/API: teacher filter, role assignment, and manage (suspend/activate).
+  - Tests: `tests/unit/teacher-guard.test.ts` (4) + unit `admin.test.ts` teacher cases
+    + `tests/integration/teacher-profile.test.ts` (7).
 - M2–M5 content studio / analytics / discovery / economy — backlog
 
 ## Phase N — Production Readiness (P1)

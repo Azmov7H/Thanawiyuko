@@ -52,6 +52,17 @@ export const onboardingPatchSchema = z
     { message: "طلاب الصف الثالث يجب أن يختاروا الشعبة", path: ["track"] },
   );
 
+export const teacherProfileSchema = z.object({
+  headline: z.string().trim().max(120, "العنوان طويل جدًا").optional(),
+  bio: z.string().trim().max(2000, "النبذة طويلة جدًا").optional(),
+  subjectAreas: z
+    .array(z.string().trim().min(1, "مجال فارغ").max(60))
+    .max(10, "10 مجالات كحد أقصى")
+    .optional(),
+  isPublic: z.boolean().optional(),
+});
+
 export type RegisterInput = z.infer<typeof registerSchema>;
 export type OnboardingPatch = z.infer<typeof onboardingPatchSchema>;
 export type NotificationPreferences = z.infer<typeof notificationPreferencesSchema>;
+export type TeacherProfilePatch = z.infer<typeof teacherProfileSchema>;

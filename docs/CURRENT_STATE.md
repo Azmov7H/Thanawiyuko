@@ -117,7 +117,7 @@ Git HEAD: `00c7c71 feat(billing): enhance subscription management and payment ha
 
 ## 4. Missing (required, not present)
 
-- Entire Teacher dimension: role, profile, content studio, analytics, following, teacher discovery, economy, wallet/withdrawals.
+- Teacher content studio, analytics, following, discovery, economy, wallet/withdrawals (M2–M5); the `teacher` role + profile stub are implemented (T-M1).
 - DB-driven plans, content-access grants (free/paid/course/content), and content permission enforcement.
 - Lesson consumption (student reading UI) and lesson-completion StudySession logging.
 - Personalization/recommendation engine (deterministic ranked "next actions").

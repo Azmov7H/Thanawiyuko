@@ -417,7 +417,7 @@ Transactional only in MVP: welcome, plan ready, weekly report, streak-milestone,
 | Platform config / pricing | ❌ | ❌ | ❌ | view | ✅ |
 | Audit log view | own | own | own | ✅ | ✅ |
 
-**MVP ships:** Student + Admin + Super Admin (flag). **Parent read-only + internal Content role ship in V1.1** — but data model reserves `ParentProfile`, link codes, and `role` enum from day one so no migration.
+**MVP ships:** Student + Admin + Super Admin (flag). **Teacher internal role ships as a stub (invite-only super assignment)** — data model reserves `TeacherProfile`, `ParentProfile`, link codes, and the `role` enum from day one so no migration. `Parent` read-only + full internal Content role (draft workflow) ship in V1.1.
 
 ### 5.2 Student
 
@@ -435,7 +435,9 @@ Transactional only in MVP: welcome, plan ready, weekly report, streak-milestone,
 
 ### 5.4 Teacher / Content Creator (internal in V1.1; marketplace = future)
 
-* MVP has **no self-serve teacher portal**. Content seeded by founding team via **admin CMS** (or direct DB seed + review UI).
+* MVP ships the **teacher role stub** (T-M1): invite-only (super assigns), own profile
+  (`/api/teacher/profile` + `/teacher` area). No publishing rights yet — content remains
+  seeded by the founding team; the draft/review workflow ships with the content studio (M2).
 * V1.1 internal role: create/edit lessons/questions (draft), submit for review, view aggregate item stats (difficulty, % correct, common distractors), no PII access, no publishing without Admin approval (four-eyes).
 * Future marketplace (V2+): public profiles, revenue share, live classes — explicitly excluded from MVP architecture beyond keeping `TeacherProfile` stub.
 

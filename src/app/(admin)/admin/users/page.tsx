@@ -7,13 +7,14 @@ type User = {
   id: string;
   name: string;
   email: string;
-  role: "student" | "admin" | "super";
+  role: "student" | "teacher" | "admin" | "super";
   status: "active" | "suspended" | "deleted";
   createdAt: string;
 };
 
 const ROLE_LABEL: Record<string, string> = {
   student: "طالب",
+  teacher: "مدرس",
   admin: "مشرف",
   super: "مشرف أعلى",
 };
@@ -65,7 +66,7 @@ export default function AdminUsersPage() {
 
   const viewerRole = list.data?.viewerRole ?? "admin";
   const canManage = (u: User) =>
-    viewerRole === "super" ? u.role !== "super" : u.role === "student";
+    viewerRole === "super" ? u.role !== "super" : u.role === "student" || u.role === "teacher";
 
   return (
     <div>
@@ -90,6 +91,7 @@ export default function AdminUsersPage() {
         >
           <option value="">كل الأدوار</option>
           <option value="student">طالب</option>
+          <option value="teacher">مدرس</option>
           <option value="admin">مشرف</option>
           <option value="super">مشرف أعلى</option>
         </select>
@@ -135,6 +137,7 @@ export default function AdminUsersPage() {
                     className="min-h-11 rounded-md border border-line bg-surface px-2 py-1.5 text-xs text-ink disabled:opacity-50"
                   >
                     <option value="student">طالب</option>
+                    <option value="teacher">مدرس</option>
                     <option value="admin">مشرف</option>
                   </select>
                 )}
