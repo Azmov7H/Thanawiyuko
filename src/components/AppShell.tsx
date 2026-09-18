@@ -3,19 +3,21 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useI18n } from "@/lib/i18n/LocaleProvider";
+import { Icon, type IconName } from "@/components/ui/Icon";
 
 type NavLink = {
   href: string;
   key: "dashboard" | "practice" | "studyPlan" | "progress" | "settings";
+  icon: IconName;
 };
 
 /** M1 shell nav: only shipped routes are enabled (no dead ends). */
 const NAV_LINKS: NavLink[] = [
-  { href: "/dashboard", key: "dashboard" },
-  { href: "/practice", key: "practice" },
-  { href: "/study-plan", key: "studyPlan" },
-  { href: "/progress", key: "progress" },
-  { href: "/settings", key: "settings" },
+  { href: "/dashboard", key: "dashboard", icon: "home" },
+  { href: "/practice", key: "practice", icon: "practice" },
+  { href: "/study-plan", key: "studyPlan", icon: "plan" },
+  { href: "/progress", key: "progress", icon: "progress" },
+  { href: "/settings", key: "settings", icon: "settings" },
 ];
 
 export function BottomNav() {
@@ -35,9 +37,10 @@ export function BottomNav() {
               <Link
                 href={item.href}
                 aria-current={active ? "page" : undefined}
-                className={`flex min-h-16 flex-col items-center justify-center ${cls}`}
+                className={`flex min-h-16 flex-col items-center justify-center gap-1 ${cls}`}
               >
-                <span className="text-sm leading-none">{t(`common.nav.${item.key}`)}</span>
+                <Icon name={item.icon} size={22} />
+                <span className="text-xs leading-none">{t(`common.nav.${item.key}`)}</span>
               </Link>
             </li>
           );
@@ -60,13 +63,14 @@ export function SideNav() {
           key={item.href}
           href={item.href}
           aria-current={pathname === item.href ? "page" : undefined}
-          className={`rounded-lg px-4 py-2.5 text-sm ${
+          className={`flex items-center gap-3 rounded-lg px-4 py-2.5 text-sm ${
             pathname === item.href
               ? "bg-brand-tint font-bold text-brand-strong"
               : "text-ink-soft hover:bg-base"
           }`}
         >
-          {t(`common.nav.${item.key}`)}
+          <Icon name={item.icon} size={20} />
+          <span>{t(`common.nav.${item.key}`)}</span>
         </Link>
       ))}
     </aside>

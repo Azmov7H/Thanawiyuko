@@ -12,7 +12,7 @@
 | DB | MongoDB via Mongoose 9 + raw `mongodb` driver (adapter) |
 | State/data | TanStack Query v5 (client), Zustand (gamification store) |
 | Validation | Zod v4 |
-| Tests | Vitest 5 — 17 files / 77 tests (unit + pure functions) |
+| Tests | Vitest 5 — 30 files / 176 tests (unit + pure functions) |
 | Package manager | Repo is **npm**-based (`package-lock.json`); local dev used `pnpm` |
 | Language/locale | Arabic-first, RTL hardcoded in `src/app/layout.tsx` (`<html lang="ar" dir="rtl">`) |
 | Verified green | `pnpm typecheck`, `pnpm lint` (0 warnings), `pnpm test` (77), `pnpm build` |
@@ -85,7 +85,7 @@ Git HEAD: `00c7c71 feat(billing): enhance subscription management and payment ha
 | Content | models + admin API + tree API | no student-facing lesson page/API, no subject browse page, no bookmarks, no search |
 | Admin | content lifecycle + exams | no user management, finance/refunds UI, audit viewer, plans/feature-flag editor, reports |
 | Subscriptions | Paymob + plans | plans are **hardcoded** in `server/payments/config.ts` (not DB-driven); no free-tier entitlement matrix |
-| Design system | adaptive semantic tokens in `globals.css` (light/dark CSS vars + `@theme` mapping; brand/gold solids now adapt), `ThemeProvider` + FOUC bootstrap, `ThemeToggle` in all headers, no raw color scales left in `src`, inventory in `docs/design-system.md` | only intentional statics remain (white pill CTA, `text-white` on solid bands) |
+| Design system | adaptive semantic tokens in `globals.css` (light/dark CSS vars + `@theme` mapping; brand/gold solids adapt, new `--shadow-*`/`--ease-std`), `ThemeProvider` + FOUC bootstrap, `ThemeToggle` in all headers, no raw color scales left in `src`, single source spec in `docs/UX_UI.md`, new UI primitives (`Icon`, `Button`, `PageHeader`, `SectionHeader`, `Metric`, `Skeleton`, `EmptyState`, `ErrorState`) in `src/components/ui/`, coherent 24×24 stroke icon family replaces emoji in nav/widgets/bell, themed `animate-rise`/`animate-fade`, `.prose-rtl` article typography, student dashboard + gamification widgets redesigned per spec, mobile nav on landing | only intentional statics remain (white pill CTA, `text-white` on solid bands); remaining student pages reuse primitives incrementally; design-system token table needs sync with `--shadow-*` additions |
 | i18n | none | all strings hardcoded Arabic; no translation keys or locale abstraction |
 | Observability | `console.log` only | no error tracking, request ids, structured logging, metrics |
 | Accessibility | focus-visible + reduced-motion | no full audit; dialogs/forms partial |

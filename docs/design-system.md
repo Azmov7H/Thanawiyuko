@@ -36,6 +36,25 @@ Source of truth: `src/app/globals.css` (`:root` / `.dark` vars + `@theme inline`
 Contrast: solid brand (`brand-600`/`700`) and gold (`gold-600`) keep ≥4.5:1
 against their white labels in both themes (verified by the values above).
 
+## Elevation / surfaces (`--shadow-*`)
+| token | light | dark | use |
+|---|---|---|---|
+| `--shadow-card` | `0 1px 2px rgb(15 23 42 / 0.05), 0 1px 3px rgb(15 23 42 / 0.08)` | `0 1px 2px rgb(0 0 0 / 0.3), 0 1px 3px rgb(0 0 0 / 0.4)` | resting card |
+| `--shadow-pop` | `0 6px 16px rgb(15 23 42 / 0.12)` | `0 6px 16px rgb(0 0 0 / 0.45)` | hover lift on rows/tiles |
+| `--shadow-overlay` | `0 12px 32px rgb(15 23 42 / 0.18)` | `0 12px 32px rgb(0 0 0 / 0.55)` | dropdowns / dialogs / toasts |
+
+(All shadows subtle, never glowing. Mapped via `@theme inline` → `shadow-card`, `shadow-pop`, `shadow-overlay`.)
+
+## Motion
+- Ease: `--ease-std` (cubic-bezier(0.22, 1, 0.36, 1)); duration kept short (150ms hover, ≤600ms fill/in).
+- Entrance: `animate-rise` (+`animate-fade`) used sparingly on first paint; the global
+  `prefers-reduced-motion` block disables all `tw-*` animations for reduced-motion users.
+
+## Typography additions
+- `.prose-rtl` — RTL article/explanation typography block (h2/h3/p/ul/ol/a/strong) used by
+  lesson/explanation readers; respects `dir` so lists/margins stay logical.
+- `.tnum` — tabular numerals for scores/counts (mono digits, no width jitter).
+
 ## Intentionally static (theme-independent)
 - `bg-white` + `bg-brand-700/10` hover — the white pill CTA on the landing brand
   band (keeps a bright, high-contrast pill in both themes).

@@ -1,8 +1,9 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
+import { Icon } from "@/components/ui/Icon";
 
-/** Streak flame + longest */
+/** Streak — calm at-risk wording, no alarm. */
 export function StreakWidget() {
   const { data, isPending, isError } = useQuery({
     queryKey: ["gamification"],
@@ -14,27 +15,34 @@ export function StreakWidget() {
     },
   });
 
-  if (isPending) return <div className="rounded-xl border border-line bg-surface p-4 animate-pulse h-24" />;
-  if (isError) return <div className="rounded-xl border border-line bg-surface p-4 text-sm text-ink-mute">تعذر تحميل السلسلة.</div>;
+  if (isPending)
+    return <div aria-hidden className="h-28 animate-pulse rounded-2xl bg-surface" />;
+  if (isError)
+    return (
+      <div className="flex h-28 items-center justify-center rounded-2xl border border-line bg-surface text-sm text-ink-mute">
+        تعذر تحميل السلسلة.
+      </div>
+    );
 
   const { streak } = data!;
 
   return (
-    <section className="rounded-2xl border border-line bg-surface p-4">
+    <section className="rounded-2xl border border-line bg-surface p-4" aria-label="سلسلة المواظبة">
       <div className="flex items-center justify-between">
-        <div>
-          <p className="text-sm font-bold text-ink">السلسلة</p>
-          <p className="tnum mt-0.5 text-3xl font-bold text-gold-accent">{streak.current}</p>
+        <div className="flex items-center gap-2 text-gold-accent">
+          <Icon name="flame" size={18} />
+          <h3 className="text-sm font-medium text-ink-mute">يوم متتابع</h3>
         </div>
-        <div className="text-center">
-          <p className="text-sm font-bold text-ink">أطول سلسلة</p>
-          <p className="tnum text-xl font-bold text-ink">{streak.longest}</p>
-        </div>
-        <div className="text-center text-gold-accent">
-          <svg aria-hidden="true" className="w-12 h-12" fill="currentColor" viewBox="0 0 24 24"><path fillRule="evenodd" d="M12.963 2.286a.75.75 0 0 0-1.071-.136 9.742 9.742 0 0 0-3.539 6.176 7.547 7.547 0 0 1-1.705-1.715.75.75 0 0 0-1.152-.082A9 9 0 1 0 15.68 4.534a7.46 7.46 0 0 1-2.717-2.248zM15.75 14.25a3.75 3.75 0 1 1-7.313-1.172c.628.465 1.35.81 2.133 1a5.99 5.99 0 0 1 1.925-3.546 3.75 3.75 0 0 1 3.255 3.718z" clipRule="evenodd" /></svg>
-        </div>
+        <span className="tnum rounded-full bg-warn-bg px-2.5 py-0.5 text-xs font-bold text-gold-accent">
+          الأطول {streak.longest}
+        </span>
       </div>
-      <p className="tnum mt-2 text-xs text-ink-mute">كل يوم تمارين = شعلة تزيد. انقطع ترجع لصفر.</p>
+      <p className="tnum mt-3 text-3xl font-bold text-ink">{streak.current}</p>
+      <p className="mt-2 text-xs text-ink-mute">
+        {streak.current > 0
+          ? "متقطع؟ يوم واحد بيوقّف السلسلة — لحق نفسك."
+          : "ابدأ اليوم بيتبني سلسلتك."}
+      </p>
     </section>
   );
 }

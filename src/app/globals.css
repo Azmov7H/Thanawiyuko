@@ -40,6 +40,11 @@
 
   /* Solid "dark" secondary button surface (bg-ink would clash with ink text). */
   --ink-solid: #14222e;
+
+  /* Elevation shadows (hairline borders are the default; shadows lift layers). */
+  --shadow-card: 0 1px 2px rgb(2 6 23 / 0.04), 0 1px 3px rgb(2 6 23 / 0.06);
+  --shadow-pop: 0 8px 24px rgb(2 6 23 / 0.12);
+  --shadow-overlay: 0 24px 64px rgb(2 6 23 / 0.2);
 }
 
 .dark {
@@ -74,6 +79,10 @@
   --warn-line: #4a3a14;
 
   --ink-solid: #223141;
+
+  --shadow-card: 0 1px 2px rgb(0 0 0 / 0.3), 0 1px 3px rgb(0 0 0 / 0.25);
+  --shadow-pop: 0 8px 24px rgb(0 0 0 / 0.4);
+  --shadow-overlay: 0 24px 64px rgb(0 0 0 / 0.55);
 }
 
 @theme inline {
@@ -112,6 +121,12 @@
   --font-ar: var(--font-plex-ar), "IBM Plex Sans Arabic", Cairo, Tajawal,
     system-ui, sans-serif;
   --font-num: "IBM Plex Mono", ui-monospace, monospace;
+
+  /* Elevation + motion tokens. */
+  --shadow-card: var(--shadow-card);
+  --shadow-pop: var(--shadow-pop);
+  --shadow-overlay: var(--shadow-overlay);
+  --ease-std: cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 body {
@@ -134,6 +149,73 @@ body {
   font-family: var(--font-num);
 }
 
+/* Editorial article flow for privacy/terms (prose-rtl markup). */
+.prose-rtl {
+  font-size: 0.9375rem;
+  line-height: 1.85;
+  color: var(--ink);
+}
+.prose-rtl h2 {
+  margin-top: 2.25rem;
+  margin-bottom: 0.75rem;
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--ink);
+}
+.prose-rtl h3 {
+  margin-top: 1.5rem;
+  margin-bottom: 0.5rem;
+  font-weight: 700;
+  color: var(--ink);
+}
+.prose-rtl p,
+.prose-rtl ul,
+.prose-rtl ol {
+  margin-bottom: 1rem;
+  color: var(--ink-soft);
+}
+.prose-rtl ul {
+  list-style: disc;
+  padding-inline-start: 1.5rem;
+}
+.prose-rtl ol {
+  list-style: decimal;
+  padding-inline-start: 1.5rem;
+}
+.prose-rtl a {
+  color: var(--brand-strong);
+  text-decoration: underline;
+}
+.prose-rtl strong {
+  font-weight: 700;
+  color: var(--ink);
+}
+
+/* Motion helpers — state, not decoration. Respect reduced-motion below. */
+@keyframes tw-rise {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+@keyframes tw-fade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+.animate-rise {
+  animation: tw-rise 250ms var(--ease-std);
+}
+.animate-fade {
+  animation: tw-fade 200ms var(--ease-std);
+}
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,

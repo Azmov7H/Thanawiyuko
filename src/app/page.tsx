@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { SkipLink } from "@/components/SkipLink";
 import { ThemeToggle } from "@/components/theme/ThemeToggle";
+import { LandingMobileNav } from "@/components/LandingMobileNav";
 import { DEFAULT_LOCALE, getDictionary } from "@/lib/i18n";
 
 const dict = getDictionary(DEFAULT_LOCALE);
@@ -16,43 +17,48 @@ const faqJsonLd = {
   })),
 };
 
+const ANCHORS = [
+  { href: "#features", label: "features", key: "features" },
+  { href: "#how", label: "how", key: "how" },
+  { href: "#plans", label: "plans", key: "plans" },
+  { href: "#faq", label: "faq", key: "faq" },
+] as const;
+
 export default function LandingPage() {
   return (
     <div className="flex min-h-full flex-col">
       <SkipLink />
-      <header className="sticky top-0 z-10 border-b border-line bg-surface/90 backdrop-blur">
-        <div className="mx-auto flex h-16 w-full max-w-5xl items-center justify-between px-4">
-          <Link href="/" className="text-xl font-bold text-ink">
-            {common.brandName} <span className="text-brand-accent">.</span>
-          </Link>
-          <nav aria-label={landing.nav.mainAria} className="hidden items-center gap-1 md:flex">
-            <a href="#features" className="rounded-md px-3 py-2 text-sm text-ink-soft hover:text-ink">
-              {landing.nav.features}
-            </a>
-            <a href="#how" className="rounded-md px-3 py-2 text-sm text-ink-soft hover:text-ink">
-              {landing.nav.how}
-            </a>
-            <a href="#plans" className="rounded-md px-3 py-2 text-sm text-ink-soft hover:text-ink">
-              {landing.nav.plans}
-            </a>
-            <a href="#faq" className="rounded-md px-3 py-2 text-sm text-ink-soft hover:text-ink">
-              {landing.nav.faq}
-            </a>
-          </nav>
-          <div className="flex items-center gap-2">
-            <ThemeToggle />
-            <Link href="/login" className="rounded-md px-3 py-2 text-sm font-medium text-ink-soft hover:text-ink">
-              {common.auth.login}
+      <div className="relative">
+        <header className="sticky top-0 z-10 border-b border-line bg-surface/90 backdrop-blur">
+          <div className="mx-auto flex h-16 w-full max-w-5xl items-center justify-between px-4">
+            <Link href="/" className="text-xl font-bold text-ink">
+              {common.brandName} <span className="text-brand-accent">.</span>
             </Link>
-            <Link
-              href="/register"
-              className="rounded-md bg-brand-600 px-4 py-2 text-sm font-bold text-white hover:bg-brand-700"
-            >
-              {common.auth.startFree}
-            </Link>
+            <nav aria-label={landing.nav.mainAria} className="hidden items-center gap-1 md:flex">
+              {ANCHORS.map((a) => (
+                <a key={a.key} href={a.href} className="rounded-md px-3 py-2 text-sm text-ink-soft hover:text-ink">
+                  {landing.nav[a.label]}
+                </a>
+              ))}
+            </nav>
+            <div className="flex items-center gap-2">
+              <ThemeToggle />
+              <div className="hidden items-center gap-2 md:flex">
+                <Link href="/login" className="rounded-md px-3 py-2 text-sm font-medium text-ink-soft hover:text-ink">
+                  {common.auth.login}
+                </Link>
+                <Link
+                  href="/register"
+                  className="rounded-md bg-brand-600 px-4 py-2 text-sm font-bold text-white hover:bg-brand-700"
+                >
+                  {common.auth.startFree}
+                </Link>
+              </div>
+              <LandingMobileNav />
+            </div>
           </div>
-        </div>
-      </header>
+        </header>
+      </div>
 
       <main className="mx-auto flex w-full max-w-5xl flex-1 flex-col px-4" id="main" tabIndex={-1}>
         <section className="py-16 text-center md:py-24" aria-labelledby="hero-title">

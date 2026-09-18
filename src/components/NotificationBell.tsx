@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
+import { Icon } from "@/components/ui/Icon";
 
 type NotificationItem = {
   id: string;
@@ -98,7 +99,9 @@ export function NotificationBell() {
         }}
         className="relative flex h-9 w-9 items-center justify-center rounded-lg text-ink-soft hover:bg-base hover:text-ink"
       >
-        <span aria-hidden className="text-lg leading-none">&#128276;</span>
+        <span aria-hidden className="flex h-9 w-9 items-center justify-center">
+          <Icon name="bell" size={20} />
+        </span>
         {unread > 0 && (
           <span className="tnum absolute -top-1 -left-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-danger-solid px-1 text-[10px] font-bold text-white">
             {unread > 99 ? "99+" : unread}
