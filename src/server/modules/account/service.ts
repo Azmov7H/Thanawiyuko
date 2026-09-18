@@ -15,6 +15,10 @@ import { UserAchievementModel, AchievementModel } from "@/server/modules/gamific
 import { AIConversationModel } from "@/server/modules/ai/conversation.model";
 import { SubscriptionModel } from "@/server/modules/billing/subscription.model";
 import { AuditLogModel } from "@/server/modules/admin/audit-log.model";
+import {
+  NotificationModel,
+  NotificationPreferenceModel,
+} from "@/server/modules/notifications/notification.model";
 
 export const DELETION_GRACE_DAYS = Number(process.env.DELETION_GRACE_DAYS ?? 30);
 
@@ -160,6 +164,8 @@ export async function purgeUser(userId: string): Promise<void> {
       { studentId: oid },
       { $set: { status: "cancelled", tier: "free", cancelAtPeriodEnd: true, cancelledAt: new Date() } },
     ),
+    NotificationModel.deleteMany({ userId: oid }),
+    NotificationPreferenceModel.deleteOne({ userId: oid }),
   ]);
 
   await AuditLogModel.create({

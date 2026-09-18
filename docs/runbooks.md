@@ -25,6 +25,7 @@
 | حذف/تصدير الحساب | ✅ منفّذ (T-N2) | `src/server/modules/account/service.ts` |
 | صفحات الخصوصية/الشروط + إقرار ولي الأمر | ✅ منفّذ | `/privacy`, `/terms`, التسجيل |
 | بنية تصدير PDF | 🟡 بنية جاهزة (T-K1) | `src/server/modules/pdf/` — `PDF_ENGINE=chromium` يحتاج متصفحًا على المضيف |
+| إشعارات ترانساكشنالية | 🟡 البنية جاهزة (T-L1) | `src/server/modules/notifications/` — البريد `console` فقط، المزوّد الحقيقي (Resend) في T-L2 |
 
 ---
 

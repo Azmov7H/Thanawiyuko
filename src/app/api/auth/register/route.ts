@@ -5,6 +5,8 @@ import { StudentProfileModel } from "@/server/modules/academic/student-profile.m
 import { registerSchema } from "@/lib/validators";
 import { hashPassword } from "@/lib/password";
 import { checkRateLimit } from "@/server/ratelimit";
+import { createNotification } from "@/server/modules/notifications/service";
+import { hashUser, logServerError } from "@/server/logger";
 
 const WINDOW_MS = 60_000;
 
@@ -78,6 +80,20 @@ export async function POST(req: Request) {
     guardianConsentAt: new Date(),
   });
   await StudentProfileModel.create({ userId: user._id });
+
+  try {
+    await createNotification({
+      userId: String(user._id),
+      type: "welcome",
+      titleAr: "أهلاً بيك في ثانويكو",
+      bodyAr:
+        "كمل بياناتك وحدد هدفك، والخطة والمكتبة هتتظبط على مستواك.",
+      link: "/onboarding",
+      emailTo: parsed.data.email,
+    });
+  } catch (e) {
+    await logServerError("notifications.welcome.failed", e, { user: hashUser(String(user._id)) });
+  }
 
   return NextResponse.json({ ok: true, userId: String(user._id) }, { status: 201 });
 }

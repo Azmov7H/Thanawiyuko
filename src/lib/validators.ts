@@ -8,6 +8,11 @@ export const loginSchema = z.object({
   password: z.string().min(1, "كلمة المرور مطلوبة"),
 });
 
+export const notificationPreferencesSchema = z.object({
+  email: z.boolean().optional(),
+  push: z.boolean().optional(),
+});
+
 export const registerSchema = z.object({
   name: z
     .string()
@@ -49,3 +54,4 @@ export const onboardingPatchSchema = z
 
 export type RegisterInput = z.infer<typeof registerSchema>;
 export type OnboardingPatch = z.infer<typeof onboardingPatchSchema>;
+export type NotificationPreferences = z.infer<typeof notificationPreferencesSchema>;

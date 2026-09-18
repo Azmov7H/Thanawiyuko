@@ -27,7 +27,7 @@
 | T-I4 | P2 | I | axe-playwright a11y smoke suite + CI | DONE |
 | T-J1 | P2 | J | i18n foundation | DONE |
 | T-K1 | P2 | K | PDF export architecture | DONE |
-| T-L1 | P2 | L | Transactional notifications | TODO |
+| T-L1 | P2 | L | Transactional notifications | DONE |
 | T-M1 | P3 | M | Teacher role + profile stub | TODO |
 | T-N1 | P1 | N | Restore ops docs + backup/restore drill | DONE |
 | T-N2 | P1 | N | Account deletion/export + privacy pages + guardian consent | DONE |
@@ -281,7 +281,37 @@
     `tests/unit/pdf.test.ts` (10). `.env.example` documents `PDF_ENGINE`.
   - Known gap: the Chromium engine needs a host with a browser (self-host/Docker); Vercel
     serverless needs a hosted engine (tracked for K2/§31).
-- T-L1 Transactional notifications — TODO
+- T-L1 Transactional notifications — DONE: built on a pluggable provider abstraction with
+  quiet-hours (22:00–07:00) email deferral:
+  - `src/server/modules/notifications/notification.model.ts` — `NotificationModel`
+    (type ∈ `welcome | plan_ready | streak_milestone | subscription_event |
+    content_correction`; `titleAr`/`bodyAr` caps; `status`, `emailStatus`,
+    `scheduledFor`, `readAt`; indexes for inbox listing, unread counts, and the
+    pending drain) and `NotificationPreferenceModel` (per-user `email`/`push` toggles,
+    `email` default true).
+  - `provider.ts` — `NotificationProvider` interface + `consoleNotificationProvider`
+    (event `notification.email.sent`, recipient masked via `maskEmail`, no PII in logs)
+    selected through `NOTIFICATION_PROVIDER` (default `console`; Resend later).
+  - `service.ts` — `planNotificationSend` (quiet-hours → `pending` + `scheduledFor`
+    = next 07:00 Cairo via `inQuietHours`/`nextQuietHoursEnd`/`cairoHour`),
+    `createNotification` (inline send when not quiet, inline failure marks the row
+    `failed` so the UI still shows it), `listNotifications` (page/limit ≤ 50, unread,
+    hasMore), `getUnreadNotificationCount`, `markNotificationRead` (owner-only),
+    `processPendingNotifications` (drains the pending queue), preference get/update,
+    and a 50 per-user inbox prune.
+  - Routes: `GET /api/notifications` (list), `GET|PATCH /api/notifications/preferences`
+    (20/min rate-limited, zod-validated), `POST /api/notifications/[id]/read`.
+  - Hooks: welcome notification (→ `/onboarding`) at registration; the reconcile cron
+    now drains pending emails and reports `{ ok, purged, notifications, at }`.
+  - `/settings` has a working notification toggle; `purgeUser` also clears
+    notifications + preferences on final deletion.
+  - Tests: `tests/unit/notifications.test.ts` (12) + `tests/integration/notifications.test.ts`
+    (3: inbox lifecycle, email preference, quiet-hours hold → drain). `.env.example`
+    documents `NOTIFICATION_PROVIDER`.
+  - Known gap: email is console-logged only; a real provider (Resend) is T-L2.
+- T-L2 Notifications V2 — TODO: real email provider (Resend) + `notification.email.failed`
+  delivery, weekly-report email + outbox (batch 05:00 Cairo Monday), subscription-event
+  emails, streak-milestone push, and an inbox/bell UI bound to the existing `/api/notifications`.
 
 ## Phase M — Teacher Dimension (P3, V2)
 - T-M1 Teacher role + profile stub — TODO

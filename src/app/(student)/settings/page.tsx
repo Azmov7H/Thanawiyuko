@@ -5,7 +5,9 @@ import { dbConnect } from "@/server/db/client";
 import { UserModel } from "@/server/modules/auth/user.model";
 import { StudentProfileModel } from "@/server/modules/academic/student-profile.model";
 import { deletionPurgeAt } from "@/server/modules/account/service";
+import { getNotificationPreferences } from "@/server/modules/notifications/service";
 import { AccountActions } from "./AccountActions";
+import { NotificationPreferences } from "./NotificationPreferences";
 
 export const dynamic = "force-dynamic";
 
@@ -33,9 +35,10 @@ export default async function SettingsPage() {
   if (!userId) redirect("/login");
 
   await dbConnect();
-  const [user, profile] = await Promise.all([
+  const [user, profile, preferences] = await Promise.all([
     UserModel.findById(userId).select("name email status deletionRequestedAt guardianConsentAt").lean(),
     StudentProfileModel.findOne({ userId }).lean(),
+    getNotificationPreferences(userId),
   ]);
   if (!user) redirect("/login");
 
@@ -84,6 +87,8 @@ export default async function SettingsPage() {
           </div>
         </dl>
       </section>
+
+      <NotificationPreferences initialEmail={preferences.email} />
 
       <AccountActions
         deletionPending={pending}
