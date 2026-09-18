@@ -19,11 +19,16 @@ export default function LoginPage() {
     e.preventDefault();
     setBusy(true);
     setError("");
-    const res = await signIn("credentials", {
-      email,
-      password,
-      redirect: false,
-    });
+    let res: { error?: string | null } | undefined;
+    try {
+      res = await signIn("credentials", {
+        email,
+        password,
+        redirect: false,
+      });
+    } catch {
+      res = { error: "network" };
+    }
     setBusy(false);
     if (res?.error) {
       setError("بيانات الدخول غير صحيحة أو حاولت كثيرًا. انتظر قليلًا وحاول مجددًا.");
