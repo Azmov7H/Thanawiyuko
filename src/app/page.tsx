@@ -210,7 +210,7 @@ export default function LandingPage() {
           <p className="mx-auto mt-2 max-w-md text-sm text-brand-50">{landing.finalCta.body}</p>
           <Link
             href="/register"
-            className="mt-6 inline-block rounded-lg bg-white px-6 py-3 font-bold text-brand-onlight hover:bg-brand-onlight/10"
+            className="mt-6 inline-block rounded-lg bg-white px-6 py-3 font-bold text-brand-700 hover:bg-brand-700/10"
           >
             {landing.finalCta.button}
           </Link>

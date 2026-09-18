@@ -12,16 +12,22 @@
   --ink-mute: #5b6b7f;
   --line: #e2e8f0;
 
-  /* Brand: tint/soft/accent/strong adapt; -500/-600/-700 stay solid (white-text CTAs). */
+  /* Brand: tint/soft/accent/strong + solid CTAs all adapt. Solid variants
+     keep >=4.5:1 against white text in both themes. */
   --brand-tint: #effaf9;
   --brand-soft: #aee5e2;
   --brand-accent: #0a7a75;
   --brand-strong: #0a6b68;
+  --brand-solid: #0a7a75;
+  --brand-solid-hover: #0a6b68;
+  --brand-progress: #0ea5a0;
+  --brand-onband: #effaf9;
 
   /* Status accents (text/borders/fills). */
   --ok: #15803d;
   --bad: #b91c1c;
   --gold-accent: #b45309;
+  --gold-solid: #b45309;
 
   /* Status surfaces + solid fills (keep readable under both themes). */
   --danger-bg: #fef2f2;
@@ -49,10 +55,15 @@
   --brand-soft: #1d423f;
   --brand-accent: #2dd4bf;
   --brand-strong: #5eead4;
+  --brand-solid: #0f766e;
+  --brand-solid-hover: #115e59;
+  --brand-progress: #2dd4bf;
+  --brand-onband: #ccfbf1;
 
   --ok: #22c55e;
   --bad: #f87171;
   --gold-accent: #fbbf24;
+  --gold-solid: #c2410c;
 
   --danger-bg: #2a1215;
   --danger-line: #4a252b;
@@ -74,20 +85,17 @@
   --color-line: var(--line);
   --color-ink-solid: var(--ink-solid);
 
-  --color-brand-50: #effaf9;
-  --color-brand-100: #d7f2f0;
-  --color-brand-200: #aee5e2;
-  --color-brand-500: #0ea5a0;
-  --color-brand-600: #0a7a75;
-  --color-brand-700: #0a6b68;
+  --color-brand-50: var(--brand-onband);
+  --color-brand-500: var(--brand-progress);
+  --color-brand-600: var(--brand-solid);
+  --color-brand-700: var(--brand-solid-hover);
 
   --color-brand-tint: var(--brand-tint);
   --color-brand-soft: var(--brand-soft);
   --color-brand-accent: var(--brand-accent);
   --color-brand-strong: var(--brand-strong);
 
-  --color-gold-500: #f59e0b;
-  --color-gold-600: #b45309;
+  --color-gold-600: var(--gold-solid);
   --color-gold-accent: var(--gold-accent);
 
   --color-ok: var(--ok);

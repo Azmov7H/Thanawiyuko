@@ -118,7 +118,7 @@ export default function NotificationsPage() {
               type="button"
               onClick={() => openItem(n)}
               className={`w-full rounded-xl border border-line bg-surface p-4 text-start hover:border-ink-mute ${
-                n.readAt ? "opacity-80" : "border-brand-300"
+                n.readAt ? "opacity-80" : "border-brand-soft"
               }`}
             >
               <span className="flex items-start justify-between gap-3">

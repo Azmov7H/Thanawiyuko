@@ -85,7 +85,7 @@ Git HEAD: `00c7c71 feat(billing): enhance subscription management and payment ha
 | Content | models + admin API + tree API | no student-facing lesson page/API, no subject browse page, no bookmarks, no search |
 | Admin | content lifecycle + exams | no user management, finance/refunds UI, audit viewer, plans/feature-flag editor, reports |
 | Subscriptions | Paymob + plans | plans are **hardcoded** in `server/payments/config.ts` (not DB-driven); no free-tier entitlement matrix |
-| Design system | semantic tokens in `globals.css` (light/dark CSS vars + `@theme` mapping, palette kept static for brand/gold solids), `ThemeProvider` + FOUC bootstrap, `ThemeToggle` in all headers, dark mode usable | no component/design-system inventory doc (TASKS-4 pending), remaining static solids (brand-600 CTAs, gold phase pills) intentionally not *functional* dark tokens yet |
+| Design system | adaptive semantic tokens in `globals.css` (light/dark CSS vars + `@theme` mapping; brand/gold solids now adapt), `ThemeProvider` + FOUC bootstrap, `ThemeToggle` in all headers, no raw color scales left in `src`, inventory in `docs/design-system.md` | only intentional statics remain (white pill CTA, `text-white` on solid bands) |
 | i18n | none | all strings hardcoded Arabic; no translation keys or locale abstraction |
 | Observability | `console.log` only | no error tracking, request ids, structured logging, metrics |
 | Accessibility | focus-visible + reduced-motion | no full audit; dialogs/forms partial |
