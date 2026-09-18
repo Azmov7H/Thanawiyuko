@@ -15,7 +15,7 @@
 | رؤوس أمان (CSP/HSTS/XFO/Referrer/Permissions) | ✅ منفّذ | `next.config.ts` |
 | تحديد معدل Auth (5/دقيقة/مسارات) | ✅ منفّذ (ذاكرة العملية الواحدة) | `src/proxy.ts` |
 | Health check | ✅ منفّذ | `GET /api/health`, rewrite `/health` |
-| Cron الاستحقاق/السلاسل/الحذف | ✅ منفّذ (`CRON_SECRET`) | `src/app/api/cron/reconcile/route.ts` |
+| Cron الاستحقاق/السلاسل/الحذف/البريد/التقرير الأسبوعي | ✅ منفّذ (`CRON_SECRET`) | `src/app/api/cron/reconcile/route.ts` — في الاثنين 05:00 القاهرة يشغّل `runWeeklyReportBatch` |
 | سجلات JSON مع `requestId` وحجب PII | ✅ منفّذ | `src/lib/logger.ts`, `src/server/logger.ts` |
 | سجل تدقيق (أدمن/خطط/دفع/محتوى/حساب) | ✅ منفّذ | `AuditLogModel` |
 | Feature Flags (Kill Switches) | ✅ منفّذة (T-N3) | `featureGate()` في المسارات + `MAINTENANCE_MODE` في الـ proxy؛ تُقرأ من `FEATURE_*` (تغيّرها يتطلب إعادة بناء/نشر) |
@@ -25,7 +25,7 @@
 | حذف/تصدير الحساب | ✅ منفّذ (T-N2) | `src/server/modules/account/service.ts` |
 | صفحات الخصوصية/الشروط + إقرار ولي الأمر | ✅ منفّذ | `/privacy`, `/terms`, التسجيل |
 | بنية تصدير PDF | 🟡 بنية جاهزة (T-K1) | `src/server/modules/pdf/` — `PDF_ENGINE=chromium` يحتاج متصفحًا على المضيف |
-| إشعارات ترانساكشنالية | 🟡 البنية جاهزة (T-L1) | `src/server/modules/notifications/` — البريد `console` فقط، المزوّد الحقيقي (Resend) في T-L2 |
+| إشعارات ترانساكشنالية | ✅ منفّذ (T-L1) | `src/server/modules/notifications/` — بريد فعل عبر Resend (`NOTIFICATION_PROVIDER=resend`)، تهجير + قائمة دلو أسبوعية + سلسلة/اشتراك (T-L2)، جرس/صندوق ورد |
 
 ---
 
@@ -167,7 +167,8 @@ MONGODB_URI="mongodb://127.0.0.1:27017/thanawico" ./scripts/restore-drill.sh
 
 | التكرار | المهمة | المسؤول | الملاحظات |
 |----------|--------|---------|----------|
-| يومي | Cron `reconcile` (Grace + Streaks + تنفيذ حذف منتهي المهلة) | Auto | محمي بـ `CRON_SECRET` |
+| يومي | Cron `reconcile` (Grace + Streaks + حذف منتهي المهلة + تصريف البريد) | Auto | محمي بـ `CRON_SECRET` |
+| الاثنين 05:00 | إرسال التقرير الأسبوعي (ضمن نفس الـ cron) | Auto | يُنشئ إشعار `weekly_report` لكل مستخدم نشط |
 | يومي | مراقبة التكاليف (AI، Paymob) | DevOps | تنبيه عند 80% |
 | أسبوعي | تحديث Dependencies (`npm audit`) | Dev | Dependabot PRs |
 | شهري | Restore Drill | DevOps | `scripts/restore-drill.sh` |

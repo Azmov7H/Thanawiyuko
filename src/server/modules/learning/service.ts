@@ -9,6 +9,7 @@ import { awardXp, evaluateAchievements } from "@/server/modules/gamification/ser
 import { computeMastery } from "@/lib/mastery";
 import { answerXp, isStreakQualifying, EXAM_BONUS_XP } from "@/lib/learning";
 import { cairoDayKey } from "@/lib/cairo";
+import { hashUser, logServerError } from "@/server/logger";
 
 const MASTERY_WINDOW = 20;
 const DAY_MS = 24 * 60 * 60 * 1000;
@@ -182,6 +183,33 @@ async function updateStreak(userId: string, answers: OutcomeAnswer[], kind: stri
   streak.lastActiveDay = today;
   streak.history = [...(streak.history ?? []), today].slice(-60);
   await streak.save();
+
+  await notifyStreakMilestoneIfReached(userId, streak.current);
+}
+
+export const STREAK_MILESTONES = [5, 7, 14, 30, 60, 100];
+
+/** Fire a `streak_milestone` notification exactly when `current` hits a milestone. Non-fatal. */
+export async function notifyStreakMilestoneIfReached(userId: string, current: number): Promise<void> {
+  if (!STREAK_MILESTONES.includes(current)) return;
+  try {
+    const { UserModel } = await import("@/server/modules/auth/user.model");
+    const { createNotification } = await import("@/server/modules/notifications/service");
+    const user = await UserModel.findById(userId).select("email").lean();
+    await createNotification({
+      userId,
+      type: "streak_milestone",
+      titleAr: `سلسلة ${current} أيام`,
+      bodyAr: `أكملت ${current} أيام متتالية. سرك ممتاز — حافظ عليها!`,
+      link: "/progress",
+      emailTo: user?.email ?? null,
+    });
+  } catch (e) {
+    await logServerError("notifications.streak_milestone.failed", e, {
+      streak: current,
+      user: hashUser(String(userId)),
+    });
+  }
 }
 
 export async function recordAttemptOutcomes(input: AttemptOutcomeInput): Promise<void> {

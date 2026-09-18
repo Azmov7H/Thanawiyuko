@@ -1,11 +1,11 @@
 import { reconcileGracePeriod } from "@/server/billing/service";
 import { reconcileStreaks } from "@/server/modules/gamification/service";
 import { processFinalDeletion } from "@/server/modules/account/service";
-import { processPendingNotifications } from "@/server/modules/notifications/service";
+import { processPendingNotifications, runWeeklyReportBatch } from "@/server/modules/notifications/service";
 import { logServerError } from "@/server/logger";
 import { NextResponse } from "next/server";
 
-/** Daily cron: grace period + streak reconciliation + expired account deletions + pending notifications. */
+/** Daily cron: grace period + streak reconciliation + expired account deletions + pending notifications (+ Monday weekly-report batch). */
 export async function GET(req: Request) {
   const secret = req.headers.get("x-cron-secret");
   if (secret !== process.env.CRON_SECRET) {
@@ -15,10 +15,12 @@ export async function GET(req: Request) {
     await reconcileGracePeriod();
     await reconcileStreaks();
     const { purged } = await processFinalDeletion();
+    const weeklyReport = await runWeeklyReportBatch();
     const notifications = await processPendingNotifications();
     return NextResponse.json({
       ok: true,
       purged,
+      weeklyReport,
       notifications,
       at: new Date().toISOString(),
     });

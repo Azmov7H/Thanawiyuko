@@ -309,9 +309,36 @@
     (3: inbox lifecycle, email preference, quiet-hours hold → drain). `.env.example`
     documents `NOTIFICATION_PROVIDER`.
   - Known gap: email is console-logged only; a real provider (Resend) is T-L2.
-- T-L2 Notifications V2 — TODO: real email provider (Resend) + `notification.email.failed`
-  delivery, weekly-report email + outbox (batch 05:00 Cairo Monday), subscription-event
-  emails, streak-milestone push, and an inbox/bell UI bound to the existing `/api/notifications`.
+- T-L2 Notifications V2 — DONE: real email provider (Resend), weekly-report outbox,
+  subscription-event emails, streak-milestone push, and an inbox/bell UI:
+  - `provider.ts` — `resendNotificationProvider`: HTTP call to `https://api.resend.com/emails`
+    via `RESEND_API_KEY`/`RESEND_FROM_EMAIL`; inline RTL HTML template; network/HTTP failures
+    log event `notification.email.failed` (no PII) and return `{ ok: false }` so the row is
+    marked `failed`. Resolved by `NOTIFICATION_PROVIDER=resend` (default stays `console`).
+  - `notification.model.ts` — new type `weekly_report`; new `dedupKey` (≤ 120 chars) with
+    sparse unique index `{ userId, dedupKey }` for idempotent batch emails (weekly report,
+    content corrections); rows without a key are omitted so the sparse index skips them.
+  - `service.ts` — `createNotification` gains dedup (returns existing row on `dedupKey`
+    match or a `E11000` race) and `opts.scheduleFor` (outbox write: `status`/`emailStatus`
+    = `pending` + `scheduledFor`, no immediate send, no prefs lookup); new
+    `markAllNotificationsRead`; DST-safe weekly helpers `cairoMondayStartUTC`,
+    `cairoMonday0500UTC`; `buildWeeklyReportStats` (answered/correct/exams/XP/streak/
+    resolved mistakes per window); `weeklyReportMessageAr` (Arabic digest, ≤ 500 chars);
+    `runWeeklyReportBatch` — runs after Monday 05:00 Cairo, targets active student/teacher
+    users with an email, honors the `email` preference (default send), only sends when the
+    user had activity, and dedups on `weekly_report:<weekKey>:<userId>`.
+  - Hooks: `updateStreak` fires a `streak_milestone` push at 5/7/14/30/60/100 (non-fatal
+    try/catch); billing fires `subscription_event` emails for activation, failed renewal,
+    manual cancel, refund, grace start/expiry (all non-fatal to the billing flow).
+  - Cron: `GET /api/cron/reconcile` now also runs `runWeeklyReportBatch()` and reports
+    `{ ok, purged, weeklyReport, notifications, at }`.
+  - UI: `NotificationBell` in the AppShell header (unread badge, recent 5, mark-read,
+    read-all, 60 s poll), `/notifications` inbox page (pagination + read-all),
+    `POST /api/notifications/read-all`.
+  - Tests: `tests/unit/notifications.test.ts` (extends types/provider/scheduling; weekly
+    helpers) + `tests/integration/notifications-v2.test.ts` (8: dedup, scheduled delivery,
+    markAllRead, weekly batch skip/activity/roles/opt-out/teacher/idempotency).
+  - `.env.example` documents `RESEND_API_KEY`/`RESEND_FROM_EMAIL`.
 
 ## Phase M — Teacher Dimension (P3, V2)
 - T-M1 Teacher role + profile stub — DONE:

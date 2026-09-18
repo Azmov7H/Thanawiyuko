@@ -6,6 +6,7 @@ export const NOTIFICATION_TYPES = [
   "streak_milestone",
   "subscription_event",
   "content_correction",
+  "weekly_report",
 ] as const;
 
 export type NotificationType = (typeof NOTIFICATION_TYPES)[number];
@@ -24,6 +25,8 @@ export interface NotificationDoc extends mongoose.Document {
   emailStatus: NotificationEmailStatus;
   scheduledFor: Date | null;
   sentAt: Date | null;
+  /** Optional idempotency key (e.g. `weekly_report:2026-W38:u`); sparse-unique per user. */
+  dedupKey: string | null;
 }
 
 const notificationSchema = new Schema<NotificationDoc>(
@@ -42,12 +45,14 @@ const notificationSchema = new Schema<NotificationDoc>(
     },
     scheduledFor: { type: Date, default: null },
     sentAt: { type: Date, default: null },
+    dedupKey: { type: String, maxlength: 120 },
   },
   { timestamps: true },
 );
 notificationSchema.index({ userId: 1, readAt: 1 });
 notificationSchema.index({ userId: 1, createdAt: -1 });
 notificationSchema.index({ status: 1, scheduledFor: 1 });
+notificationSchema.index({ userId: 1, dedupKey: 1 }, { unique: true, sparse: true });
 
 export const NotificationModel =
   mongoose.models.Notification ??

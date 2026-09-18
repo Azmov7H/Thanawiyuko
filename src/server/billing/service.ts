@@ -6,6 +6,30 @@ import { PaymentModel } from "@/server/modules/billing/payment.model";
 import { evaluateAchievements } from "@/server/modules/gamification/service";
 import { GRACE_DAYS } from "@/server/payments/config";
 import { findPlan } from "@/server/billing/plans";
+import { hashUser, logServerError } from "@/server/logger";
+
+async function notifySubscriptionEvent(
+  userId: string,
+  input: { titleAr: string; bodyAr: string; link?: string },
+): Promise<void> {
+  try {
+    const { createNotification } = await import("@/server/modules/notifications/service");
+    const { UserModel } = await import("@/server/modules/auth/user.model");
+    const user = await UserModel.findById(userId).select("email").lean();
+    await createNotification({
+      userId,
+      type: "subscription_event",
+      titleAr: input.titleAr,
+      bodyAr: input.bodyAr,
+      link: input.link ?? "/subscription/manage",
+      emailTo: user?.email ?? null,
+    });
+  } catch (e) {
+    await logServerError("notifications.subscription_event.failed", e, {
+      user: hashUser(String(userId)),
+    });
+  }
+}
 
 type PlainSub = {
   _id: mongoose.Types.ObjectId;
@@ -122,6 +146,10 @@ async function activateSubscription(sub: PlainSub, data: { providerRef: string; 
   }
 
   await evaluateAchievements(sub.studentId.toString());
+  await notifySubscriptionEvent(sub.studentId.toString(), {
+    titleAr: "اشتراك بلس مفعّل",
+    bodyAr: "تم تفعيل اشتراكك في خطة بلس. كل الامتحانات والمحتوى الحصري متاح لك الآن.",
+  });
 }
 
 /** Process successful payment webhook (idempotent by providerRef). */
@@ -168,6 +196,11 @@ export async function handlePaymentFailed(providerRef: string, userId?: string) 
 
   await SubscriptionModel.findByIdAndUpdate(sub._id, { $set: { status: "past_due" } });
 
+  await notifySubscriptionEvent(sub.studentId.toString(), {
+    titleAr: "تعذّر تجديد الاشتراك",
+    bodyAr: "لم نتمكن من تجديد اشتراك بلس. عندك فترة سماح قبل التوقف — فعّل طريقة الدفع من صفحة الاشتراك.",
+  });
+
   try {
     await PaymentModel.create({
       subscriptionId: sub._id,
@@ -194,8 +227,16 @@ export async function reconcileGracePeriod(): Promise<void> {
   for (const sub of subs) {
     if (now > graceEndOf(sub)) {
       await SubscriptionModel.findByIdAndUpdate(sub._id, { $set: { status: "cancelled", tier: "free" } });
+      await notifySubscriptionEvent(sub.studentId.toString(), {
+        titleAr: "انتهى اشتراك بلس",
+        bodyAr: "انتهت فترة الاشتراك وفترة السماح. ما زال بإمكانك استخدام ثانويكو مجانًا والاشتراك متى شئت.",
+      });
     } else if (sub.status === "active") {
       await SubscriptionModel.findByIdAndUpdate(sub._id, { $set: { status: "grace" } });
+      await notifySubscriptionEvent(sub.studentId.toString(), {
+        titleAr: "فترة السماح بدأت",
+        bodyAr: "انتهت مدة اشتراكك ودخلت فترة السماح. جدّد اشتراكك خلال الأيام القادمة للاستمرار في بلس.",
+      });
     }
   }
 }
@@ -217,6 +258,12 @@ export async function cancelSubscription(userId: string, immediate = false) {
   } else {
     await SubscriptionModel.findByIdAndUpdate(sub._id, { $set: { cancelAtPeriodEnd: true } });
   }
+  await notifySubscriptionEvent(userId, {
+    titleAr: "تم إلغاء الاشتراك",
+    bodyAr: immediate
+      ? "أُلغي اشتراك بلس الخاص بك. يمكنك الاشتراك مجددًا في أي وقت."
+      : "سيُلغى اشتراك بلس في نهاية الفترة الحالية، ولن يُخصم منك بعدها.",
+  });
 }
 
 /** Manual refund (admin only). */
@@ -241,6 +288,11 @@ export async function refundPayment(paymentId: string, adminId: string, reason: 
   }
   const { AuditLogModel } = await import("@/server/modules/admin/audit-log.model");
   await AuditLogModel.create({ actorId: adminId, action: "payment.refund", entity: "payment", entityId: paymentId, reason });
+
+  if (sub) await notifySubscriptionEvent(sub.studentId.toString(), {
+    titleAr: "تم استرداد مبلغ الدفعة",
+    bodyAr: "تم تحويل المبلغ المسترد إلى المحفظة/البنك الذي سددت منه. قد يستغرق ظهوره من يوم إلى 5 أيام عمل.",
+  });
 }
 
 /** Get invoice list for user. */

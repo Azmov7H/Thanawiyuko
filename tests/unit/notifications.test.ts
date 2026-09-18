@@ -5,17 +5,21 @@ import {
   inQuietHours,
   nextQuietHoursEnd,
   planNotificationSend,
+  cairoMondayStartUTC,
+  cairoMonday0500UTC,
+  weeklyReportMessageAr,
 } from "@/server/modules/notifications/service";
 import { getNotificationProvider, maskEmail } from "@/server/modules/notifications/provider";
 
 describe("notification types", () => {
-  it("covers the MVP transactional types", () => {
+  it("covers the MVP transactional types + weekly report", () => {
     expect(NOTIFICATION_TYPES).toEqual([
       "welcome",
       "plan_ready",
       "streak_milestone",
       "subscription_event",
       "content_correction",
+      "weekly_report",
     ]);
   });
 });
@@ -83,9 +87,39 @@ describe("notification email masking", () => {
 });
 
 describe("provider resolution", () => {
-  it("defaults to the console provider and rejects unknown names", () => {
+  it("defaults to console and resolves resend; rejects unknown names", () => {
     expect(getNotificationProvider(undefined).name).toBe("console");
     expect(getNotificationProvider("console").name).toBe("console");
-    expect(() => getNotificationProvider("resend")).toThrow(/Unknown NOTIFICATION_PROVIDER/);
+    expect(getNotificationProvider("resend").name).toBe("resend");
+    expect(() => getNotificationProvider("mailgun")).toThrow(/Unknown NOTIFICATION_PROVIDER/);
+  });
+});
+
+describe("weekly report scheduling (Monday 05:00 Cairo)", () => {
+  it("finds the Monday 00:00 Cairo boundary of any date (DST-safe)", () => {
+    // 2024-02-10 is a Saturday; the containing week starts Mon 2024-02-05 00:00 Cairo = 22:00Z (winter +2).
+    const start = cairoMondayStartUTC(new Date("2024-02-10T12:00:00.000Z"));
+    expect(start.toISOString()).toBe("2024-02-04T22:00:00.000Z");
+    // Monday itself maps to itself.
+    expect(cairoMondayStartUTC(new Date("2024-02-05T08:00:00.000Z")).toISOString()).toBe("2024-02-04T22:00:00.000Z");
+  });
+
+  it("delivers at 05:00 Cairo on Monday", () => {
+    expect(cairoMonday0500UTC(new Date("2024-02-10T12:00:00.000Z")).toISOString()).toBe("2024-02-05T03:00:00.000Z");
+  });
+});
+
+describe("weekly report message", () => {
+  it("builds a concise Arabic digest", () => {
+    const { titleAr, bodyAr } = weeklyReportMessageAr(
+      { questionsAnswered: 42, correct: 33, exams: 1, accuracyPct: 79, xpEarned: 210, streak: 9, resolvedMistakes: 3 },
+      new Date("2024-02-12T00:00:00.000Z"),
+    );
+    expect(titleAr).toContain("تقرير الأسبوع");
+    expect(bodyAr).toContain("42");
+    expect(bodyAr).toContain("79%");
+    expect(bodyAr).toContain("210");
+    expect(bodyAr).toContain("9");
+    expect(bodyAr).toContain("استمر في التقدم على مسارك!");
   });
 });

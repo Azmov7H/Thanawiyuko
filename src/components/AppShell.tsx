@@ -75,6 +75,7 @@ export function SideNav() {
 
 import { AiPanel } from "@/components/AiPanel";
 import { SkipLink } from "@/components/SkipLink";
+import { NotificationBell } from "@/components/NotificationBell";
 
 export function AppShell({
   children,
@@ -92,9 +93,9 @@ export function AppShell({
           <Link href="/dashboard" className="text-lg font-bold text-ink">
             {t("common.brandName")} <span className="text-brand-600">.</span>
           </Link>
-          <span className="rounded-full bg-base px-3 py-1 text-xs text-ink-mute">
-            M1 — الأساس
-          </span>
+          <div className="flex items-center gap-2">
+            <NotificationBell />
+          </div>
         </div>
       </header>
       {deletionPurgeAt && (
