@@ -33,6 +33,11 @@
 | T-N1 | P1 | N | Restore ops docs + backup/restore drill | DONE |
 | T-N2 | P1 | N | Account deletion/export + privacy pages + guardian consent | DONE |
 | T-N3 | P2 | N | Error monitoring + distributed limits + enforce kill switches | DONE |
+| V-W0-F1 | P0 | V2/W0 | Teacher identity self-serve + profile expansion | TODO |
+| V-W0-F2 | P0 | V2/W0 | Content ownership fields (createdBy/updatedBy/source) | TODO |
+| V-W0-F3 | P0 | V2/W0 | Item-quality signals collector | TODO |
+| V-W0-F4 | P0 | V2/W0 | Identity schema-ref alignment follow-up | TODO |
+| V-W0-F5 | P0 | V2/W0 | Teacher API ops baseline (logs/Sentry/release) | TODO |
 
 ---
 
@@ -383,6 +388,79 @@
   - Tests: `tests/unit/teacher-guard.test.ts` (4) + unit `admin.test.ts` teacher cases
     + `tests/integration/teacher-profile.test.ts` (7).
 - M2–M5 content studio / analytics / discovery / economy — backlog
+
+## Phase V2/W0 — Teacher Dimension Foundations (P0)
+
+> Plan: `docs/V2_PLAN.md` Wave 0. These land before any public teacher surface.
+
+### V-W0-F1 — Teacher identity self-serve + profile expansion
+- **Priority / Phase / Feature**: P0 / V2 / W0 / teacher dimension
+- **Description**: Internal invite-only remains, but add a self-serve **apply** path (teacher
+  applicant → super/admin approves → role `teacher` + `TeacherProfile`). Expand `TeacherProfile`:
+  `penName`, `avatar`, `publicLinks: string[]`, `verified: boolean`, `approvalStatus`
+  (`none|pending|approved|rejected`). Backwards-compatible with the current stub (optional fields).
+- **Dependencies**: none.
+- **Files**: `src/server/modules/academic/teacher-profile.model.ts`, new
+  `src/server/modules/teacher/service.ts`, new `POST /api/teacher/apply`, admin review UI on `/admin/users`.
+- **DB impact**: additive fields only.
+- **Security impact**: apply must be rate-limited (`requireTeacherUser` absent — public route);
+  role promotion stays super-only (reuse `canAssignRole`, audited via `user.role` audit entry).
+- **Acceptance criteria**: applicant flow tested end-to-end (apply → admin approve → teacher
+  area access); no role change without audit; existing teacher/profile tests stay green.
+- **Status**: TODO
+
+### V-W0-F2 — Content ownership fields
+- **Priority / Phase / Feature**: P0 / V2 / W0 / content studio
+- **Description**: Add `createdBy`/`updatedBy` (`Types.ObjectId` ref User, optional) and
+  `source: "team"|"teacher"` (default `team`) to Subject/Unit/Topic/Lesson/Question schemas in
+  `content.models.ts` + `question.model.ts`. Admin content API records the actor; future teacher
+  studio records the teacher. No publish-privilege change (four-eyes preserved).
+- **Dependencies**: V-W0-F1 (teacher identity for `source: "teacher"`).
+- **Files**: `src/server/modules/academic/content.models.ts`,
+  `src/server/modules/questions/question.model.ts`, `src/app/api/admin/content/route.ts`.
+- **DB impact**: additive fields; backfill `source: "team"` for existing rows.
+- **API impact**: administrative writes now also update `updatedBy`.
+- **Security impact**: ownership read-scoping for studio (later); write enforcement stays admin/super.
+- **Acceptance criteria**: every content row carries `createdBy`/`source`; admin edits update
+  `updatedBy`; content lifecycle unit tests stay green.
+- **Status**: TODO
+
+### V-W0-F3 — Item-quality signals collector
+- **Priority / Phase / Feature**: P0 / V2 / W0 / analytics (M3) + economy (M5) prerequisite
+- **Description**: Aggregate per-question stats (attempts, correct count, distractor picks, recent
+  accuracy) collected idempotently in the existing submit path
+  (`recordAttemptOutcomes`). Pure running-counters model; no PII; feeds teacher analytics (M3)
+  and the reward formula (M5). De-queued writes (non-blocking to submit latency).
+- **Dependencies**: T-B2 (submit service exists).
+- **Files (new)**: `src/server/modules/stats/` (service + model), `src/lib/question-stats.ts` (pure math).
+- **Files (edit)**: `src/server/modules/learning/service.ts` (invoke after `recordAttemptOutcomes`).
+- **DB impact**: new collection/indexes (`questionId`, `status`).
+- **Security impact**: aggregate-only; never returns wrong-answer content (no leak).
+- **Acceptance criteria**: unit tests for the pure math; one practice submit upserts the
+  question counter exactly once (idempotent); submit latency unaffected (queued).
+- **Status**: TODO
+
+### V-W0-F4 — Identity schema-ref alignment follow-up
+- **Priority / Phase / Feature**: P0 / V2 / W0 / data integrity
+- **Description**: Cosmetic follow-up to T-B1: align `studentId` schema `ref: "User"` (canonical
+  = `User._id`) where declarations still say `ref: "StudentProfile"`. No data migration.
+- **Dependencies**: none.
+- **Files**: learning-record models (`topic-mastery.model.ts`, `mistake.model.ts`,
+  `streak.model.ts`, etc.).
+- **Acceptance criteria**: typecheck/lint/build green; no query mixes profile id with user id;
+  docs (`ARCHITECTURE.md` §identity) match code.
+- **Status**: TODO
+
+### V-W0-F5 — Teacher API ops baseline
+- **Priority / Phase / Feature**: P0 / V2 / W0 / observability
+- **Description**: Extend T-H1/T-N3 to the new teacher surfaces: structured `logServerEvent` on
+  teacher mutations, request-id reuse, Sentry release tagging on teacher routes; audit
+  proxy vs server rate-limit duplication for `/teacher` paths.
+- **Dependencies**: V-W0-F1 (routes exist).
+- **Files**: `src/server/modules/teacher/service.ts`, `src/proxy.ts` (matcher audit).
+- **Acceptance criteria**: teacher mutations produce structured log lines; no PII; rate-limit
+  duplication documented or removed.
+- **Status**: TODO
 
 ## Phase N — Production Readiness (P1)
 - T-N1 Restore operational docs + backup/restore drill — DONE: restored and corrected
