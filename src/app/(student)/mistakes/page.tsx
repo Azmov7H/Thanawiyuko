@@ -49,15 +49,24 @@ export default function MistakesPage() {
 
   return (
     <div className="flex flex-col gap-4">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-wrap items-center justify-between gap-2">
         <h1 className="text-xl font-bold text-ink">مكتبة الأخطاء</h1>
-        <button
-          type="button"
-          onClick={() => setAll((v) => !v)}
-          className="min-h-11 rounded-lg border border-line px-3 py-1.5 text-sm text-ink-soft"
-        >
-          {all ? "المستحقة فقط" : "كل الأخطاء"}
-        </button>
+        <div className="flex items-center gap-2">
+          <a
+            href="/api/export/mistakes"
+            download
+            className="min-h-11 rounded-lg border border-brand-600 px-3 py-1.5 text-sm font-bold text-brand-700 hover:bg-brand-50"
+          >
+            تصدير PDF
+          </a>
+          <button
+            type="button"
+            onClick={() => setAll((v) => !v)}
+            className="min-h-11 rounded-lg border border-line px-3 py-1.5 text-sm text-ink-soft"
+          >
+            {all ? "المستحقة فقط" : "كل الأخطاء"}
+          </button>
+        </div>
       </div>
 
       {start.isError && (

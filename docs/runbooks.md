@@ -24,7 +24,7 @@
 | Rate limit موزّع (Redis/Upstash) | ✅ منفّذ (T-N3) | `rateLimit()` — Upstash اختياري (`UPSTASH_REDIS_REST_URL`/`_TOKEN`)؛ fallback: حدود الذاكرة بتوزيع فشل مفتوح |
 | حذف/تصدير الحساب | ✅ منفّذ (T-N2) | `src/server/modules/account/service.ts` |
 | صفحات الخصوصية/الشروط + إقرار ولي الأمر | ✅ منفّذ | `/privacy`, `/terms`, التسجيل |
-| بنية تصدير PDF | 🟡 بنية جاهزة (T-K1) | `src/server/modules/pdf/` — `PDF_ENGINE=chromium` يحتاج متصفحًا على المضيف |
+| تصدير PDF | ✅ منفّذ (T-K2) | `src/server/modules/pdf/` + `src/server/modules/exports/` — تقارير التقدم/نتيجة الامتحان/الأخطاء عبر `GET /api/export/*` (مشترك بلس فقط، `PLUS_REQUIRED` 403)؛ `PDF_ENGINE=chromium` يحتاج متصفحًا على المضيف (`disabled` لإيقافه) |
 | إشعارات ترانساكشنالية | ✅ منفّذ (T-L1) | `src/server/modules/notifications/` — بريد فعل عبر Resend (`NOTIFICATION_PROVIDER=resend`)، تهجير + قائمة دلو أسبوعية + سلسلة/اشتراك (T-L2)، جرس/صندوق ورد |
 
 ---

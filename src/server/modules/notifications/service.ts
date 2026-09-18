@@ -159,7 +159,7 @@ export async function createNotification(
       emailStatus,
       scheduledFor,
       sentAt,
-      dedupKey: input.dedupKey ?? undefined,
+      ...(input.dedupKey ? { dedupKey: input.dedupKey } : {}),
     });
     await pruneNotifications(input.userId);
     return toPublic(doc);

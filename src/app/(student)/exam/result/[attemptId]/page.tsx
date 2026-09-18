@@ -98,6 +98,13 @@ export default function ExamResultPage({ params }: { params: Promise<{ attemptId
     <div className="flex flex-col gap-4">
       <section className="rounded-2xl border border-line bg-surface p-5 text-center">
         <p className="text-sm text-ink-mute">نتيجة الامتحان</p>
+        <a
+          href={`/api/export/exam/${attemptId}`}
+          download
+          className="mt-1 inline-flex min-h-9 items-center rounded-lg border border-brand-600 px-3 py-1 text-sm font-bold text-brand-700 hover:bg-brand-50"
+        >
+          تصدير PDF
+        </a>
         <p className="tnum mt-1 text-3xl font-bold text-ink">
           {a.score} / {a.total}
         </p>

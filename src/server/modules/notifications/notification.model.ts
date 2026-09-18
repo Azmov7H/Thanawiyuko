@@ -25,7 +25,7 @@ export interface NotificationDoc extends mongoose.Document {
   emailStatus: NotificationEmailStatus;
   scheduledFor: Date | null;
   sentAt: Date | null;
-  /** Optional idempotency key (e.g. `weekly_report:2026-W38:u`); sparse-unique per user. */
+  /** Optional idempotency key (e.g. `weekly_report:2026-W38:u`); partial-unique per user. */
   dedupKey: string | null;
 }
 
@@ -52,7 +52,10 @@ const notificationSchema = new Schema<NotificationDoc>(
 notificationSchema.index({ userId: 1, readAt: 1 });
 notificationSchema.index({ userId: 1, createdAt: -1 });
 notificationSchema.index({ status: 1, scheduledFor: 1 });
-notificationSchema.index({ userId: 1, dedupKey: 1 }, { unique: true, sparse: true });
+notificationSchema.index(
+  { userId: 1, dedupKey: 1 },
+  { unique: true, partialFilterExpression: { dedupKey: { $type: "string" } } },
+);
 
 export const NotificationModel =
   mongoose.models.Notification ??

@@ -27,6 +27,7 @@
 | T-I4 | P2 | I | axe-playwright a11y smoke suite + CI | DONE |
 | T-J1 | P2 | J | i18n foundation | DONE |
 | T-K1 | P2 | K | PDF export architecture | DONE |
+| T-K2 | P2 | K | PDF report exports (progress / exam result / mistakes) | DONE |
 | T-L1 | P2 | L | Transactional notifications | DONE |
 | T-M1 | P3 | M | Teacher role + profile stub | DONE |
 | T-N1 | P1 | N | Restore ops docs + backup/restore drill | DONE |
@@ -281,6 +282,30 @@
     `tests/unit/pdf.test.ts` (10). `.env.example` documents `PDF_ENGINE`.
   - Known gap: the Chromium engine needs a host with a browser (self-host/Docker); Vercel
     serverless needs a hosted engine (tracked for K2/§31).
+- T-K2 PDF report exports — DONE: server-side, Plus-gated exports built on the T-K1 engine:
+  - `src/server/modules/exports/plain.ts` — `mdToPlain` (markdown→plain, optional cap),
+    `formatCairoDate` (ar-EG / Africa/Cairo), `secondsPlain`, `ACTION_AR`.
+  - `src/server/modules/exports/reports.ts` — pure, DB-free document builders validated by
+    `parsePdfDocument`: `progressReportDoc` (XP/level/streak/readiness/due-review key-values,
+    per-subject mastery table, weak-topic list, daily plan, success callout),
+    `examResultDoc` (result + per-topic table + full answer review with explanations),
+    `mistakeReportDoc` (summary table ≤ 200 + page break + detailed blocks ≤ 50; empty-state
+    callout). Secrets-free, Arabic-first.
+  - `src/server/modules/exports/service.ts` — DB loaders (`loadProgressReportData`,
+    `loadExamResultData` via `analyzeAttempt` + topic-title hydration, `loadMistakeReportData`
+    bounded by `mistakesHistoryLimit`) and `generate*Pdf` render wrappers.
+  - `src/server/modules/progress/service.ts` — `getProgressSnapshot(userId, profile)`: the
+    `/api/progress` computation extracted into one shared snapshot (XP/streak/subject mastery/
+    weak topics/readiness/next/mistakes due/plan) reused by the dashboard API and the PDF.
+  - Routes (all `studentOfSession`-authed + Plus-gated, `PLUS_REQUIRED` 403; PDF engine off
+    → 503 `PDF_DISABLED`): `GET /api/export/progress`, `GET /api/export/exam/[attemptId]`
+    (owner-only, `NOT_FOUND`/`NOT_SUBMITTED`), `GET /api/export/mistakes`. Responses use
+    `contentDisposition` + `no-store`; failures are logged server-side (no PII).
+  - UI: "تصدير PDF" download anchors on the progress page, exam-result page, and mistakes page.
+  - Tests: `tests/unit/exports.test.ts` (13: plain helpers + all three builders against
+    `parsePdfDocument`) and `tests/integration/exports.test.ts` (5: loaders with seeded
+    content/exam/question/mistake; resolved mistakes excluded; unsubmitted/unknown attempts).
+    Full pipeline green (typecheck, lint, 176 unit, 38 integration, build).
 - T-L1 Transactional notifications — DONE: built on a pluggable provider abstraction with
   quiet-hours (22:00–07:00) email deferral:
   - `src/server/modules/notifications/notification.model.ts` — `NotificationModel`
@@ -316,8 +341,11 @@
     log event `notification.email.failed` (no PII) and return `{ ok: false }` so the row is
     marked `failed`. Resolved by `NOTIFICATION_PROVIDER=resend` (default stays `console`).
   - `notification.model.ts` — new type `weekly_report`; new `dedupKey` (≤ 120 chars) with
-    sparse unique index `{ userId, dedupKey }` for idempotent batch emails (weekly report,
-    content corrections); rows without a key are omitted so the sparse index skips them.
+    a partial unique index `{ userId, dedupKey }` (`partialFilterExpression:
+    { dedupKey: { $type: "string" } }`) for idempotent batch emails (weekly report,
+    content corrections). Rows without a key are not indexed, so per-user non-dedup rows
+    never collide (a plain compound `sparse` index does not behave that way and would
+    raise `E11000` on null `dedupKey`).`
   - `service.ts` — `createNotification` gains dedup (returns existing row on `dedupKey`
     match or a `E11000` race) and `opts.scheduleFor` (outbox write: `status`/`emailStatus`
     = `pending` + `scheduledFor`, no immediate send, no prefs lookup); new

@@ -39,7 +39,16 @@ export default function ProgressPage() {
 
   return (
     <div className="flex flex-col gap-4">
-      <h1 className="text-xl font-bold text-ink">تقدمك</h1>
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        <h1 className="text-xl font-bold text-ink">تقدمك</h1>
+        <a
+          href="/api/export/progress"
+          download
+          className="inline-flex min-h-9 items-center rounded-lg border border-brand-600 px-3 py-1 text-sm font-bold text-brand-700 hover:bg-brand-50"
+        >
+          تصدير PDF
+        </a>
+      </div>
 
       <section className="grid grid-cols-1 gap-4 md:grid-cols-3">
         <XpProgress />
