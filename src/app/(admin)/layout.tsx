@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import type { Metadata } from "next";
 import { auth } from "@/server/auth/config";
 import { SkipLink } from "@/components/SkipLink";
+import { Icon } from "@/components/ui/Icon";
 
 export const dynamic = "force-dynamic";
 
@@ -32,19 +33,24 @@ export default async function AdminLayout({
         <div className="flex items-center gap-4">
           <span className="text-lg font-bold text-ink">ثانويكو — الإدارة</span>
           <nav className="flex gap-1 text-sm">
-            <Link href="/admin" className="rounded-md px-3 py-1.5 text-ink-soft hover:bg-base">
+            <Link href="/admin" className="inline-flex items-center gap-1.5 rounded-md px-3 py-1.5 text-ink-soft hover:bg-base hover:text-ink">
+              <Icon name="home" size={16} aria-hidden />
               نظرة عامة
             </Link>
-            <Link href="/admin/content" className="rounded-md px-3 py-1.5 text-ink-soft hover:bg-base">
+            <Link href="/admin/content" className="inline-flex items-center gap-1.5 rounded-md px-3 py-1.5 text-ink-soft hover:bg-base hover:text-ink">
+              <Icon name="book" size={16} aria-hidden />
               المحتوى
             </Link>
-            <Link href="/admin/exams" className="rounded-md px-3 py-1.5 text-ink-soft hover:bg-base">
+            <Link href="/admin/exams" className="inline-flex items-center gap-1.5 rounded-md px-3 py-1.5 text-ink-soft hover:bg-base hover:text-ink">
+              <Icon name="exams" size={16} aria-hidden />
               الامتحانات
             </Link>
-            <Link href="/admin/users" className="rounded-md px-3 py-1.5 text-ink-soft hover:bg-base">
+            <Link href="/admin/users" className="inline-flex items-center gap-1.5 rounded-md px-3 py-1.5 text-ink-soft hover:bg-base hover:text-ink">
+              <Icon name="users" size={16} aria-hidden />
               المستخدمون
             </Link>
-            <Link href="/admin/audit" className="rounded-md px-3 py-1.5 text-ink-soft hover:bg-base">
+            <Link href="/admin/audit" className="inline-flex items-center gap-1.5 rounded-md px-3 py-1.5 text-ink-soft hover:bg-base hover:text-ink">
+              <Icon name="clock" size={16} aria-hidden />
               سجل التدقيق
             </Link>
           </nav>

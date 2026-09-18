@@ -2,6 +2,9 @@
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
+import { PageHeader } from "@/components/ui/PageHeader";
+import { SectionHeader } from "@/components/ui/SectionHeader";
+import { Button } from "@/components/ui/Button";
 
 type Exam = {
   _id: string;
@@ -110,7 +113,10 @@ export default function AdminExamsPage() {
 
   return (
     <div className="flex flex-col gap-6">
-      <h1 className="text-xl font-bold text-ink">الامتحانات التجريبية</h1>
+      <PageHeader
+        title="الامتحانات التجريبية"
+        description="إنشاء مسودة بتخطيط (Blueprint) ثم مراجعة ونشر عبر موافقة مزدوجة."
+      />
       {(error || exams.isError) && (
         <p role="alert" className="rounded-lg bg-danger-bg px-3 py-2 text-sm text-bad">
           {error || "تعذر التحميل."}
@@ -118,7 +124,7 @@ export default function AdminExamsPage() {
       )}
 
       <section className="rounded-2xl border border-line bg-surface p-4">
-        <h2 className="text-sm font-bold text-ink">امتحان جديد (مسودة)</h2>
+        <SectionHeader title="امتحان جديد (مسودة)" />
         <div className="mt-3 flex flex-col gap-2">
           <input
             value={title}
@@ -202,13 +208,13 @@ export default function AdminExamsPage() {
             </div>
           )}
 
-          <button
+          <Button
             disabled={title.trim().length < 3 || rows.length === 0 || create.isPending}
             onClick={() => create.mutate()}
-            className="rounded-lg bg-brand-600 py-2.5 text-sm font-bold text-white disabled:opacity-50"
+            icon="plus"
           >
             {create.isPending ? "جارٍ الإنشاء…" : "إنشاء المسودة"}
-          </button>
+          </Button>
         </div>
       </section>
 
@@ -224,14 +230,15 @@ export default function AdminExamsPage() {
               </div>
               <div className="flex shrink-0 gap-1.5">
                 {(NEXT[e.status] ?? []).map((n) => (
-                  <button
+                  <Button
                     key={n.to}
+                    size="sm"
+                    variant={n.to === "published" ? "primary" : n.to === "review" ? "gold" : "secondary"}
                     disabled={move.isPending}
                     onClick={() => move.mutate({ id: e._id, to: n.to })}
-                    className="min-h-11 rounded-md bg-brand-600 px-2.5 py-1.5 text-xs font-bold text-white disabled:opacity-50"
                   >
                     {n.label}
-                  </button>
+                  </Button>
                 ))}
               </div>
             </div>

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { Button } from "@/components/ui/Button";
 
 type Profile = {
   headline: string;
@@ -118,13 +119,9 @@ export function ProfileEditor({ initial }: { initial: Profile }) {
         </p>
       )}
 
-      <button
-        onClick={save}
-        disabled={busy}
-        className="min-h-11 rounded-lg bg-brand-600 px-6 py-2 font-bold text-white hover:bg-brand-700 disabled:opacity-50"
-      >
+      <Button onClick={save} disabled={busy}>
         {busy ? "جارٍ الحفظ…" : "حفظ"}
-      </button>
+      </Button>
     </div>
   );
 }

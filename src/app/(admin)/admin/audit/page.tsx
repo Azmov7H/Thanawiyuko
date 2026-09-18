@@ -2,6 +2,7 @@
 
 import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
+import { PageHeader } from "@/components/ui/PageHeader";
 
 type AuditItem = {
   id: string;
@@ -46,8 +47,10 @@ export default function AdminAuditPage() {
 
   return (
     <div>
-      <h1 className="text-xl font-bold text-ink">سجل التدقيق</h1>
-      <p className="mt-1 text-sm text-ink-mute">كل إجراء إداري مسجّل (من، ماذا، قبل/بعد، السبب).</p>
+      <PageHeader
+        title="سجل التدقيق"
+        description="كل إجراء إداري مسجّل (من، ماذا، قبل/بعد، السبب)."
+      />
 
       <div className="mt-4 flex flex-wrap gap-2">
         <select

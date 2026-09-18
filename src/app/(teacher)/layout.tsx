@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import type { Metadata } from "next";
 import { auth } from "@/server/auth/config";
 import { SkipLink } from "@/components/SkipLink";
+import { Icon } from "@/components/ui/Icon";
 
 export const dynamic = "force-dynamic";
 
@@ -32,10 +33,12 @@ export default async function TeacherLayout({
         <div className="flex items-center gap-4">
           <span className="text-lg font-bold text-ink">ثانويكو — منصة المعلمين</span>
           <nav className="flex gap-1 text-sm">
-            <Link href="/teacher" className="rounded-md px-3 py-1.5 text-ink-soft hover:bg-base">
+            <Link href="/teacher" className="inline-flex items-center gap-1.5 rounded-md px-3 py-1.5 text-ink-soft hover:bg-base hover:text-ink">
+              <Icon name="home" size={16} aria-hidden />
               نظرة عامة
             </Link>
-            <Link href="/teacher/profile" className="rounded-md px-3 py-1.5 text-ink-soft hover:bg-base">
+            <Link href="/teacher/profile" className="inline-flex items-center gap-1.5 rounded-md px-3 py-1.5 text-ink-soft hover:bg-base hover:text-ink">
+              <Icon name="user" size={16} aria-hidden />
               الملف الشخصي
             </Link>
           </nav>

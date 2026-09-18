@@ -2,6 +2,8 @@
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
+import { PageHeader } from "@/components/ui/PageHeader";
+import { Button } from "@/components/ui/Button";
 
 const TYPES = [
   { value: "question", label: "الأسئلة" },
@@ -80,7 +82,10 @@ export default function AdminContentPage() {
 
   return (
     <div>
-      <h1 className="text-xl font-bold text-ink">إدارة المحتوى</h1>
+      <PageHeader
+        title="إدارة المحتوى"
+        description="تصفية ومراجعة ونشر عناصر المحتوى عبر دورة الموافقة المزدوجة."
+      />
       <div className="mt-4 flex flex-wrap gap-2">
         {TYPES.map((t) => (
           <button
@@ -134,14 +139,15 @@ export default function AdminContentPage() {
               </div>
               <div className="flex shrink-0 gap-1.5">
                 {(NEXT[i.status] ?? []).map((n) => (
-                  <button
+                  <Button
                     key={n.to}
+                    size="sm"
+                    variant={n.to === "published" ? "primary" : n.to === "draft" ? "secondary" : "ghost"}
                     disabled={transition.isPending}
                     onClick={() => transition.mutate({ id: i._id, to: n.to })}
-                    className="min-h-11 rounded-md bg-brand-600 px-2.5 py-1.5 text-xs font-bold text-white disabled:opacity-50"
                   >
                     {n.label}
-                  </button>
+                  </Button>
                 ))}
               </div>
             </div>

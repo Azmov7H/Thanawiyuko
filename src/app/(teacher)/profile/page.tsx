@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 import { auth } from "@/server/auth/config";
 import { dbConnect } from "@/server/db/client";
 import { TeacherProfileModel } from "@/server/modules/academic/teacher-profile.model";
+import { PageHeader } from "@/components/ui/PageHeader";
 import { ProfileEditor } from "./ProfileEditor";
 
 export const dynamic = "force-dynamic";
@@ -23,10 +24,11 @@ export default async function TeacherProfilePage() {
 
   return (
     <div className="space-y-4">
-      <h1 className="text-xl font-bold text-ink">الملف الشخصي</h1>
-      <p className="text-sm text-ink-mute">
-        بيانات تظهر في منشورك العام (عند تفعيلها، V2) وتستخدم في أنظمة المحتوى الداخلية.
-      </p>
+      <PageHeader
+        eyebrow="منصة المعلمين"
+        title="الملف الشخصي"
+        description="بيانات تظهر في منشورك العام (عند تفعيلها، V2) وتستخدم في أنظمة المحتوى الداخلية."
+      />
       <ProfileEditor
         initial={{
           headline: profile.headline,

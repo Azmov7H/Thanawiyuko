@@ -2,6 +2,8 @@
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
+import { PageHeader } from "@/components/ui/PageHeader";
+import { Button } from "@/components/ui/Button";
 
 type User = {
   id: string;
@@ -70,10 +72,10 @@ export default function AdminUsersPage() {
 
   return (
     <div>
-      <h1 className="text-xl font-bold text-ink">إدارة المستخدمين</h1>
-      <p className="mt-1 text-sm text-ink-mute">
-        بحث وإيقاف/تفعيل الحسابات، وتغيير الأدوار (المشرف الأعلى فقط).
-      </p>
+      <PageHeader
+        title="إدارة المستخدمين"
+        description="بحث وإيقاف/تفعيل الحسابات، وتغيير الأدوار (المشرف الأعلى فقط)."
+      />
 
       <div className="mt-4 flex flex-wrap gap-2">
         <input
@@ -142,17 +144,16 @@ export default function AdminUsersPage() {
                   </select>
                 )}
                 {canManage(u) && u.status !== "deleted" && (
-                  <button
+                  <Button
+                    size="sm"
+                    variant={u.status === "active" ? "danger" : "primary"}
                     disabled={mutate.isPending}
                     onClick={() =>
                       mutate.mutate({ userId: u.id, action: u.status === "active" ? "suspend" : "activate" })
                     }
-                    className={`min-h-11 rounded-md px-2.5 py-1.5 text-xs font-bold text-white disabled:opacity-50 ${
-                      u.status === "active" ? "bg-danger-solid" : "bg-brand-600"
-                    }`}
                   >
                     {u.status === "active" ? "إيقاف" : "تفعيل"}
-                  </button>
+                  </Button>
                 )}
               </div>
             </div>
