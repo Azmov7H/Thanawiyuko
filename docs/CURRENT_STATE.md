@@ -72,7 +72,7 @@ Git HEAD: `00c7c71 feat(billing): enhance subscription management and payment ha
 ### Ops / quality
 - SEO/app files: metadata + OG/Twitter in root layout, `robots.ts`, `sitemap.ts`, `not-found.tsx`, `loading.tsx`, `error.tsx`, `icon.svg`; `noindex` on student/admin layouts.
 - `.env.example`, GitHub Actions CI (`.github/workflows`), Lighthouse config, k6 smoke script.
-- 77 unit tests; typecheck/lint/build green.
+- 176 unit tests (30 files); typecheck/lint/build green; 6 Playwright a11y tests incl. dark-contrast.
 
 ## 2. Partially implemented
 
@@ -81,7 +81,7 @@ Git HEAD: `00c7c71 feat(billing): enhance subscription management and payment ha
 | Onboarding | grade/track/daily minutes only | no goals, learning style, interests, current level, subject confirmation, diagnostic; no role choice (student vs teacher) |
 | Gamification | read APIs + math + rules | **no writers** (XP/streak/achievements never updated on submit); several achievement rules are `// TODO` (planFollowDays, comebackAfterBreak, accurate20, examReadiness) |
 | Leaderboard | read API + build function | `buildWeeklyLeaderboard` never scheduled; references `StudentProfile.nickname` which does not exist in the schema; no opt-in flag |
-| Progress | API reads mastery/mistakes | depends on data never written; planner input hardcodes `recentActivity: {}` and `examWeight: 1` |
+| Progress | API reads mastery/mistakes; weak topics now render real Arabic names (topic title + subject) sourced from `TopicModel`/`SubjectModel`; XP bar uses real thresholds via new `prevLevelXp` in `/api/gamification`; widgets have pending/error states | depends on data never written; planner input hardcodes `recentActivity: {}` and `examWeight: 1` |
 | Content | models + admin API + tree API | no student-facing lesson page/API, no subject browse page, no bookmarks, no search |
 | Admin | content lifecycle + exams | no user management, finance/refunds UI, audit viewer, plans/feature-flag editor, reports |
 | Subscriptions | Paymob + plans | plans are **hardcoded** in `server/payments/config.ts` (not DB-driven); no free-tier entitlement matrix |

@@ -97,6 +97,14 @@ export default function PracticePickerPage() {
         <section className="rounded-2xl border border-line bg-surface p-4">
           <h2 className="text-sm font-bold text-ink">2. اختر موضوعًا (أو المادة كلها)</h2>
           {tree.isPending && <p className="mt-2 text-sm text-ink-mute">جارٍ التحميل…</p>}
+          {tree.isError && (
+            <p role="alert" className="mt-2 text-sm text-bad">
+              تعذر تحميل المواضيع — جرّب بعد قليل.
+            </p>
+          )}
+          {tree.data?.units.length === 0 && !tree.isPending && !tree.isError && (
+            <p className="mt-2 text-sm text-ink-mute">لا مواضيع منشورة لهذه المادة بعد.</p>
+          )}
           <div className="mt-2 flex flex-col gap-3">
             <button
               onClick={() => setTopicId(null)}

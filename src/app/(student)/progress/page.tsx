@@ -10,7 +10,7 @@ type ProgressData = {
   xp: { total: number; today: number; level: number };
   streak: { current: number; longest: number };
   subjects: Array<{ subjectId: string; nameAr: string; mastery: number; topics: number }>;
-  weakTopics: Array<{ topicId: string; masteryScore: number; n: number }>;
+  weakTopics: Array<{ topicId: string; topicTitleAr: string | null; subjectNameAr: string | null; masteryScore: number; n: number }>;
   mistakesDue: number;
   plan: Array<{ topicId: string; subjectId: string; action: string; minutes: number; reason: string; qCount?: number }>;
 };
@@ -92,9 +92,15 @@ export default function ProgressPage() {
           <h2 className="font-bold text-bad">نقاط تحتاج تركيز</h2>
           <ul className="mt-2 flex flex-col gap-1.5">
             {d.weakTopics.map((w) => (
-              <li key={w.topicId} className="tnum flex items-center justify-between rounded-lg bg-surface p-2 text-sm">
-                <span className="font-bold text-bad">{w.masteryScore}%</span>
-                <span className="text-ink-mute">من {w.n} إجابة</span>
+              <li key={w.topicId} className="flex items-center justify-between gap-3 rounded-lg bg-surface p-2 text-sm">
+                <div>
+                  <span className="font-medium text-ink">{w.topicTitleAr ?? "موضوع"}</span>
+                  {w.subjectNameAr && <span className="mx-2 text-xs text-ink-mute">{w.subjectNameAr}</span>}
+                </div>
+                <span className="flex shrink-0 items-center gap-2">
+                  <span className="tnum font-bold text-bad">{w.masteryScore}%</span>
+                  <span className="text-xs text-ink-mute">من {w.n} إجابة</span>
+                </span>
               </li>
             ))}
           </ul>

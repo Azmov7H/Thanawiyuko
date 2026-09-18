@@ -3,14 +3,14 @@
 import { useQuery } from "@tanstack/react-query";
 
 interface GamificationData {
-  xp: { total: number; today: number; level: number; nextLevelXp: number };
+  xp: { total: number; today: number; level: number; nextLevelXp: number; prevLevelXp: number };
   streak: { current: number; longest: number };
   achievements: Array<{ code: string; titleAr: string; descriptionAr: string; icon: string; unlockedAt: string }>;
 }
 
 /** XP progress ring + level badge */
 export function XpProgress() {
-  const { data, isPending } = useQuery({
+  const { data, isPending, isError } = useQuery({
     queryKey: ["gamification"],
     queryFn: async () => {
       const r = await fetch("/api/gamification");
@@ -21,9 +21,11 @@ export function XpProgress() {
   });
 
   if (isPending) return <div className="rounded-xl border border-line bg-surface p-4 animate-pulse h-24" />;
+  if (isError) return <div className="rounded-xl border border-line bg-surface p-4 text-sm text-ink-mute">تعذر تحميل XP.</div>;
 
   const { xp } = data!;
-  const progress = xp.total > 0 ? Math.min(100, ((xp.total - (xp.nextLevelXp - 1200)) / 1200) * 100) : 0;
+  const span = Math.max(1, xp.nextLevelXp - xp.prevLevelXp);
+  const progress = xp.total > 0 ? Math.min(100, Math.max(0, ((xp.total - xp.prevLevelXp) / span) * 100)) : 0;
 
   return (
     <section className="rounded-2xl border border-line bg-surface p-4">

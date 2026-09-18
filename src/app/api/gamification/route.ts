@@ -5,7 +5,7 @@ import { dbConnect } from "@/server/db/client";
 import { evaluateAchievements } from "@/server/modules/gamification/service";
 import { StreakModel } from "@/server/modules/mastery/streak.model";
 import { UserAchievementModel } from "@/server/modules/gamification/achievement.model";
-import { levelFromXP, xpForNextLevel, XPTransactionModel } from "@/server/modules/gamification/xp.model";
+import { levelFromXP, xpForNextLevel, XPTransactionModel, LEVEL_THRESHOLDS } from "@/server/modules/gamification/xp.model";
 
 /** POST /api/gamification/sync — full gamification state for dashboard. */
 export async function GET() {
@@ -33,9 +33,13 @@ export async function GET() {
   const todayXP = xpAgg[0]?.today ?? 0;
   const level = levelFromXP(totalXP);
   const nextXP = xpForNextLevel(totalXP);
+  const prevXP =
+    level <= LEVEL_THRESHOLDS.length
+      ? LEVEL_THRESHOLDS[level - 1]
+      : LEVEL_THRESHOLDS[LEVEL_THRESHOLDS.length - 1] + (level - LEVEL_THRESHOLDS.length) * 1200;
 
   return NextResponse.json({
-    xp: { total: totalXP, today: todayXP, level, nextLevelXp: nextXP.next },
+    xp: { total: totalXP, today: todayXP, level, nextLevelXp: nextXP.next, prevLevelXp: prevXP },
     streak: streak ? { current: streak.current, longest: streak.longest } : { current: 0, longest: 0 },
     achievements: achievements.map((a) => ({
       code: a.achievementId.code,

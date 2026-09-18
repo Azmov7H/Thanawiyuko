@@ -21,11 +21,12 @@ export default function DashboardPage() {
         xp: { total: number; today: number; level: number };
         streak: { current: number; longest: number };
         subjects: Array<{ subjectId: string; nameAr: string; mastery: number; topics: number }>;
-        weakTopics: Array<{ topicId: string; masteryScore: number; n: number }>;
+        weakTopics: Array<{ topicId: string; topicTitleAr: string | null; subjectNameAr: string | null; masteryScore: number; n: number }>;
         readiness: number;
         next: Array<{ type: string; reason: string; href: string; qCount?: number }>;
         mistakesDue: number;
         plan: Array<{ topicId: string; subjectId: string; action: string; minutes: number; reason: string; qCount?: number }>;
+        upgradeRequired?: boolean;
       };
     },
   });
@@ -89,6 +90,15 @@ export default function DashboardPage() {
               </Link>
             ))}
           </ul>
+          {d.upgradeRequired && (
+            <p className="mt-2 text-xs text-ink-mute">
+              الخطة الكاملة متاحة لمشتركي بلس —{" "}
+              <Link href="/subscription" className="font-bold text-brand-strong underline">
+                اعرف المزيد
+              </Link>
+              .
+            </p>
+          )}
         </section>
       )}
 
@@ -117,9 +127,12 @@ export default function DashboardPage() {
           <h2 className="font-bold text-ink">نقاط تحتاج تركيز</h2>
           <ul className="mt-2 flex flex-col gap-1.5">
             {d.weakTopics.slice(0, 3).map((w) => (
-              <li key={w.topicId} className="flex items-center justify-between rounded-lg border border-bad/20 bg-danger-bg p-2 text-sm">
-                <span className="tnum font-bold text-bad">{w.masteryScore}%</span>
-                <span className="text-ink-mute">موضوع</span>
+              <li key={w.topicId} className="flex items-center justify-between gap-3 rounded-lg border border-bad/20 bg-danger-bg p-2 text-sm">
+                <span className="text-ink">{w.topicTitleAr ?? "موضوع"}</span>
+                <span className="flex items-center gap-2">
+                  {w.subjectNameAr && <span className="text-ink-mute">{w.subjectNameAr}</span>}
+                  <span className="tnum shrink-0 font-bold text-bad">{w.masteryScore}%</span>
+                </span>
               </li>
             ))}
           </ul>

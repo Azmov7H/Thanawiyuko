@@ -4,7 +4,7 @@ import { useQuery } from "@tanstack/react-query";
 
 /** Achievement gallery (unlocked + locked silhouettes) */
 export function AchievementGallery() {
-  const { data, isPending } = useQuery({
+  const { data, isPending, isError } = useQuery({
     queryKey: ["gamification"],
     queryFn: async () => {
       const r = await fetch("/api/gamification");
@@ -30,6 +30,8 @@ export function AchievementGallery() {
   const unlocked = new Set(data?.achievements.map((a) => a.code) ?? []);
 
   if (isPending) return <div className="rounded-xl border border-line bg-surface p-4 animate-pulse h-32" />;
+  if (isError)
+    return <div className="rounded-xl border border-line bg-surface p-4 text-sm text-ink-mute">تعذر تحميل الإنجازات.</div>;
 
   return (
     <section className="rounded-2xl border border-line bg-surface p-4">

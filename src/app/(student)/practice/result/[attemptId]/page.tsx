@@ -65,6 +65,9 @@ export default function ResultPage({ params }: { params: Promise<{ attemptId: st
           <Link href="/practice" className="flex-1 rounded-lg bg-brand-600 py-2.5 text-center text-sm font-bold text-white">
             جلسة جديدة
           </Link>
+          <Link href="/mistakes" className="flex-1 rounded-lg bg-gold-600 py-2.5 text-center text-sm font-bold text-white">
+            راجع أخطاءك
+          </Link>
           <Link href="/dashboard" className="flex-1 rounded-lg border border-line py-2.5 text-center text-sm font-bold text-ink">
             اللوحة
           </Link>

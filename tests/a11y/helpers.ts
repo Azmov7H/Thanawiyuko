@@ -4,7 +4,7 @@ import { getViolations, injectAxe } from "axe-playwright";
 const WCAG_TAGS = ["wcag2a", "wcag2aa", "wcag21a", "wcag21aa", "wcag22aa"];
 
 /** Scans only color-contrast violations (targeted for theme work). */
-export const CONTRAST_ONLY = { runOnly: { type: "rule", values: ["color-contrast"] } };
+export const CONTRAST_ONLY = { runOnly: { type: "rule", values: ["color-contrast"] } } satisfies Parameters<typeof getViolations>[2];
 
 export async function expectNoA11yViolations(page: Page, options?: Parameters<typeof getViolations>[2]) {
   await injectAxe(page);

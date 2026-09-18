@@ -20,7 +20,7 @@ export default function SubscriptionManagePage() {
   const [error, setError] = useState("");
   const confirmRef = useModal<HTMLDivElement>(confirming, () => setConfirming(false));
 
-  const { data: sub } = useQuery({
+  const { data: sub, isPending: subPending, isError: subError, refetch } = useQuery({
     queryKey: ["subscription"],
     queryFn: async () => {
       const r = await fetch("/api/subscription");
@@ -34,11 +34,11 @@ export default function SubscriptionManagePage() {
     },
   });
 
-  const { data: invoices } = useQuery({
+  const { data: invoices, isPending: invoicesPending, isError: invoicesError } = useQuery({
     queryKey: ["invoices"],
     queryFn: async () => {
       const r = await fetch("/api/subscription/invoices");
-      if (!r.ok) return [];
+      if (!r.ok) throw new Error("تعذر تحميل الفواتير.");
       return (await r.json()) as Invoice[];
     },
     enabled: true,
@@ -63,7 +63,19 @@ export default function SubscriptionManagePage() {
     }
   }
 
-  if (!sub) return <p className="py-10 text-center text-sm text-ink-mute">جارٍ التحميل…</p>;
+  if (subPending) return <p className="py-10 text-center text-sm text-ink-mute">جارٍ التحميل…</p>;
+
+  if (subError)
+    return (
+      <div className="flex flex-col items-center gap-3 py-10 text-center">
+        <p role="alert" className="rounded-lg bg-danger-bg px-3 py-2 text-sm text-bad">
+          تعذر تحميل اشتراكك — حاول مرة أخرى بعد قليل.
+        </p>
+        <button type="button" onClick={() => refetch()} className="rounded-lg bg-brand-600 px-3 py-1.5 text-sm font-bold text-white">
+          إعادة المحاولة
+        </button>
+      </div>
+    );
 
   return (
     <div className="flex flex-col gap-6">
@@ -92,7 +104,11 @@ export default function SubscriptionManagePage() {
 
       <section className="rounded-2xl border border-line bg-surface p-5">
         <h2 className="font-bold text-ink">الفواتير</h2>
-        {invoices?.length ? (
+        {invoicesPending ? (
+          <p className="mt-3 text-sm text-ink-mute">جارٍ تحميل الفواتير…</p>
+        ) : invoicesError ? (
+          <p className="mt-3 text-sm text-bad">تعذر تحميل الفواتير.</p>
+        ) : invoices?.length ? (
           <ul className="mt-3 flex flex-col gap-2">
             {invoices.map((inv) => (
               <li key={inv.id} className="flex items-center justify-between rounded-lg border border-line bg-base p-3 text-sm">

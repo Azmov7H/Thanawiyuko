@@ -4,7 +4,7 @@ import { useQuery } from "@tanstack/react-query";
 
 /** Streak flame + longest */
 export function StreakWidget() {
-  const { data, isPending } = useQuery({
+  const { data, isPending, isError } = useQuery({
     queryKey: ["gamification"],
     queryFn: async () => {
       const r = await fetch("/api/gamification");
@@ -15,6 +15,7 @@ export function StreakWidget() {
   });
 
   if (isPending) return <div className="rounded-xl border border-line bg-surface p-4 animate-pulse h-24" />;
+  if (isError) return <div className="rounded-xl border border-line bg-surface p-4 text-sm text-ink-mute">تعذر تحميل السلسلة.</div>;
 
   const { streak } = data!;
 

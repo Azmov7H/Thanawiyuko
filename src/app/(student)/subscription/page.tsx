@@ -10,7 +10,7 @@ export default function SubscriptionPage() {
   const [busy, setBusy] = useState<string | null>(null);
   const [error, setError] = useState("");
 
-  const { data: plans } = useQuery({
+  const { data: plans, isPending, isError } = useQuery({
     queryKey: ["plans"],
     queryFn: async () => {
       const r = await fetch("/api/subscription/checkout");
@@ -48,6 +48,18 @@ export default function SubscriptionPage() {
         <p role="alert" className="rounded-lg bg-danger-bg px-3 py-2 text-sm text-bad">
           {error}
         </p>
+      )}
+
+      {isPending && <p className="py-10 text-center text-sm text-ink-mute">جارٍ تحميل الخطط…</p>}
+
+      {isError && (
+        <p role="alert" className="rounded-lg bg-danger-bg px-3 py-2 text-sm text-bad">
+          تعذر تحميل الخطط — حاول مرة أخرى بعد قليل.
+        </p>
+      )}
+
+      {plans?.length === 0 && !isPending && !isError && (
+        <p className="py-6 text-center text-sm text-ink-mute">لا خطط متاحة حاليًا.</p>
       )}
 
       {plans?.map((p) => (

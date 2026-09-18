@@ -175,15 +175,6 @@ export default function ExamTakePage({ params }: { params: Promise<{ attemptId: 
     submitRef.current = submit;
   }, [submit]);
 
-  // Tick: clock + autosave heartbeat.
-  useEffect(() => {
-    const t = setInterval(() => {
-      setNow(Date.now());
-      void save();
-    }, 1000);
-    return () => clearInterval(t);
-  }, [save]);
-
   // Auto-submit when the server deadline passes.
   useEffect(() => {
     if (remaining != null && remaining <= 0 && deadlineRef.current != null) {

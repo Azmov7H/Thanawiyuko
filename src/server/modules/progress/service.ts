@@ -6,7 +6,7 @@ import { StreakModel } from "@/server/modules/mastery/streak.model";
 import { XPTransactionModel, levelFromXP } from "@/server/modules/gamification/xp.model";
 import { StudyPlanModel } from "@/server/modules/planning/study-plan.model";
 import { buildPlanContext } from "@/server/modules/planning/plan-input";
-import { LessonModel } from "@/server/modules/academic/content.models";
+import { LessonModel, TopicModel } from "@/server/modules/academic/content.models";
 import { generatePlan } from "@/lib/planner";
 import { cairoDayKey, cairoDayStartUTC } from "@/lib/cairo";
 import { isWeakTopic, weakTopicScore } from "@/lib/weakness";
@@ -17,7 +17,7 @@ export type ProgressSnapshot = {
   xp: { total: number; today: number; level: number };
   streak: { current: number; longest: number };
   subjects: Array<{ subjectId: string; nameAr: string; mastery: number; topics: number }>;
-  weakTopics: Array<{ topicId: string; masteryScore: number; n: number }>;
+  weakTopics: Array<{ topicId: string; topicTitleAr: string | null; subjectNameAr: string | null; masteryScore: number; n: number }>;
   readiness: number;
   next: Array<{ type: string; reason: string; href: string; qCount?: number }>;
   mistakesDue: number;
@@ -106,7 +106,23 @@ export async function getProgressSnapshot(
     .filter((x): x is NonNullable<typeof x> => x !== null)
     .sort((a, b) => b.score - a.score);
 
-  const weakTopics = weakRows.slice(0, 5).map(({ topicId, masteryScore, n }) => ({ topicId, masteryScore, n }));
+  const weakTopics = await (async () => {
+    const rows = weakRows.slice(0, 5);
+    if (!rows.length) return [];
+    const ids = rows.map((r) => r.topicId);
+    const topicDocs = await TopicModel.find({ _id: { $in: ids } })
+      .select("titleAr")
+      .lean();
+    const titleByTopic = new Map(topicDocs.map((t) => [String(t._id), t.titleAr]));
+    const nameBySubject = new Map(context.subjects.map((s) => [s.subjectId, s.nameAr]));
+    return rows.map(({ topicId, subjectId, masteryScore, n }) => ({
+      topicId,
+      topicTitleAr: titleByTopic.get(topicId) ?? null,
+      subjectNameAr: nameBySubject.get(subjectId) ?? null,
+      masteryScore,
+      n,
+    }));
+  })();
 
   const readiness = computeReadiness(
     Array.from(context.topics.values()).map((t) => ({

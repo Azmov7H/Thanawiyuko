@@ -1,6 +1,7 @@
 "use client";
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import Link from "next/link";
 
 type PlanItem = {
   topicId: string;
@@ -11,7 +12,7 @@ type PlanItem = {
   qCount?: number;
 };
 
-type PlanResponse = { plan: PlanItem[]; date: string; created?: boolean };
+type PlanResponse = { plan: PlanItem[]; date: string; created?: boolean; upgradeRequired?: boolean; adaptive?: boolean };
 
 const ACTION_LABEL: Record<string, string> = {
   review: "مراجعة",
@@ -51,6 +52,7 @@ export default function StudyPlanPage() {
     );
   }
   const plan = planQuery.data!.plan;
+  const planError = generate.error instanceof Error ? generate.error.message : null;
 
   return (
     <div className="flex flex-col gap-4">
@@ -66,9 +68,12 @@ export default function StudyPlanPage() {
         </button>
       </div>
 
-      {generate.isError && (
+      {planError && (
         <p role="alert" className="rounded-lg bg-danger-bg px-3 py-2 text-sm text-bad">
-          تعذر توليد الخطة.
+          {planError}
+          <Link href="/subscription" className="ms-2 font-bold underline">
+            الترقية إلى بلس
+          </Link>
         </p>
       )}
 
@@ -79,17 +84,19 @@ export default function StudyPlanPage() {
       ) : (
         <ul className="flex flex-col gap-2">
           {plan.map((p, i) => (
-            <li
-              key={`${i}-${p.topicId}`}
-              className="flex items-center justify-between rounded-2xl border border-line bg-surface p-4"
-            >
-              <div>
-                <span className="font-bold text-ink">
-                  {ACTION_LABEL[p.action] ?? p.action} — {p.minutes} دقيقة
-                </span>
-                <p className="mt-0.5 text-xs text-ink-mute">{p.reason}</p>
-              </div>
-              <span className="tnum shrink-0 text-xs text-brand-strong">{p.qCount ?? "?"} سؤال</span>
+            <li key={`${i}-${p.topicId}`}>
+              <Link
+                href={`/subjects/${p.subjectId}`}
+                className="flex items-center justify-between rounded-2xl border border-line bg-surface p-4 hover:border-ink-mute"
+              >
+                <div>
+                  <span className="font-bold text-ink">
+                    {ACTION_LABEL[p.action] ?? p.action} — {p.minutes} دقيقة
+                  </span>
+                  <p className="mt-0.5 text-xs text-ink-mute">{p.reason}</p>
+                </div>
+                <span className="tnum shrink-0 text-xs text-brand-strong">{p.qCount ?? "?"} سؤال</span>
+              </Link>
             </li>
           ))}
         </ul>
